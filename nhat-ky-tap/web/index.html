@@ -205,7 +205,7 @@ svg.body text { fill: var(--muted); font-size: 11px; font-family: var(--font-bod
 
 /* Tab bar */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); height: var(--tab-h); }
+.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); height: var(--tab-h); }
 .tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .tabbar svg { width: 22px; height: 22px; }
 .tabbar button[aria-current="page"] { color: var(--accent); }
@@ -265,6 +265,46 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 .guide-sec { display: flex; flex-direction: column; gap: 8px; }
 .guide-sec ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+/* Ăn uống */
+.food-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.food-add .btn.primary { grid-column: 1 / -1; min-height: 54px; font-size: 16px; }
+.nutri .progress { height: 10px; }
+.progress i.good { background: var(--good); }
+.progress i { background: var(--accent); transition: width .4s ease; }
+.progress i.over { background: var(--warn); }
+.meal { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; text-align: left; width: 100%; }
+.meal img, .meal .ph { width: 76px; height: 76px; border-radius: 12px; object-fit: cover; flex: none; background: var(--surface-2); display: grid; place-items: center; font-size: 28px; }
+.meal .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.meal .fb, .fb { font-size: 13px; background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 4px 8px; }
+.meal-big { width: 100%; max-height: 46vh; object-fit: cover; border-radius: 14px; display: block; background: var(--surface-2); }
+.portion { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+.portion .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.portion .pv { width: 36px; text-align: center; font-family: var(--font-display); font-size: 22px; }
+.portion .btn.sm { width: 40px; padding: 0; font-size: 20px; }
+.ai-btn { background: var(--info-bg); color: var(--info); border-color: transparent; }
+.card.ai { border-color: var(--info); }
+.ai-items { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.ai-items li { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-bottom: 1px dashed var(--line); padding-bottom: 4px; }
+/* Ảnh/video gửi HLV */
+.mgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mtile { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+.mtile img, .mtile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mtile .mstate { position: absolute; left: 4px; bottom: 4px; font-size: 10.5px; font-weight: 600; background: rgba(0,0,0,.6); color: #fff; padding: 1px 6px; border-radius: 6px; pointer-events: none; }
+.mtile .mx { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 16px; line-height: 1; }
+.media-box { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+/* Chuyển cảnh mượt */
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+main.enter > * { animation: viewIn .26s cubic-bezier(.2, .8, .2, 1) both; }
+main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(3) { animation-delay: .06s; } main.enter > *:nth-child(n+4) { animation-delay: .09s; }
+.sheet:not([hidden]) .sheet-panel { animation: sheetUp .28s cubic-bezier(.2, .8, .2, 1) both; }
+.sheet:not([hidden]) .sheet-scrim { animation: fadeIn .2s ease both; }
+.toast:not([hidden]) { animation: fadeIn .18s ease both; }
+.btn, .card, .meal, .pick, .tabbar button, .icon-btn, .me-card { transition: transform .12s ease, background-color .15s ease; }
+.btn:active, button.card:active, .meal:active, .pick:active, .tabbar button:active, .icon-btn:active, .me-card:active { transform: scale(.97); }
+.tabbar button svg { transition: transform .2s ease; }
+.tabbar button[aria-current="page"] svg { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -284,6 +324,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   <div class="in">
     <button data-act="nav" data-to="home" id="t-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Tập</button>
     <button data-act="nav" data-to="log" id="t-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h11l3 3v14H5z"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>Nhật ký</button>
+    <button data-act="nav" data-to="food" id="t-food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10"/><path d="M17 21V3c-2.2 1-3.5 3.5-3.5 7v3H17"/></svg>Ăn uống</button>
     <button data-act="nav" data-to="progress" id="t-progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="M5 15l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7h4v4"/></svg>Tiến bộ</button>
     <button data-act="nav" data-to="library" id="t-library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h13v14H6a2 2 0 0 0-2 2z"/><path d="M4 19.5a2 2 0 0 0 2 2h13v-4"/></svg>Thư viện</button>
   </div>
@@ -533,7 +574,10 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   const tipsFor = (ex) => {
     const t = TIPS[ex.id];
     const b = t ? t.b : ex.type === 'min' ? 'cardio' : ex.type === 'time' ? 'hold' : 'lift';
-    return { breath: BREATH[b], cues: t ? t.c : [], heavy: b === 'heavy' };
+    const ct = (typeof D !== 'undefined' && D.coachTips) || {};
+    const g = ct.global && Array.isArray(ct.global[ex.id]) && ct.global[ex.id].length ? ct.global[ex.id] : null;
+    const personal = (Array.isArray(ct.personal) ? ct.personal : []).filter((p) => p && p.exId === ex.id && p.text).map((p) => p.text);
+    return { breath: BREATH[b], cues: g || (t ? t.c : []), heavy: b === 'heavy', fromCoach: Boolean(g), personal };
   };
   const BRACE = 'Gồng core: hít vào căng bụng, hai bên hông và lưng như căng một chiếc đai, rồi siết bụng như sắp bị đấm. Giữ suốt mỗi lần lặp.';
   const GUIDE = [
@@ -662,12 +706,12 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.4 (13/11/2026)';
+  const APP_VERSION = '1.5 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
     profile: { name: '', height: null, weight: null, startWeight: null, target: null, goal: '' },
-    link: null, coachPlans: [] });
+    link: null, coachPlans: [], meals: [], media: [], feedback: {}, coachTips: null });
   let storageOk = true;
   function load() {
     try {
@@ -828,16 +872,20 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   function go(v) { if (location.hash !== '#' + v) location.hash = v; else render(); }
   window.addEventListener('hashchange', () => { closeSheet(); closePicker(); window.scrollTo(0, 0); render(); });
 
+  let lastView = null;
   function render() {
     let v = location.hash.slice(1) || 'home';
-    if (!['home', 'log', 'progress', 'library', 'workout'].includes(v)) v = 'home';
+    if (!['home', 'log', 'food', 'progress', 'library', 'workout'].includes(v)) v = 'home';
     if (v === 'workout' && !A) v = 'home';
     S.view = v;
     const inWorkout = v === 'workout';
     $('#tabbar').hidden = inWorkout; $('#dock').hidden = !inWorkout;
-    $('#view').classList.toggle('workout', inWorkout);
-    ['home', 'log', 'progress', 'library'].forEach((k) => $('#t-' + k).setAttribute('aria-current', k === v ? 'page' : 'false'));
-    ({ home: drawHome, log: drawLog, progress: drawProgress, library: drawLibrary, workout: drawWorkout })[v]($('#view'));
+    const main = $('#view');
+    main.classList.toggle('workout', inWorkout);
+    ['home', 'log', 'food', 'progress', 'library'].forEach((k) => $('#t-' + k).setAttribute('aria-current', k === v ? 'page' : 'false'));
+    ({ home: drawHome, log: drawLog, food: drawFood, progress: drawProgress, library: drawLibrary, workout: drawWorkout })[v](main);
+    if (lastView !== v) { main.classList.remove('enter'); void main.offsetWidth; main.classList.add('enter'); clearTimeout(render.t); render.t = setTimeout(() => main.classList.remove('enter'), 600); }
+    lastView = v;
     tick();
   }
   const gear = `<button class="icon-btn" data-act="settings" aria-label="Cài đặt và sao lưu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>`;
@@ -935,6 +983,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
             <button class="rm" data-act="rm-ex" data-i="${i}" aria-label="Bỏ bài ${esc(ex.name)}">×</button>
           </div>
           ${it.cue ? `<div class="hint pt">PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn: ${esc(it.cue)}</div>` : ''}
+          ${tipsFor(ex).personal.map((x) => `<div class="hint pt">HLV dặn riêng bạn: ${esc(x)}</div>`).join('')}
           ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
             <div style="max-width:220px;margin:0 auto;width:100%">${bodySvg(ex)}</div>${muscleLegend(ex)}
             ${tp.cues.length > 1 ? `<ul>${tp.cues.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
@@ -962,7 +1011,11 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         </div>`;
       }).join('')}
       ${A.items.length ? '' : '<div class="empty"><p>Chưa có bài nào. Bấm "+ Bài" để chọn từ thư viện.</p></div>'}
-      <button class="btn block" data-act="add-ex">+ Thêm bài tập</button>`;
+      <button class="btn block" data-act="add-ex">+ Thêm bài tập</button>
+      <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
+        <div class="sub">${D.link ? 'Nhờ bạn tập quay 10–20 giây một hiệp, HLV sẽ xem và sửa tư thế cho bạn.' : 'Lưu ảnh/video để tự xem lại tư thế. Kết nối HLV để gửi cho HLV xem.'}</div>
+        ${mediaTiles(mediaOf('workout', A.id), true)}
+        <label class="btn" style="position:relative;overflow:hidden">📷 Chụp ảnh / quay video<input type="file" accept="image/*,video/*" data-media-ref="workout:${esc(A.id)}" style="position:absolute;inset:0;opacity:0"></label></div>`;
   }
   document.addEventListener('input', (e) => {
     const el = e.target;
@@ -1153,6 +1206,10 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
           ${it.note ? `<div class="sub">Ghi chú: ${esc(it.note)}</div>` : ''}</div>`;
       }).join('')}</div>
       <label class="f">Nhật ký buổi này<textarea id="wNote">${esc(w.note)}</textarea></label>
+      <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
+        ${mediaTiles(mediaOf('workout', w.id), true).replace(/data-act="media-del"/g, `data-act="media-del" data-w="${esc(w.id)}"`)}
+        ${(D.feedback || {})[w.id] ? `<div class="fb">HLV: ${esc(D.feedback[w.id])}</div>` : ''}
+        <label class="btn sm" style="position:relative;overflow:hidden">📷 Thêm ảnh / video<input type="file" accept="image/*,video/*" data-media-ref="workout:${esc(w.id)}" style="position:absolute;inset:0;opacity:0"></label></div>
       <button class="btn primary block" id="wSave">Lưu nhật ký</button>
       <button class="btn block" id="wAgain">Tập lại buổi này</button>
       <button class="btn danger block" id="wDel">Xoá buổi tập</button><div id="wConfirm"></div>`, (root) => {
@@ -1299,7 +1356,8 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     openSheet(`${sheetHead(e.name)}
       <div class="row"><span class="chip accent">${GROUPS[e.group] || ''}</span>${e.equip ? `<span class="chip">${esc(e.equip)}</span>` : ''}<span class="chip">${e.type === 'weight' ? 'kg × lần' : unit(e.type)}</span></div>
       <section><h3>Cơ tác động</h3>${bodySvg(e)}${muscleLegend(e)}</section>
-      ${tp.cues.length ? `<section><h3>Câu nhắc khi tập</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
+      ${tp.personal.length ? `<section><h3>HLV dặn riêng bạn</h3><ul class="cue-list">${tp.personal.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
+      ${tp.cues.length ? `<section><h3>Câu nhắc khi tập${tp.fromCoach ? ' <span class="chip warn">HLV cập nhật</span>' : ''}</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       <section><h3>Hít thở</h3><p style="margin:0">${esc(tp.breath)}</p></section>
       ${e.type !== 'min' ? `<section><h3>Gồng core</h3><p style="margin:0">${esc(BRACE)}</p></section>` : ''}
       ${e.steps && e.steps.length ? `<section><h3>Cách tập</h3><ol class="steps">${e.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></section>` : ''}
@@ -1427,6 +1485,17 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       'Tab Nhật ký: xem lại từng buổi, sửa ghi chú, tập lại buổi cũ. "+ Ghi chú" để ghi cân nặng, giấc ngủ, năng lượng mỗi ngày.',
       'Tab Tiến bộ: kỷ lục, biểu đồ sức mạnh từng bài, biểu đồ cân nặng, máy tính 1RM.',
     ] },
+    { id: 'food', t: 'Ăn uống: chụp ảnh bữa ăn', s: [
+      'Mở tab Ăn uống → bấm "Chụp bữa ăn" (hoặc chọn ảnh có sẵn).',
+      'Chọn khẩu phần theo bàn tay: lòng bàn tay = đạm, nắm tay khum = tinh bột, nắm tay = rau, ngón cái = chất béo. App tự tính calo và đạm.',
+      'Đã kết nối HLV: bấm "AI ước lượng calo từ ảnh" để AI đoán món và calo; bạn vẫn sửa được. Ảnh bữa ăn tự gửi HLV, HLV nhận xét sẽ hiện dưới bữa ăn.',
+      'Bấm biểu tượng mục tiêu ở góc trên để nhập kcal và đạm HLV tính riêng cho bạn.',
+    ] },
+    { id: 'media', t: 'Gửi ảnh/video tư thế cho HLV', s: [
+      'Trong lúc tập, kéo xuống cuối trang → "Chụp ảnh / quay video". Hoặc mở buổi đã tập trong Nhật ký → "Thêm ảnh / video".',
+      'Video nên ngắn 10–20 giây (tối đa 18 MB), quay ngang người để HLV thấy rõ tư thế.',
+      'Tệp tự gửi HLV khi có mạng. Ảnh/video nằm trong điện thoại, không có trong tệp sao lưu.',
+    ] },
     { id: 'backup', t: 'Sao lưu dữ liệu (quan trọng)', s: [
       'Dữ liệu chỉ lưu trong trình duyệt của điện thoại này, không có trên máy chủ nào.',
       'Mỗi tuần: ⚙ Cài đặt → "Tải tệp sao lưu". Điện thoại sẽ lưu một tệp tên nhat-ky-tap-ngày.json (iPhone: ứng dụng Tệp → Tải về; Android: thư mục Download).',
@@ -1447,6 +1516,283 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       if (sec) { const s = $('#h-' + sec, root); if (s) setTimeout(() => s.scrollIntoView({ block: 'start' }), 50); }
     });
   }
+  // ================= MEDIA (ảnh/video lưu trong IndexedDB của điện thoại) =================
+  const MDB = (() => {
+    let p;
+    const open = () => (p ??= new Promise((res, rej) => {
+      const r = indexedDB.open('nkt-media', 1);
+      r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('blobs')) r.result.createObjectStore('blobs'); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+    const run = async (mode, fn) => {
+      const d = await open();
+      return new Promise((res, rej) => {
+        const t = d.transaction('blobs', mode); const q = fn(t.objectStore('blobs'));
+        t.oncomplete = () => res(q ? q.result : undefined); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+      });
+    };
+    return { put: (id, blob) => run('readwrite', (s) => s.put(blob, id)), get: (id) => run('readonly', (s) => s.get(id)), del: (id) => run('readwrite', (s) => s.delete(id)) };
+  })();
+  const mediaUrls = new Map();
+  function mediaSrc(id) {
+    if (mediaUrls.has(id)) return mediaUrls.get(id);
+    mediaUrls.set(id, '');
+    MDB.get(id).then((b) => {
+      if (!b) return;
+      const u = URL.createObjectURL(b); mediaUrls.set(id, u);
+      $$(`[data-mid="${id}"]`).forEach((el) => { el.src = u; });
+    }).catch(() => {});
+    return '';
+  }
+  async function shrinkImage(file, max, q) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('encode'))), 'image/jpeg', q));
+  }
+  const blobB64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+  const CHUNK = 500 * 1024; // ký tự base64 mỗi lần gửi
+  const MAX_VIDEO = 18 * 1024 * 1024;
+  // Lưu ảnh/video vào máy và đưa vào hàng chờ gửi HLV. ref = { type: 'workout'|'meal', id }
+  async function addMedia(file, ref) {
+    const isVideo = file.type.startsWith('video/');
+    let blob = file, mime = file.type || 'video/mp4';
+    if (!isVideo) {
+      try { blob = await shrinkImage(file, 1280, 0.8); mime = 'image/jpeg'; }
+      catch { toast('Ảnh này không đọc được (có thể là HEIC). Hãy chọn ảnh JPG.'); return null; }
+    } else {
+      if (mime === 'video/quicktime') mime = 'video/mp4';
+      if (file.size > MAX_VIDEO) { toast('Video lớn hơn 18 MB. Hãy quay đoạn ngắn hơn (khoảng 15–20 giây) hoặc giảm chất lượng quay.'); return null; }
+    }
+    const m = { id: uid('m'), kind: isVideo ? 'video' : 'image', mime, size: blob.size, date: today(), at: new Date().toISOString(), ref, uploaded: false, chunks: 0 };
+    try { await MDB.put(m.id, blob); } catch { toast('Không lưu được tệp: bộ nhớ điện thoại đầy?'); return null; }
+    D.media.push(m); save();
+    return m;
+  }
+  async function removeMedia(id) {
+    D.media = D.media.filter((m) => m.id !== id); save();
+    try { await MDB.del(id); } catch { /* ignore */ }
+  }
+  const mediaOf = (type, refId) => D.media.filter((m) => m.ref && m.ref.type === type && m.ref.id === refId);
+  const mediaTiles = (list, canRemove) => list.length ? `<div class="mgrid">${list.map((m) => `<div class="mtile">
+      ${m.kind === 'video' ? `<video data-mid="${esc(m.id)}" src="${mediaSrc(m.id)}" controls playsinline preload="metadata"></video>` : `<img data-mid="${esc(m.id)}" src="${mediaSrc(m.id)}" alt="">`}
+      ${D.link ? `<span class="mstate">${m.uploaded ? '✓ Đã gửi HLV' : 'Chờ gửi'}</span>` : ''}
+      ${canRemove ? `<button class="mx" type="button" data-act="media-del" data-id="${esc(m.id)}" aria-label="Xoá tệp">×</button>` : ''}
+    </div>`).join('')}</div>` : '';
+  async function uploadPending() {
+    if (!D.link) return;
+    const auth = { pairId: D.link.pairId, traineeKey: D.link.traineeKey };
+    const started = Date.now();
+    for (const m of D.media.filter((x) => !x.uploaded)) {
+      if (Date.now() - started > 90000) break; // phần còn lại gửi ở lần đồng bộ sau
+      const blob = await MDB.get(m.id).catch(() => null);
+      if (!blob) { m.uploaded = true; m.missing = true; continue; }
+      const b64 = await blobB64(blob);
+      const total = Math.max(1, Math.ceil(b64.length / CHUNK));
+      for (let i = 0; i < total; i++) await api('media-put', { ...auth, id: m.id, idx: i, total, data: b64.slice(i * CHUNK, (i + 1) * CHUNK) });
+      m.uploaded = true; m.chunks = total; save();
+    }
+  }
+
+  // ================= DINH DƯỠNG =================
+  // Khẩu phần theo bàn tay (ước lượng trung bình một khẩu phần)
+  const PORTIONS = {
+    protein: { l: 'Đạm', hint: '1 lòng bàn tay: thịt, cá, trứng, đậu phụ', kcal: 120, p: 24, c: 2, f: 3 },
+    carb: { l: 'Tinh bột', hint: '1 nắm tay khum: cơm, bún, phở, khoai', kcal: 110, p: 3, c: 24, f: 0.5 },
+    veg: { l: 'Rau củ', hint: '1 nắm tay: rau, củ, salad', kcal: 25, p: 1.5, c: 5, f: 0 },
+    fat: { l: 'Chất béo', hint: '1 ngón cái: dầu mỡ, bơ, lạc, sốt', kcal: 90, p: 1, c: 1, f: 9.5 },
+  };
+  const SLOTS = { sang: 'Sáng', trua: 'Trưa', toi: 'Tối', phu: 'Bữa phụ' };
+  const slotByHour = (h) => (h < 10 ? 'sang' : h < 15 ? 'trua' : h >= 17 && h < 22 ? 'toi' : 'phu');
+  function handTotals(p, extra) {
+    const t = { kcal: Number(extra) || 0, protein: 0, carb: 0, fat: 0 };
+    for (const [k, v] of Object.entries(PORTIONS)) { const n = Number((p || {})[k]) || 0; t.kcal += n * v.kcal; t.protein += n * v.p; t.carb += n * v.c; t.fat += n * v.f; }
+    return t;
+  }
+  const mealNums = (m) => (m.src === 'ai' && m.ai ? { kcal: m.ai.kcal, protein: m.ai.protein, carb: m.ai.carb, fat: m.ai.fat } : handTotals(m.portions, m.extraKcal));
+  function nutriTarget() {
+    const w = latestWeight() || 55, g = goalsOf(D.profile);
+    let kcal = w * 31;
+    if (g.includes('giam-mo') && g.includes('tang-co')) kcal -= 150;
+    else if (g.includes('giam-mo')) kcal -= 400;
+    else if (g.includes('tang-co')) kcal += 250;
+    const protein = w * (g.includes('tang-co') ? 1.8 : 1.6);
+    const o = D.settings.nutri || {};
+    return { kcal: Math.round((o.kcal || kcal) / 10) * 10, protein: Math.round(o.protein || protein), custom: Boolean(o.kcal || o.protein) };
+  }
+  function dayTotals(date) {
+    const t = { kcal: 0, protein: 0, carb: 0, fat: 0, n: 0 };
+    for (const m of D.meals.filter((x) => x.date === date)) { const v = mealNums(m); t.kcal += v.kcal; t.protein += v.protein; t.carb += v.carb; t.fat += v.fat; t.n += 1; }
+    return t;
+  }
+  const portionText = (p) => Object.entries(PORTIONS).filter(([k]) => (p || {})[k]).map(([k, v]) => `${fmt(p[k])} ${v.l.toLowerCase()}`).join(' · ');
+  const bar = (v, max, cls) => `<div class="progress"><i class="${cls || ''}" style="width:${Math.min(100, max ? (v / max) * 100 : 0)}%"></i></div>`;
+
+  function drawFood(v) {
+    const t = today();
+    const d = S.foodDate || t;
+    header(d === t ? 'Hôm nay' : fmtLong(d), 'Ăn uống', `<button class="icon-btn" data-act="nutri-target" aria-label="Mục tiêu dinh dưỡng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></button>`, false);
+    const tg = nutriTarget(), tot = dayTotals(d);
+    const meals = D.meals.filter((m) => m.date === d).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    const days7 = Array.from({ length: 7 }, (_, i) => addDays(t, -i)).map((x) => dayTotals(x)).filter((x) => x.n);
+    const avg = (k) => (days7.length ? days7.reduce((s, x) => s + x[k], 0) / days7.length : null);
+    const fbAll = D.feedback || {};
+    v.innerHTML = `
+      <div class="row between"><button class="btn sm" data-act="food-day" data-d="-1" aria-label="Ngày trước">‹ Trước</button>
+        <b class="num">${esc(fmtShort(d))}</b>
+        <button class="btn sm" data-act="food-day" data-d="1" ${d >= t ? 'disabled' : ''} aria-label="Ngày sau">Sau ›</button></div>
+      <div class="card nutri">
+        <div class="row between"><span class="card-title">Năng lượng</span><span class="num"><b>${fmt(tot.kcal, 0)}</b> / ${fmt(tg.kcal, 0)} kcal</span></div>
+        ${bar(tot.kcal, tg.kcal, tot.kcal > tg.kcal * 1.1 ? 'over' : '')}
+        <div class="row between"><span class="card-title">Đạm (protein)</span><span class="num"><b>${fmt(tot.protein, 0)}</b> / ${fmt(tg.protein, 0)} g</span></div>
+        ${bar(tot.protein, tg.protein, 'good')}
+        <div class="sub num">Tinh bột ${fmt(tot.carb, 0)} g · Chất béo ${fmt(tot.fat, 0)} g · ${tot.n} bữa${tg.custom ? '' : ' · mục tiêu ước lượng theo cân nặng và mục tiêu'}</div>
+      </div>
+      <div class="food-add">
+        <label class="btn primary" style="position:relative;overflow:hidden">📷 Chụp bữa ăn<input type="file" accept="image/*" capture="environment" id="mealPhoto" style="position:absolute;inset:0;opacity:0"></label>
+        <label class="btn" style="position:relative;overflow:hidden">Chọn ảnh có sẵn<input type="file" accept="image/*" id="mealPick" style="position:absolute;inset:0;opacity:0"></label>
+        <button class="btn" data-act="meal-new">+ Ghi không ảnh</button>
+      </div>
+      <section><h2>Các bữa</h2>
+        ${meals.length ? `<div class="list">${meals.map((m) => { const n = mealNums(m); const fb = fbAll[m.id]; return `
+          <button class="meal" data-act="meal-edit" data-id="${esc(m.id)}">
+            ${m.photo ? `<img data-mid="${esc(m.photo)}" src="${mediaSrc(m.photo)}" alt="">` : '<span class="ph">🍽</span>'}
+            <span class="grow"><span class="row between"><b>${esc(SLOTS[m.slot] || 'Bữa ăn')}${m.time ? ' · ' + esc(m.time) : ''}</b><span class="num small">${fmt(n.kcal, 0)} kcal</span></span>
+              <span class="sub">${esc(m.src === 'ai' && m.ai ? m.ai.items.map((i) => i.name).join(', ') : portionText(m.portions) || 'Chưa chọn khẩu phần')} · đạm ${fmt(n.protein, 0)} g</span>
+              ${m.note ? `<span class="sub">${esc(m.note)}</span>` : ''}
+              ${fb ? `<span class="fb">HLV: ${esc(fb)}</span>` : ''}</span>
+          </button>`; }).join('')}</div>` : '<div class="empty"><p>Chưa ghi bữa nào. Chụp ảnh mỗi bữa ăn để theo dõi calo, đạm và gửi HLV xem.</p></div>'}
+      </section>
+      ${days7.length ? `<div class="stats">
+        <div class="stat"><span class="v">${fmt(avg('kcal'), 0)}</span><span class="k">kcal TB/ngày (7 ngày)</span></div>
+        <div class="stat"><span class="v">${fmt(avg('protein'), 0)}</span><span class="k">g đạm TB/ngày</span></div>
+        <div class="stat"><span class="v">${days7.length}</span><span class="k">ngày có ghi</span></div></div>` : ''}
+      <details class="tips"><summary>Ước lượng khẩu phần bằng bàn tay</summary><div class="in"><ul>
+        ${Object.values(PORTIONS).map((p) => `<li><b>${esc(p.l)}</b>: ${esc(p.hint)} ≈ ${p.kcal} kcal${p.p >= 5 ? `, ${p.p} g đạm` : ''}</li>`).join('')}
+        <li>Mỗi bữa chính gợi ý: 1–2 lòng bàn tay đạm, 1–2 nắm tinh bột, 1–2 nắm rau, 1 ngón cái chất béo.</li></ul>
+        <div class="sub">Số liệu là ước lượng để theo dõi xu hướng, không thay cho tư vấn của chuyên gia dinh dưỡng.</div></div></details>`;
+    const onPick = (inp) => inp.addEventListener('change', () => { const f = inp.files[0]; inp.value = ''; if (f) mealSheet(null, f); });
+    onPick($('#mealPhoto')); onPick($('#mealPick'));
+  }
+
+  function mealSheet(meal, file) {
+    const isNew = !meal;
+    const now = new Date();
+    const d = S.foodDate || today();
+    const m = meal ? JSON.parse(JSON.stringify(meal)) : { id: uid('f'), date: d, time: d === today() ? `${pad(now.getHours())}:${pad(now.getMinutes())}` : '12:00',
+      slot: slotByHour(d === today() ? now.getHours() : 12), portions: { protein: 0, carb: 0, veg: 0, fat: 0 }, extraKcal: null, note: '', photo: null, src: 'hand', ai: null };
+    let photoBlob = null, aiBusy = false;
+    const fb = (D.feedback || {})[m.id];
+    openSheet(`${sheetHead(isNew ? 'Ghi bữa ăn' : 'Bữa ăn')}
+      <div id="mPhotoBox"></div>
+      <div class="seg" id="mSlot">${Object.entries(SLOTS).map(([k, l]) => `<button type="button" data-k="${k}" aria-pressed="${m.slot === k}">${l}</button>`).join('')}</div>
+      <div class="f2"><label class="f">Ngày<input id="mDate" type="date" value="${esc(m.date)}"></label><label class="f">Giờ<input id="mTime" type="time" value="${esc(m.time || '')}"></label></div>
+      <section id="mAiBox"></section>
+      <section><h3>Khẩu phần (theo bàn tay)</h3><div class="list" id="mPortions"></div>
+        <label class="f">Calo khác (đồ uống, bánh kẹo…)<input id="mExtra" inputmode="numeric" value="${m.extraKcal ?? ''}" placeholder="VD: 150"></label></section>
+      <div class="card" id="mSum"></div>
+      <label class="f">Ghi chú<textarea id="mNote" maxlength="300" placeholder="VD: cơm gà, uống trà sữa ít đường">${esc(m.note)}</textarea></label>
+      ${fb ? `<div class="hint pt">HLV nhận xét: ${esc(fb)}</div>` : ''}
+      <button class="btn primary block" id="mSave">Lưu bữa ăn</button>
+      ${!isNew ? '<button class="btn danger block" id="mDel">Xoá bữa này</button><div id="mConfirm"></div>' : ''}`, (root) => {
+      const drawPhoto = () => {
+        const src = photoBlob ? URL.createObjectURL(photoBlob) : m.photo ? mediaSrc(m.photo) : '';
+        $('#mPhotoBox', root).innerHTML = (photoBlob || m.photo) ? `<img class="meal-big" ${m.photo && !photoBlob ? `data-mid="${esc(m.photo)}"` : ''} src="${src}" alt="Ảnh bữa ăn">` :
+          `<label class="btn block" style="position:relative;overflow:hidden">📷 Thêm ảnh bữa ăn<input type="file" accept="image/*" capture="environment" id="mAddPhoto" style="position:absolute;inset:0;opacity:0"></label>`;
+        const inp = $('#mAddPhoto', root);
+        if (inp) inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { photoBlob = await shrinkImage(f, 1024, 0.78); drawPhoto(); drawAi(); } catch { toast('Ảnh này không đọc được. Hãy chọn ảnh JPG.'); } };
+      };
+      const drawPortions = () => {
+        $('#mPortions', root).innerHTML = Object.entries(PORTIONS).map(([k, p]) => `<div class="portion">
+          <span class="grow"><b>${esc(p.l)}</b><span class="sub">${esc(p.hint)}</span></span>
+          <button class="btn sm" type="button" data-pk="${k}" data-step="-0.5" aria-label="Bớt ${esc(p.l)}">−</button>
+          <b class="num pv">${fmt(m.portions[k] || 0)}</b>
+          <button class="btn sm" type="button" data-pk="${k}" data-step="0.5" aria-label="Thêm ${esc(p.l)}">+</button></div>`).join('');
+      };
+      const drawSum = () => {
+        m.extraKcal = num($('#mExtra', root).value);
+        const hand = handTotals(m.portions, m.extraKcal), n = mealNums(m);
+        $('#mSum', root).innerHTML = `<div class="row between"><b>${m.src === 'ai' && m.ai ? 'Theo AI' : 'Theo khẩu phần'}</b><span class="num"><b>${fmt(n.kcal, 0)}</b> kcal</span></div>
+          <div class="sub num">Đạm ${fmt(n.protein, 0)} g · Tinh bột ${fmt(n.carb, 0)} g · Chất béo ${fmt(n.fat, 0)} g</div>
+          ${m.ai ? `<div class="seg" id="mSrc"><button type="button" data-src="ai" aria-pressed="${m.src === 'ai'}">Dùng số AI</button><button type="button" data-src="hand" aria-pressed="${m.src !== 'ai'}">Dùng khẩu phần (${fmt(hand.kcal, 0)} kcal)</button></div>` : ''}`;
+      };
+      const drawAi = () => {
+        const has = photoBlob || m.photo;
+        $('#mAiBox', root).innerHTML = m.ai ? `<div class="card ai">
+            <div class="row between"><b>AI ước lượng</b><span class="chip info">${fmt(m.ai.kcal, 0)} kcal</span></div>
+            ${m.ai.isFood === false ? '<div class="sub">AI không thấy đồ ăn trong ảnh.</div>' : `<ul class="ai-items">${m.ai.items.map((i) => `<li><span>${esc(i.name)}${i.amount ? ` <span class="sub">(${esc(i.amount)})</span>` : ''}</span><span class="num">${fmt(i.kcal, 0)} kcal · ${fmt(i.protein, 0)} g đạm</span></li>`).join('')}</ul>`}
+            ${m.ai.comment ? `<div class="sub">${esc(m.ai.comment)}</div>` : ''}
+            ${has ? '<button class="btn sm ghost" type="button" id="mAi">Ước lượng lại</button>' : ''}</div>`
+          : has ? `<button class="btn block ai-btn" type="button" id="mAi">✨ AI ước lượng calo từ ảnh</button><div class="sub">${D.link ? 'Gửi ảnh cho AI để đoán món và calo; bạn vẫn sửa được.' : 'Cần kết nối với HLV để dùng AI.'}</div>` : '';
+        const b = $('#mAi', root);
+        if (b) b.onclick = async () => {
+          if (!D.link) { toast('Kết nối với HLV (trang Tập → Kết nối với HLV) để dùng AI.'); return; }
+          if (aiBusy) return; aiBusy = true; b.disabled = true; b.textContent = 'AI đang xem ảnh…';
+          try {
+            const src = photoBlob || await MDB.get(m.photo);
+            const small = await shrinkImage(src, 768, 0.72);
+            const res = await api('meal-ai', { pairId: D.link.pairId, traineeKey: D.link.traineeKey, image: await blobB64(small), mime: 'image/jpeg', note: $('#mNote', root).value.trim(), goal: goalText(D.profile) });
+            m.ai = res; m.src = res.isFood === false ? 'hand' : 'ai';
+            if (!$('#mNote', root).value.trim() && res.items.length) $('#mNote', root).value = res.items.map((i) => i.name).join(', ');
+          } catch (err) { toast(err.message || 'AI chưa trả lời được.'); }
+          aiBusy = false; drawAi(); drawSum();
+        };
+      };
+      drawPhoto(); drawPortions(); drawAi(); drawSum();
+      if (file) shrinkImage(file, 1024, 0.78).then((b) => { photoBlob = b; drawPhoto(); drawAi(); }, () => toast('Ảnh này không đọc được (có thể là HEIC). Hãy chọn ảnh JPG.'));
+      root.addEventListener('click', (e) => {
+        const s = e.target.closest('#mSlot [data-k]');
+        if (s) { m.slot = s.dataset.k; $$('#mSlot button', root).forEach((x) => x.setAttribute('aria-pressed', String(x === s))); return; }
+        const pk = e.target.closest('[data-pk]');
+        if (pk) { const k = pk.dataset.pk; m.portions[k] = Math.max(0, Math.min(10, (Number(m.portions[k]) || 0) + Number(pk.dataset.step))); if (m.src === 'ai') m.src = 'hand'; drawPortions(); drawSum(); return; }
+        const sr = e.target.closest('#mSrc [data-src]');
+        if (sr) { m.src = sr.dataset.src; drawSum(); }
+      });
+      $('#mExtra', root).addEventListener('input', drawSum);
+      $('#mSave', root).onclick = async () => {
+        m.date = $('#mDate', root).value || m.date; m.time = $('#mTime', root).value; m.note = $('#mNote', root).value.trim(); m.extraKcal = num($('#mExtra', root).value);
+        const n = mealNums(m);
+        if (!photoBlob && !m.photo && !n.kcal && !m.note) { toast('Chọn khẩu phần, chụp ảnh hoặc ghi chú món đã ăn.'); return; }
+        if (photoBlob) {
+          const pm = { id: uid('m'), kind: 'image', mime: 'image/jpeg', size: photoBlob.size, date: m.date, at: new Date().toISOString(), ref: { type: 'meal', id: m.id }, uploaded: false, chunks: 0 };
+          try { await MDB.put(pm.id, photoBlob); D.media.push(pm); m.photo = pm.id; } catch { toast('Không lưu được ảnh: bộ nhớ điện thoại đầy?'); }
+        }
+        D.meals = D.meals.filter((x) => x.id !== m.id).concat([{ ...m, kcal: Math.round(n.kcal), protein: Math.round(n.protein), carb: Math.round(n.carb), fat: Math.round(n.fat), updatedAt: new Date().toISOString() }]);
+        save(); closeSheet(); S.foodDate = m.date; toast(D.link ? 'Đã lưu bữa ăn, sẽ gửi HLV' : 'Đã lưu bữa ăn'); render(); syncNow(false);
+      };
+      const del = $('#mDel', root);
+      if (del) del.onclick = () => {
+        $('#mConfirm', root).innerHTML = '<div class="confirm">Xoá bữa ăn này cùng ảnh? Không thể hoàn tác.<div class="row"><button class="btn sm danger solid" id="mDelYes">Xoá</button><button class="btn sm" id="mDelNo">Huỷ</button></div></div>';
+        $('#mDelNo', root).onclick = () => ($('#mConfirm', root).innerHTML = '');
+        $('#mDelYes', root).onclick = async () => { if (m.photo) await removeMedia(m.photo); D.meals = D.meals.filter((x) => x.id !== m.id); save(); closeSheet(); toast('Đã xoá'); render(); syncNow(false); };
+      };
+    });
+  }
+  function nutriTargetSheet() {
+    const tg = nutriTarget();
+    openSheet(`${sheetHead('Mục tiêu dinh dưỡng')}
+      <p class="sub" style="margin:0">App tự ước lượng theo cân nặng (${fmt(latestWeight() || 55)} kg) và mục tiêu của bạn${goalText(D.profile) ? ' (' + esc(goalText(D.profile)) + ')' : ''}. Nếu HLV đã tính cho bạn con số riêng, nhập vào đây.</p>
+      <div class="f2"><label class="f">kcal mỗi ngày<input id="nK" inputmode="numeric" value="${D.settings.nutri && D.settings.nutri.kcal ? D.settings.nutri.kcal : ''}" placeholder="${tg.kcal}"></label>
+        <label class="f">Đạm (g) mỗi ngày<input id="nP" inputmode="numeric" value="${D.settings.nutri && D.settings.nutri.protein ? D.settings.nutri.protein : ''}" placeholder="${tg.protein}"></label></div>
+      <button class="btn primary block" id="nSave">Lưu</button>
+      <button class="btn block" id="nAuto">Dùng ước lượng tự động</button>`, (root) => {
+      $('#nSave', root).onclick = () => { D.settings.nutri = { kcal: num($('#nK', root).value), protein: num($('#nP', root).value) }; save(); closeSheet(); render(); };
+      $('#nAuto', root).onclick = () => { D.settings.nutri = null; save(); closeSheet(); render(); };
+    });
+  }
+  function buildMeals() {
+    const since = addDays(today(), -60);
+    return D.meals.filter((m) => m.date >= since).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 200).map((m) => {
+      const n = mealNums(m);
+      return { id: m.id, date: m.date, time: m.time || '', slot: m.slot, portions: m.portions, extraKcal: m.extraKcal || null, note: m.note || '', photo: m.photo || null, src: m.src,
+        kcal: Math.round(n.kcal), protein: Math.round(n.protein), carb: Math.round(n.carb), fat: Math.round(n.fat),
+        ai: m.ai ? { items: m.ai.items, comment: m.ai.comment } : null };
+    });
+  }
+  const buildMediaIndex = () => D.media.filter((m) => m.uploaded && !m.missing).slice(-300).map((m) => ({ id: m.id, kind: m.kind, mime: m.mime, size: m.size, chunks: m.chunks, date: m.date, at: m.at, ref: m.ref }));
+
   // ================= SYNC WITH COACH (Sổ HLV) =================
   const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
   const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -1485,7 +1831,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   function buildProfile() {
     const P = D.profile, w = latestWeight();
     return {
-      name: P.name, height: P.height, goal: goalText(P), target: P.target, weight: w, bmi: bmiOf(w, P.height),
+      name: P.name, height: P.height, goal: goalText(P), target: P.target, weight: w, bmi: bmiOf(w, P.height), nutri: (({ kcal, protein }) => ({ kcal, protein }))(nutriTarget()),
       weights: [...D.journal].filter((j) => j.weight).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 180).map((j) => ({ id: j.id, date: j.date, weight: j.weight })),
       updatedAt: new Date().toISOString(),
     };
@@ -1499,7 +1845,10 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       const pull = await api('trainee-pull', auth);
       D.coachPlans = Array.isArray(pull.plans) ? pull.plans : [];
       if (pull.coachName) D.link.coachName = pull.coachName;
-      await api('trainee-push', { ...auth, results: buildResults(), profile: buildProfile() });
+      D.coachTips = pull.tips && typeof pull.tips === 'object' ? pull.tips : null;
+      D.feedback = pull.feedback && typeof pull.feedback === 'object' ? pull.feedback : {};
+      await uploadPending();
+      await api('trainee-push', { ...auth, results: buildResults(), profile: buildProfile(), meals: buildMeals(), media: buildMediaIndex() });
       D.link.lastSync = new Date().toISOString(); D.link.error = null;
       save();
       if (manual) toast('Đã đồng bộ với HLV');
@@ -1537,6 +1886,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
         </div>`).join('')}</div>`
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
+      ${(() => { const gen = ((D.coachTips || {}).personal || []).filter((p) => p && !p.exId && p.text); return gen.length ? `<div class="tip-day"><span class="tip-label">HLV dặn riêng bạn</span>${gen.map((p) => `<p>${esc(p.text)}</p>`).join('')}</div>` : ''; })()}
     </section>`;
   }
   function startCoachPlan(p) {
@@ -1583,7 +1933,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         $('#lOffNo', root).onclick = () => ($('#lConfirm', root).innerHTML = '');
         $('#lOffYes', root).onclick = async () => {
           try { await api('unlink', { pairId: D.link.pairId, traineeKey: D.link.traineeKey }); } catch { /* vẫn ngắt trên máy */ }
-          D.link = null; D.coachPlans = []; save(); closeSheet(); toast('Đã ngắt kết nối với HLV'); render();
+          D.link = null; D.coachPlans = []; D.coachTips = null; D.feedback = {}; save(); closeSheet(); toast('Đã ngắt kết nối với HLV'); render();
         };
       };
     });
@@ -1661,6 +2011,19 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   }
 
   // ================= events =================
+  document.addEventListener('change', async (e) => {
+    const inp = e.target;
+    if (!inp || !inp.dataset || !inp.dataset.mediaRef) return;
+    const [type, refId] = inp.dataset.mediaRef.split(':');
+    const files = [...inp.files]; inp.value = '';
+    let n = 0;
+    for (const f of files) if (await addMedia(f, { type, id: refId })) n += 1;
+    if (!n) return;
+    toast(D.link ? `Đã lưu ${n} tệp, đang gửi HLV…` : `Đã lưu ${n} tệp`);
+    if (S.view === 'workout') render();
+    else { const w = D.workouts.find((x) => x.id === refId); if (w) { closeSheet(); workoutSheet(w); } }
+    if (D.link && S.view !== 'workout') syncNow(false);
+  });
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
     if (!el) return;
@@ -1677,6 +2040,11 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       case 'help': closeSheet(); helpSheet(el.dataset.sec); break;
       case 'backup-now': doExport(); break;
       case 'link': closeSheet(); linkSheet(); break;
+      case 'food-day': { const base = S.foodDate || today(); const nd = addDays(base, Number(el.dataset.d)); if (nd <= today()) { S.foodDate = nd; render(); } break; }
+      case 'meal-new': mealSheet(null, null); break;
+      case 'meal-edit': { const m = D.meals.find((x) => x.id === id); if (m) mealSheet(m, null); break; }
+      case 'nutri-target': nutriTargetSheet(); break;
+      case 'media-del': e.stopPropagation(); removeMedia(id).then(() => { if (S.view === 'workout') render(); else { const w = D.workouts.find((x) => x.id === el.dataset.w); closeSheet(); if (w) workoutSheet(w); } }); break;
       case 'sync': syncNow(true); break;
       case 'plan-start': { const p = (D.coachPlans || []).find((x) => x.id === id); if (p) startCoachPlan(p); break; }
       case 'start-program': startProgramDay(D.program.next % (PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]).days.length); break;

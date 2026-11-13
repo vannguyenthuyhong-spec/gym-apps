@@ -2,46 +2,50 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Saira+Condensed:wght@600;700&display=swap">
 <style>
 /* Layout: one-column phone app — sticky header, scrolling content, fixed bottom tab bar; every form opens as a bottom sheet.
    Palette borrows bumper-plate colours: blue (20 kg) accent, green/amber for state, on a chalk-grey floor. */
+/* Palette: đỏ mận · xanh lục · vàng hoa cúc — cùng bộ màu với app học viên Nhật Ký Tập. */
 :root {
-  --bg: #EDF0EE;
+  --bg: #F5F1F2;
   --surface: #FFFFFF;
-  --surface-2: #E2E8E4;
-  --ink: #14201B;
-  --muted: #5A6A62;
-  --line: #D2DAD5;
-  --accent: #1F5BD8;
+  --surface-2: #ECE4E6;
+  --ink: #26161B;
+  --muted: #6E5A60;
+  --line: #E2D6D9;
+  --accent: #A8203E;
   --accent-ink: #FFFFFF;
-  --accent-soft: #E1E9FB;
-  --done: #1D7F47;
-  --done-bg: #DCF1E4;
-  --skip: #9A6512;
-  --skip-bg: #F6EBD3;
-  --danger: #B8312A;
-  --danger-bg: #FBE3E0;
-  --scrim: rgba(10, 16, 13, .45);
-  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --radius: 14px;
-  --tabbar-h: 64px;
+  --accent-soft: #F7E1E6;
+  --done: #11704A;
+  --done-bg: #DCEFE5;
+  --skip: #855600;
+  --skip-bg: #FCEFCC;
+  --info: #1C6B70;
+  --info-bg: #DDEDEE;
+  --danger: #B42F2A;
+  --danger-bg: #FAE1DF;
+  --gold: #E9AA1F;
+  --scrim: rgba(30, 10, 16, .5);
+  --font-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 16px;
+  --tabbar-h: 62px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0E1412; --surface: #172019; --surface-2: #212C26; --ink: #E7EEEA; --muted: #95A69D; --line: #2B3832;
-    --accent: #78A2FF; --accent-ink: #0A1530; --accent-soft: #1B2A4C;
-    --done: #59C98A; --done-bg: #15362A; --skip: #E2AE57; --skip-bg: #3A2F17; --danger: #FF8378; --danger-bg: #43201C;
-    --scrim: rgba(0, 0, 0, .6);
+    --bg: #150D10; --surface: #211519; --surface-2: #2E1F24; --ink: #F4EAED; --muted: #B6A0A7; --line: #3E2B31;
+    --accent: #E35A77; --accent-ink: #2A0710; --accent-soft: #46202A;
+    --done: #4FCB94; --done-bg: #133126; --skip: #EDBB4E; --skip-bg: #3A2C10; --info: #6CC3C8; --info-bg: #12302F;
+    --danger: #FF8A80; --danger-bg: #3F1D1B; --gold: #EDB43A; --scrim: rgba(0, 0, 0, .62);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0E1412; --surface: #172019; --surface-2: #212C26; --ink: #E7EEEA; --muted: #95A69D; --line: #2B3832;
-  --accent: #78A2FF; --accent-ink: #0A1530; --accent-soft: #1B2A4C;
-  --done: #59C98A; --done-bg: #15362A; --skip: #E2AE57; --skip-bg: #3A2F17; --danger: #FF8378; --danger-bg: #43201C;
-  --scrim: rgba(0, 0, 0, .6);
+  --bg: #150D10; --surface: #211519; --surface-2: #2E1F24; --ink: #F4EAED; --muted: #B6A0A7; --line: #3E2B31;
+  --accent: #E35A77; --accent-ink: #2A0710; --accent-soft: #46202A;
+  --done: #4FCB94; --done-bg: #133126; --skip: #EDBB4E; --skip-bg: #3A2C10; --info: #6CC3C8; --info-bg: #12302F;
+  --danger: #FF8A80; --danger-bg: #3F1D1B; --gold: #EDB43A; --scrim: rgba(0, 0, 0, .62);
   color-scheme: dark;
 }
 
@@ -145,7 +149,7 @@ table.rec td.r, table.rec th.r { text-align: right; font-variant-numeric: tabula
 
 /* Tab bar */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; height: var(--tabbar-h); }
+.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); height: var(--tabbar-h); }
 .tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .tabbar button svg { width: 22px; height: 22px; }
 .tabbar button[aria-current="page"] { color: var(--accent); }
@@ -199,6 +203,41 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
 .file-btn { position: relative; overflow: hidden; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
+/* Thống nhất với app học viên */
+.top { border-bottom: 3px solid var(--gold) !important; }
+h1 { font-size: 30px; }
+h2 { font-weight: 700; font-size: 20px; letter-spacing: .02em; color: var(--ink); }
+.avatar { background: var(--accent); color: var(--accent-ink); }
+.seg button { font-size: 13px; padding: 0 2px; }
+.search-in { width: 100%; min-height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 8px 12px; font-size: 16px; color: var(--ink); }
+.tip-row .card-sub { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ptip { display: flex; gap: 8px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.ptip .grow { flex: 1; min-width: 0; }
+.day-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.bar { height: 8px; border-radius: 8px; background: var(--surface-2); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.bar i.good { background: var(--done); }
+.bar i.over { background: var(--skip); }
+.cmeal { display: flex; gap: 10px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 10px; }
+.cmeal .thumb { width: 84px; flex: none; }
+.cmeal .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.fb-row { display: flex; gap: 6px; }
+.fb-row input { flex: 1; min-width: 0; min-height: 40px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); padding: 6px 10px; font-size: 15px; color: var(--ink); }
+.fb-sent { font-size: 13px; background: var(--skip-bg); color: var(--skip); border-radius: 8px; padding: 4px 8px; }
+.pill.info { background: var(--info-bg); color: var(--info); }
+/* Chuyển cảnh mượt */
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+main.enter > * { animation: viewIn .26s cubic-bezier(.2, .8, .2, 1) both; }
+main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(3) { animation-delay: .06s; } main.enter > *:nth-child(n+4) { animation-delay: .09s; }
+.sheet:not([hidden]) .sheet-panel { animation: sheetUp .28s cubic-bezier(.2, .8, .2, 1) both; }
+.sheet:not([hidden]) .sheet-scrim { animation: fadeIn .2s ease both; }
+.toast:not([hidden]), .lightbox:not([hidden]) { animation: fadeIn .18s ease both; }
+.btn, .card, .tabbar button, .icon-btn, .lib-item, .chips button { transition: transform .12s ease, background-color .15s ease; }
+.btn:active, button.card:active, .tabbar button:active, .icon-btn:active, .lib-item:active, .chips button:active { transform: scale(.97); }
+.tabbar button svg { transition: transform .2s ease; }
+.tabbar button[aria-current="page"] svg { transform: translateY(-2px); }
 /* Lightbox & toast */
 .lightbox { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.92); display: flex; align-items: center; justify-content: center; padding: calc(56px + env(safe-area-inset-top, 0px)) 8px calc(16px + env(safe-area-inset-bottom, 0px)); }
 .lightbox img, .lightbox video { max-width: 100%; max-height: 100%; border-radius: 8px; }
@@ -237,6 +276,10 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     <button id="tabClients" data-act="nav" data-to="clients">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.7 2.8 2.4 3 5.2"/></svg>
       Học viên
+    </button>
+    <button id="tabTips" data-act="nav" data-to="tips">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>
+      Mẹo
     </button>
   </div>
 </nav>
@@ -568,7 +611,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
   // ---------- backup (standalone mode only: data lives on this phone) ----------
   function exportBackup() {
     const payload = { app: 'so-hlv', version: 1, exportedAt: new Date().toISOString(), clients: S.clients, sessions: S.sessions, metrics: S.metrics,
-      coachKey: lsGet('so-hlv.coachKey'), coachName: lsGet('so-hlv.coachName') };
+      coachKey: lsGet('so-hlv.coachKey'), coachName: lsGet('so-hlv.coachName'), tips: lsGet('so-hlv.tips') };
     const blob = new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -583,6 +626,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     if (!data || data.app !== 'so-hlv') { toast('Đây không phải tệp sao lưu của Sổ HLV.'); return; }
     if (data.coachKey && !lsGet('so-hlv.coachKey')) lsSet('so-hlv.coachKey', data.coachKey);
     if (data.coachName && !lsGet('so-hlv.coachName')) lsSet('so-hlv.coachName', data.coachName);
+    if (data.tips && !lsGet('so-hlv.tips')) lsSet('so-hlv.tips', data.tips);
     let n = 0;
     for (const col of ['clients', 'sessions', 'metrics']) {
       for (const row of data[col] || []) {
@@ -675,6 +719,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     const h = location.hash.slice(1);
     if (h.startsWith('client-')) return { name: 'client', id: h.slice(7) };
     if (h === 'clients') return { name: 'clients' };
+    if (h === 'tips') return { name: 'tips' };
     return { name: 'today' };
   }
   function go(h) {
@@ -715,8 +760,11 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
 
   function draw() {
     $('#tabToday').setAttribute('aria-current', S.route.name === 'today' ? 'page' : 'false');
-    $('#tabClients').setAttribute('aria-current', S.route.name !== 'today' ? 'page' : 'false');
+    $('#tabClients').setAttribute('aria-current', S.route.name === 'clients' || S.route.name === 'client' ? 'page' : 'false');
+    $('#tabTips').setAttribute('aria-current', S.route.name === 'tips' ? 'page' : 'false');
     const v = $('#view');
+    const key = S.route.name + ':' + (S.route.id || '') + ':' + (S.route.name === 'client' ? S.clientTab : '');
+    if (key !== draw.key && ready()) { draw.key = key; v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); clearTimeout(draw.t); draw.t = setTimeout(() => v.classList.remove('enter'), 600); }
 
     if (S.unavailable) {
       header('Sổ HLV 1-1', 'Hôm nay', '', false);
@@ -729,6 +777,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       return;
     }
     if (S.route.name === 'clients') return drawClients(v);
+    if (S.route.name === 'tips') return drawTips(v);
     if (S.route.name === 'client') return drawClient(v);
     return drawToday(v);
   }
@@ -870,7 +919,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       return;
     }
     header(c.goal || 'Học viên', c.name, canWrite() ? `<button class="btn primary small" data-act="new-session" data-client="${esc(c.id)}">+ Buổi</button>` : '', true);
-    const tabs = [['plan', 'Lịch tập'], ['progress', 'Tiến bộ'], ['media', 'Ảnh/Video'], ['profile', 'Hồ sơ']];
+    const tabs = [['plan', 'Lịch tập'], ['progress', 'Tiến bộ'], ['food', 'Ăn uống'], ['media', 'Ảnh/Video'], ['profile', 'Hồ sơ']];
     const seg = `<div class="seg" role="group" aria-label="Mục">${tabs.map(([k, l]) => `<button data-act="ctab" data-tab="${k}" aria-pressed="${S.clientTab === k}">${l}</button>`).join('')}</div>`;
     let body = '';
     const t = today();
@@ -912,6 +961,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
             <div class="card-head"><span class="card-title num">${esc(fmtShort(m.date))}</span><span class="muted small num">${[m.weight != null ? fmtNum(m.weight) + ' kg' : '', m.waist != null ? 'eo ' + fmtNum(m.waist) + ' cm' : '', m.bodyFat != null ? 'mỡ ' + fmtNum(m.bodyFat) + '%' : ''].filter(Boolean).join(' · ')}</span></div>
             ${m.note ? `<div class="card-sub">${esc(m.note)}</div>` : ''}</button>`).join('')}</div>` : '<p class="muted small">Chưa có chỉ số nào.</p>'}
         </section>`;
+    } else if (S.clientTab === 'food') {
+      body = foodBody(c);
     } else if (S.clientTab === 'media') {
       const items = ss.flatMap((s) => (s.media || []).map((m) => ({ ...m, date: s.date, sessionId: s.id })))
         .sort((a, b) => (a.date === b.date ? (a.at || '').localeCompare(b.at || '') : a.date.localeCompare(b.date)));
@@ -934,6 +985,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       ].filter(([, val]) => val);
       body = `
         ${linkSection(c)}
+        ${personalTipsSection(c)}
         <div class="card">${rows.map(([k, val]) => `<div><div class="muted small">${k}</div><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(val)}</div></div>`).join('')}</div>
         ${canWrite() ? `<div class="row"><button class="btn" data-act="edit-client" data-id="${esc(c.id)}">Sửa hồ sơ</button></div>` : ''}`;
     }
@@ -1081,7 +1133,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
           ${(f.result.items || []).map((i) => `<div><b>${esc(i.name)}</b><div class="card-sub num">${(i.sets || []).map((s) => (i.type === 'weight' ? `${fmtNum(s.kg)} kg × ${s.reps ?? '?'}` : `${s.reps ?? '?'}${i.type === 'time' ? ' giây' : i.type === 'min' ? ' phút' : ' lần'}`)).join(' · ')}</div>${i.note ? `<div class="card-sub">${esc(i.note)}</div>` : ''}</div>`).join('')}
           <div class="card-sub">${[f.result.minutes ? f.result.minutes + ' phút' : '', f.result.feeling ? 'cảm giác ' + f.result.feeling + '/5' : ''].filter(Boolean).join(' · ')}</div>
           ${f.result.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere"><span class="muted small">Nhật ký học viên:</span> ${esc(f.result.note)}</div>` : ''}
-        </div></section>` : ''}
+        </div>
+        ${c && c.link ? `<label class="f">Nhận xét gửi học viên (hiện trên app học viên, dưới buổi tập này)<textarea id="sFb" maxlength="300" style="min-height:64px">${esc((c.feedback || {})[f.result.wid] || '')}</textarea></label>` : ''}</section>` : ''}
         <section><div class="row between"><h2>Ảnh & video</h2><span class="muted small" id="upState"></span></div>
           <div class="grid" id="mediaGrid"></div>
           ${S.assets ? `<label class="btn block file-btn">+ Thêm ảnh/video<input id="sFiles" type="file" accept="image/*,video/*" multiple></label>
@@ -1196,7 +1249,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         toast(`Đã thêm ${r.exercises.length} bài${unknown ? ` (${unknown} bài riêng)` : ''}. Kiểm tra lại số liệu.`);
       };
       const drawMedia = () => {
-        $('#mediaGrid', root).innerHTML = f.media.map((m, i) => `<div style="position:relative">${mediaThumb(m)}${S.assets ? `<button class="x" type="button" data-rm-media="${i}" aria-label="Bỏ tệp" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff">×</button>` : ''}</div>`).join('');
+        $('#mediaGrid', root).innerHTML = f.media.map((m, i) => `<div style="position:relative">${mediaThumb(m, { caption: m.fromTrainee ? 'Học viên gửi' : '' })}${S.assets ? `<button class="x" type="button" data-rm-media="${i}" aria-label="Bỏ tệp" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff">×</button>` : ''}</div>`).join('');
       };
       drawEx(); drawMedia();
 
@@ -1244,6 +1297,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
           media: f.media, createdAt: f.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
           result: f.result || null, fromTrainee: Boolean(f.fromTrainee),
         };
+        const fbIn = $('#sFb', root);
+        if (fbIn && f.result && fbIn.value.trim() !== ((clientById(data.clientId) || {}).feedback || {})[f.result.wid] && (fbIn.value.trim() || ((clientById(data.clientId) || {}).feedback || {})[f.result.wid])) await setFeedback(data.clientId, f.result.wid, fbIn.value.trim());
         if (await write('sessions', f.id, data)) {
           closeSheet();
           const linked = clientById(data.clientId) && clientById(data.clientId).link;
@@ -1262,6 +1317,185 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         };
       });
     });
+  }
+
+  // ---------- mẹo bài tập: HLV sửa → gửi tới app học viên ----------
+  const DEFAULT_TIPS = {
+    'goblet-squat': { b: 'heavy', c: ['Gối đi theo hướng mũi chân', 'Ngực mở, tạ dính sát ngực', 'Cùi chỏ hướng xuống, chạm nhẹ trong gối ở đáy', 'Đạp cả bàn chân: gót, ngón cái, ngón út'] },
+    'back-squat': { b: 'heavy', c: ['Gối đi theo hướng mũi chân', 'Bẻ cong thanh đòn để siết lưng trên', 'Ngồi xuống giữa hai gót chân', 'Mắt nhìn trước, cổ trung lập'] },
+    'leg-press': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Lưng dưới luôn dính đệm', 'Đạp bằng gót và giữa bàn chân', 'Không khoá thẳng gối ở trên'] },
+    'db-lunge': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân thẳng, đi xuống như thang máy', 'Dồn khoảng 70% lực vào chân trước'] },
+    'rdl-db': { b: 'heavy', c: ['Đẩy hông ra sau như đóng cửa bằng mông', 'Tạ trượt sát đùi và ống chân', 'Lưng phẳng, ngực mở, cổ trung lập', 'Thấy căng sau đùi là đúng'] },
+    'deadlift': { b: 'heavy', c: ['Đẩy sàn ra xa thay vì kéo tạ', 'Kẹp nách để thanh đòn sát người', 'Hông và vai lên cùng lúc', 'Siết mông ở trên, không ngả ra sau'] },
+    'hip-thrust': { b: 'lift', c: ['Cằm gập nhẹ, mắt nhìn thẳng trước', 'Cẳng chân thẳng đứng ở đỉnh', 'Siết mông 1 giây như kẹp đồng xu', 'Hạ sườn xuống, không ưỡn lưng'] },
+    'glute-bridge': { b: 'lift', c: ['Ép lưng dưới xuống thảm trước khi đẩy', 'Đẩy bằng gót chân', 'Siết mông 1–2 giây ở trên'] },
+    'leg-curl': { b: 'lift', c: ['Hông dính ghế', 'Kéo mũi chân về phía ống quyển', 'Thả về chậm 3 giây'] },
+    'leg-ext': { b: 'lift', c: ['Lưng dính ghế, tay giữ chặt tay cầm', 'Siết đùi trước 1 giây ở trên', 'Không đá bằng quán tính'] },
+    'calf-raise': { b: 'lift', c: ['Nhón lên bằng ngón cái', 'Giữ 1 giây ở trên và ở dưới', 'Gối thẳng nhưng không khoá'] },
+    'bw-squat': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Đưa tay ra trước để giữ thăng bằng', 'Ngồi như ngồi xuống ghế phía sau'] },
+    'reverse-lunge': { b: 'lift', c: ['Bước lùi đủ xa để gối trước nằm trên cổ chân', 'Thân thẳng', 'Đạp gót chân trước để về'] },
+    'wall-sit': { b: 'hold', c: ['Gối 90°, gối nằm trên cổ chân', 'Lưng dưới áp tường', 'Tay để ngoài đùi, không đỡ'] },
+    'pushup': { b: 'lift', c: ['Cùi chỏ dẫn đường, chếch 45° so với thân, không bè ngang', 'Gồng bụng, siết mông: người thẳng như tấm ván', 'Ở trên, đẩy sàn ra xa'] },
+    'knee-pushup': { b: 'lift', c: ['Cùi chỏ dẫn đường, chếch 45°', 'Thân thẳng từ đầu đến gối', 'Ngực xuống trước, không đưa đầu xuống trước'] },
+    'db-bench': { b: 'lift', c: ['Khép bả vai về sau và xuống, như nhét vào túi quần sau', 'Cùi chỏ dẫn đường 45°, cẳng tay thẳng đứng', 'Bàn chân đạp chắc xuống sàn', 'Hai tạ đi theo hình chữ A'] },
+    'bench': { b: 'heavy', c: ['Bả vai khép, ngực mở', 'Cổ tay thẳng, thanh đòn nằm trên gốc bàn tay', 'Cùi chỏ ở ngay dưới thanh đòn', 'Đạp chân xuống sàn'] },
+    'chest-press': { b: 'lift', c: ['Bả vai khép, không nhún vai', 'Cùi chỏ ngang hoặc thấp hơn tay cầm', 'Về chậm'] },
+    'incline-db': { b: 'lift', c: ['Bả vai khép', 'Cùi chỏ dẫn đường, thấp hơn vai', 'Không đập hai tạ vào nhau ở trên'] },
+    'lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường: kéo cùi chỏ xuống túi quần sau', 'Tay chỉ là cái móc, kéo bằng lưng', 'Hạ vai xuống trước rồi mới kéo', 'Ngực hướng lên thanh, ngả nhẹ 10–15°'] },
+    'cable-row': { b: 'lift', c: ['Cùi chỏ dẫn đường, kéo về sau sát người', 'Ép hai bả vai như kẹp quả cam', 'Thân đứng yên, không đánh lưng'] },
+    'db-row': { b: 'lift', c: ['Cùi chỏ dẫn đường về phía hông, không kéo lên vai', 'Lưng phẳng như mặt bàn', 'Không xoay thân'] },
+    'assisted-pullup': { b: 'lift', c: ['Hạ vai xuống, ngực hướng lên xà', 'Cùi chỏ kéo xuống hông', 'Hạ người chậm 3 giây'] },
+    'superman': { b: 'lift', c: ['Mắt nhìn sàn, cổ trung lập', 'Siết mông trước khi nhấc chân', 'Giữ 2 giây ở trên'] },
+    'db-press': { b: 'heavy', c: ['Gồng bụng, siết mông để không ưỡn lưng', 'Cẳng tay thẳng đứng, cùi chỏ hơi đưa ra trước', 'Đẩy tạ thẳng lên trên đầu'] },
+    'lateral-raise': { b: 'lift', c: ['Cùi chỏ dẫn đường, cao hơn cổ tay', 'Đẩy tạ ra xa sang hai bên, đừng nâng lên', 'Không nhún vai, chỉ nâng đến ngang vai'] },
+    'face-pull': { b: 'lift', c: ['Cùi chỏ cao, kéo dây về phía trán', 'Tách hai tay ra hai bên tai', 'Ép bả vai ở cuối'] },
+    'pike-pushup': { b: 'lift', c: ['Hông cao; đầu đi xuống giữa hai tay thành tam giác', 'Cùi chỏ hướng ra sau, không bè', 'Gồng core'] },
+    'db-curl': { b: 'lift', c: ['Cùi chỏ dính hông, chỉ cẳng tay chuyển động', 'Xoay lòng bàn tay lên khi cuốn', 'Hạ chậm 2–3 giây'] },
+    'triceps-pushdown': { b: 'lift', c: ['Cùi chỏ ghim sát hông', 'Duỗi thẳng tay, siết 1 giây', 'Thân hơi nghiêng trước, đứng vững'] },
+    'plank': { b: 'hold', c: ['Khuỷu ngay dưới vai, đẩy sàn ra xa', 'Gồng bụng như sắp bị đấm, siết mông', 'Vai, hông, gót thẳng một hàng'] },
+    'side-plank': { b: 'hold', c: ['Khuỷu nằm dưới vai', 'Đẩy hông lên, người thẳng', 'Đầu thẳng hàng cột sống'] },
+    'dead-bug': { b: 'lift', c: ['Ép lưng dưới xuống sàn suốt bài', 'Duỗi chậm tay và chân đối diện', 'Thở ra hết khi duỗi'] },
+    'bird-dog': { b: 'lift', c: ['Tưởng tượng một cốc nước trên lưng: đừng làm đổ', 'Duỗi dài ra, đừng nâng cao', 'Gồng core'] },
+    'crunch': { b: 'lift', c: ['Cuộn từng đốt sống lên, cằm cách ngực một nắm tay', 'Tay chỉ đỡ đầu, không kéo cổ', 'Thở ra khi cuộn lên'] },
+    'mountain-climber': { b: 'cardio', c: ['Vai nằm trên cổ tay', 'Hông thấp, ngang vai', 'Gồng core, thở theo nhịp'] },
+    'incline-walk': { b: 'cardio', c: ['Không vịn tay', 'Đứng thẳng, bước vừa phải', 'Giữ mức thở vẫn nói chuyện được'] },
+    'bike': { b: 'cardio', c: ['Yên ngang hông', 'Gối hơi chùng khi bàn đạp ở dưới cùng', 'Vai thả lỏng, đạp đều'] },
+    'bulgarian-split-squat': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân hơi đổ trước để ăn mông nhiều hơn', 'Đạp bằng gót chân trước', 'Đi xuống như thang máy, không lao về trước'] },
+    'hip-abduction': { b: 'lift', c: ['Ngồi thẳng, lưng dính đệm', 'Mở gối ra bằng mông, giữ 1 giây', 'Về chậm 2–3 giây'] },
+    'stair-climber': { b: 'cardio', c: ['Đứng thẳng, không gục vào tay vịn', 'Đặt cả bàn chân lên bậc', 'Giữ mức thở vẫn nói chuyện được'] },
+  };
+  function coachTips() { try { const t = JSON.parse(lsGet('so-hlv.tips') || '{}'); return t && typeof t === 'object' ? t : {}; } catch { return {}; } }
+  function setCoachTips(t) { lsSet('so-hlv.tips', JSON.stringify(t)); S.clients.filter((c) => c.link).forEach((c) => pushSoon(c.id)); }
+  const tipsPayload = (c) => ({ global: coachTips(), personal: ((c && c.tips) || []).slice(0, 100) });
+  const tipsOf = (id) => coachTips()[id] || (DEFAULT_TIPS[id] || {}).c || [];
+  function drawTips(v) {
+    const linked = S.clients.filter((c) => c.link && c.link.claimed).length;
+    header(linked ? `Gửi tới ${linked} học viên đã kết nối` : 'Gửi tới app học viên', 'Mẹo bài tập', '', false);
+    const ct = coachTips(), q = fold(S.tipQ || '');
+    const list = EX_LIB.filter((x) => !q || fold(x.name).includes(q) || x.keys.some((k) => k.includes(q)) || fold(EX_GROUPS[x.group]).includes(q));
+    v.innerHTML = notices() + `
+      <p class="muted small" style="margin:0">Sửa câu nhắc cho từng bài (gối theo mũi chân, hít thở, gồng core…). Học viên đã kết nối thấy mẹo mới khi tập. Mẹo riêng cho một người: mở học viên → <b>Hồ sơ</b> → <b>Mẹo riêng</b>.</p>
+      <input class="search-in" id="tipQ" type="search" placeholder="Tìm bài: squat, mông, kéo xô…" value="${esc(S.tipQ || '')}" aria-label="Tìm bài" autocomplete="off">
+      ${Object.entries(EX_GROUPS).map(([g, l]) => { const xs = list.filter((x) => x.group === g); return xs.length ? `<section><h2>${esc(l)}</h2><div class="list">${xs.map((x) => `
+        <button class="card tip-row" data-act="tip-edit" data-id="${x.id}">
+          <div class="card-head"><span class="card-title">${esc(x.name)}</span>${ct[x.id] ? '<span class="pill done">Đã sửa</span>' : ''}</div>
+          <div class="card-sub">${esc(tipsOf(x.id).join(' · ') || 'Chưa có mẹo — bấm để thêm')}</div></button>`).join('')}</div></section>` : ''; }).join('') || '<p class="muted">Không thấy bài nào.</p>'}`;
+    const inp = $('#tipQ');
+    inp.oninput = () => { S.tipQ = inp.value; const pos = inp.selectionStart; draw(); const n = $('#tipQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* ignore */ } };
+  }
+  function tipSheet(id) {
+    const lib = libById(id); if (!lib) return;
+    const ct = coachTips();
+    openSheet(`<div class="sheet-head"><h2>${esc(lib.name)}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
+      <label class="f">Câu nhắc khi tập (mỗi dòng một câu)<textarea id="tipText" style="min-height:180px">${esc(tipsOf(id).join('\n'))}</textarea></label>
+      <p class="muted small" style="margin:0">Câu đầu tiên hiện ngay trên thẻ bài khi học viên tập; các câu sau nằm trong "Xem thêm". Tối đa 12 câu.</p>
+      <button class="btn primary block" id="tipSave">Lưu và gửi học viên</button>
+      ${ct[id] ? '<button class="btn block" id="tipReset">Khôi phục mẹo mặc định</button>' : ''}`, (root) => {
+      $('#tipSave', root).onclick = () => {
+        const lines = $('#tipText', root).value.split('\n').map((x) => x.trim()).filter(Boolean).slice(0, 12).map((x) => x.slice(0, 160));
+        const t = coachTips();
+        const def = (DEFAULT_TIPS[id] || {}).c || [];
+        if (!lines.length || JSON.stringify(lines) === JSON.stringify(def)) delete t[id]; else t[id] = lines;
+        setCoachTips(t); closeSheet(); toast('Đã lưu mẹo, đang gửi học viên'); render();
+      };
+      const r = $('#tipReset', root);
+      if (r) r.onclick = () => { const t = coachTips(); delete t[id]; setCoachTips(t); closeSheet(); toast('Đã khôi phục mẹo mặc định'); render(); };
+    });
+  }
+  function personalTipsSection(c) {
+    const list = c.tips || [];
+    return `<section><h2>Mẹo riêng cho ${esc(c.name)}</h2>
+      <p class="muted small" style="margin:0">${c.link ? 'Hiện trên app học viên: mẹo theo bài hiện khi tập bài đó; mẹo chung hiện ở trang chính.' : 'Kết nối app học viên để mẹo tự hiện bên học viên.'}</p>
+      ${list.length ? `<div class="list">${list.map((p) => `<div class="ptip"><div class="grow"><div class="muted small">${esc(p.exId ? (libById(p.exId) || {}).name || p.exId : 'Chung (mọi buổi)')}</div><div style="overflow-wrap:anywhere">${esc(p.text)}</div></div>
+        ${canWrite() ? `<button class="rm" data-act="ptip-del" data-client="${esc(c.id)}" data-id="${esc(p.id)}" aria-label="Xoá mẹo">×</button>` : ''}</div>`).join('')}</div>` : ''}
+      ${canWrite() ? `<div class="card">
+        <label class="f">Bài<select id="ptEx"><option value="">Chung (mọi buổi)</option>${Object.entries(EX_GROUPS).map(([g, l]) => `<optgroup label="${esc(l)}">${EX_LIB.filter((x) => x.group === g).map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+        <label class="f">Mẹo<input id="ptText" maxlength="200" placeholder="VD: squat hay đổ gối vào trong, đẩy gối theo mũi chân"></label>
+        <button class="btn primary" data-act="ptip-add" data-client="${esc(c.id)}">Thêm mẹo riêng</button></div>` : ''}
+    </section>`;
+  }
+
+  // ---------- ăn uống của học viên (từ app Nhật Ký Tập) ----------
+  const SLOTS = { sang: 'Sáng', trua: 'Trưa', toi: 'Tối', phu: 'Bữa phụ' };
+  const PORT_L = { protein: 'đạm', carb: 'tinh bột', veg: 'rau', fat: 'chất béo' };
+  const pbar = (v, max, cls) => `<div class="bar"><i class="${cls || ''}" style="width:${Math.min(100, max ? (v / max) * 100 : 0)}%"></i></div>`;
+  function foodBody(c) {
+    const meals = c.meals || [];
+    if (!c.link) return '<div class="empty"><h3>Chưa nối app học viên</h3><p>Vào tab Hồ sơ → Tạo mã kết nối. Học viên chụp ảnh bữa ăn trên app, bữa ăn sẽ hiện ở đây để bạn nhận xét.</p></div>';
+    if (!meals.length) return '<div class="empty"><h3>Chưa có bữa ăn nào</h3><p>Học viên mở tab <b>Ăn uống</b> trên app → Chụp bữa ăn. Bữa ăn tự gửi về đây khi đồng bộ.</p></div>';
+    const tg = (c.app && c.app.nutri) || null, fb = c.feedback || {}, map = c.mediaMap || {};
+    const days = [...new Set(meals.map((m) => m.date))].sort().reverse().slice(0, 14);
+    const sum = (d) => meals.filter((m) => m.date === d).reduce((a, m) => ({ kcal: a.kcal + (m.kcal || 0), protein: a.protein + (m.protein || 0) }), { kcal: 0, protein: 0 });
+    const last7 = days.filter((d) => d > addDays(today(), -7));
+    const avg = (k) => (last7.length ? last7.reduce((s, d) => s + sum(d)[k], 0) / last7.length : null);
+    return `${last7.length ? `<div class="stats">
+        <div class="stat"><span class="v">${fmtNum(Math.round(avg('kcal')))}</span><span class="k">kcal TB/ngày${tg ? ' · mục tiêu ' + fmtNum(tg.kcal) : ''}</span></div>
+        <div class="stat"><span class="v">${fmtNum(Math.round(avg('protein')))}</span><span class="k">g đạm TB/ngày${tg ? ' · mục tiêu ' + fmtNum(tg.protein) : ''}</span></div>
+        <div class="stat"><span class="v">${last7.length}/7</span><span class="k">ngày có ghi</span></div></div>` : ''}
+      ${days.map((d) => { const t = sum(d); const ms = meals.filter((m) => m.date === d).sort((a, b) => (a.time || '').localeCompare(b.time || '')); return `
+      <div class="day-card">
+        <div class="row between"><b>${esc(fmtShort(d))}</b><span class="num small"><b>${fmtNum(t.kcal)}</b>${tg ? ' / ' + fmtNum(tg.kcal) : ''} kcal · <b>${fmtNum(t.protein)}</b>${tg ? ' / ' + fmtNum(tg.protein) : ''} g đạm</span></div>
+        ${tg ? pbar(t.kcal, tg.kcal, t.kcal > tg.kcal * 1.1 ? 'over' : '') + pbar(t.protein, tg.protein, 'good') : ''}
+        ${ms.map((m) => { const local = m.photo && map[m.photo]; return `<div class="cmeal">
+          ${local ? mediaThumb({ id: local, kind: 'image' }) : ''}
+          <div class="grow">
+            <div class="row between"><b>${esc(SLOTS[m.slot] || 'Bữa ăn')}${m.time ? ' · ' + esc(m.time) : ''}</b><span class="num small">${fmtNum(m.kcal)} kcal · ${fmtNum(m.protein)} g đạm</span></div>
+            <div class="card-sub">${m.src === 'ai' && m.ai ? '<span class="pill info">AI</span> ' + esc((m.ai.items || []).map((i) => i.name + (i.amount ? ' (' + i.amount + ')' : '')).join(', ')) : esc(Object.entries(m.portions || {}).filter(([, n]) => n).map(([k, n]) => fmtNum(n) + ' ' + (PORT_L[k] || k)).join(' · ') || 'Không ghi khẩu phần')}</div>
+            ${m.note ? `<div class="card-sub">${esc(m.note)}</div>` : ''}
+            ${m.photo && !local ? '<div class="card-sub">Ảnh đang tải về…</div>' : ''}
+            ${fb[m.id] ? `<div class="fb-sent">Bạn đã nhận xét: ${esc(fb[m.id])}</div>` : ''}
+            ${canWrite() ? `<div class="fb-row"><input id="fb-${esc(m.id)}" maxlength="300" placeholder="${fb[m.id] ? 'Sửa nhận xét…' : 'Nhận xét gửi học viên…'}" aria-label="Nhận xét bữa ăn"><button class="btn small" data-act="meal-fb" data-client="${esc(c.id)}" data-id="${esc(m.id)}">Gửi</button></div>` : ''}
+          </div></div>`; }).join('')}
+      </div>`; }).join('')}`;
+  }
+  async function setFeedback(clientId, refId, text) {
+    const c = clientById(clientId); if (!c) return false;
+    const feedback = { ...(c.feedback || {}) };
+    if (text) feedback[refId] = text.slice(0, 300); else delete feedback[refId];
+    const keys = Object.keys(feedback); if (keys.length > 300) keys.slice(0, keys.length - 300).forEach((k) => delete feedback[k]);
+    const ok = await write('clients', c.id, { ...clean(c), feedback });
+    if (ok) pushSoon(c.id);
+    return ok;
+  }
+
+  // ---------- ảnh/video học viên gửi: tải về máy HLV rồi xoá trên máy chủ ----------
+  function b64ToBlob(b64, type) {
+    const bin = atob(b64); const u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return new Blob([u], { type });
+  }
+  async function fetchTraineeMedia(clientId, list) {
+    if (!S.assets || !list.length) return;
+    let c = clientById(clientId); if (!c || !c.link) return;
+    const map = { ...(c.mediaMap || {}) };
+    const started = Date.now();
+    let changed = false;
+    for (const m of list) {
+      if (!m || !m.id || m.id in map || !m.chunks) continue;
+      if (Date.now() - started > 60000) break;
+      let session = null;
+      if (m.ref && m.ref.type === 'workout') {
+        session = S.sessions.find((s) => s.clientId === clientId && ((s.result && s.result.wid === m.ref.id) || s.id === 't-' + m.ref.id));
+        if (!session) continue; // buổi tập chưa về, lần sau tải
+      }
+      try {
+        const parts = [];
+        for (let i = 0; i < m.chunks; i++) parts.push((await api('media-get', { pairId: c.link.pairId, coachKey: coachKey(), id: m.id, idx: i })).data);
+        const blob = b64ToBlob(parts.join(''), m.mime || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg'));
+        const r = await S.assets.upload(blob, { type: blob.type });
+        map[m.id] = r.id; changed = true;
+        if (session) {
+          const cur = S.sessions.find((s) => s.id === session.id) || session;
+          await write('sessions', cur.id, { ...clean(cur), media: [...(cur.media || []), { id: r.id, kind: m.kind, at: m.at || new Date().toISOString(), fromTrainee: true }], updatedAt: new Date().toISOString() });
+        }
+        api('media-ack', { pairId: c.link.pairId, coachKey: coachKey(), id: m.id, chunks: m.chunks }).catch(() => {});
+      } catch (e) {
+        if (e.status === 404) { map[m.id] = null; changed = true; } // hết hạn trên máy chủ
+        else break;
+      }
+    }
+    c = clientById(clientId);
+    if (changed && c) await write('clients', c.id, { ...clean(c), mediaMap: map });
   }
 
   // ---------- sync with trainee app (Nhật Ký Tập) ----------
@@ -1289,7 +1523,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
   async function pushPlans(clientId) {
     const c = clientById(clientId);
     if (!c || !c.link) return;
-    await api('coach-push', { pairId: c.link.pairId, coachKey: coachKey(), coachName: coachName(), clientName: c.name, plans: plansFor(clientId) });
+    await api('coach-push', { pairId: c.link.pairId, coachKey: coachKey(), coachName: coachName(), clientName: c.name, plans: plansFor(clientId),
+      tips: tipsPayload(c), feedback: c.feedback || {} });
   }
   const pushSoon = (clientId) => { setTimeout(() => pushPlans(clientId).catch(() => {}), 300); };
   async function pullClient(c) {
@@ -1297,9 +1532,11 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     S.syncInfo[c.id] = { at: new Date(), error: null };
     const cur = clientById(c.id) || c;
     const p = j.profile;
-    const app = p ? { name: p.name || '', height: p.height ?? null, goal: p.goal || '', target: p.target ?? null, weight: p.weight ?? null, bmi: p.bmi ?? null, updatedAt: p.updatedAt || p.at || null } : (cur.app || null);
+    const app = p ? { name: p.name || '', height: p.height ?? null, goal: p.goal || '', target: p.target ?? null, weight: p.weight ?? null, bmi: p.bmi ?? null,
+      nutri: p.nutri && p.nutri.kcal ? { kcal: Number(p.nutri.kcal) || null, protein: Number(p.nutri.protein) || null } : null, updatedAt: p.updatedAt || p.at || null } : (cur.app || null);
     const link = { ...cur.link, claimed: Boolean(j.claimed), claimedAt: j.claimedAt || null };
-    if (!same(link, cur.link) || !same(app, cur.app)) await write('clients', cur.id, { ...clean(cur), link, app });
+    const meals = Array.isArray(j.meals) ? j.meals.slice(0, 200) : (cur.meals || []);
+    if (!same(link, cur.link) || !same(app, cur.app) || !same(meals, cur.meals || [])) await write('clients', cur.id, { ...clean(cur), link, app, meals });
 
     for (const r of j.results || []) {
       if (!r || !r.id) continue;
@@ -1328,6 +1565,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       if (m && m.weight === w.weight && m.date === w.date) continue;
       await write('metrics', id, { clientId: cur.id, date: w.date, weight: w.weight, waist: m ? m.waist : null, bodyFat: m ? m.bodyFat : null, note: 'Học viên tự ghi trên app' });
     }
+    await fetchTraineeMedia(cur.id, Array.isArray(j.media) ? j.media : []);
   }
   let syncingAll = false;
   async function syncAll(manual) {
@@ -1402,6 +1640,24 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     if (act === 'ctab') { S.clientTab = el.dataset.tab; render(); return; }
     if (act === 'open-session') { const s = S.sessions.find((x) => x.id === el.dataset.id); if (s) sessionSheet(s); return; }
     if (act === 'export') { exportBackup(); return; }
+    if (act === 'tip-edit') { tipSheet(el.dataset.id); return; }
+    if (act === 'ptip-add') {
+      const c = clientById(el.dataset.client); const text = ($('#ptText') || {}).value; if (!c || !text || !text.trim()) { toast('Nhập nội dung mẹo.'); return; }
+      const tips = [...(c.tips || []), { id: uid('p'), exId: $('#ptEx').value || '', text: text.trim().slice(0, 200) }].slice(-100);
+      if (await write('clients', c.id, { ...clean(c), tips })) { toast(c.link ? 'Đã thêm mẹo, đang gửi học viên' : 'Đã thêm mẹo'); pushSoon(c.id); }
+      return;
+    }
+    if (act === 'ptip-del') {
+      const c = clientById(el.dataset.client); if (!c) return;
+      if (await write('clients', c.id, { ...clean(c), tips: (c.tips || []).filter((p) => p.id !== el.dataset.id) })) pushSoon(c.id);
+      return;
+    }
+    if (act === 'meal-fb') {
+      const inp = document.getElementById('fb-' + el.dataset.id); const text = inp ? inp.value.trim() : '';
+      if (!text) { toast('Nhập nhận xét trước khi gửi.'); return; }
+      el.disabled = true; if (await setFeedback(el.dataset.client, el.dataset.id, text)) toast('Đã gửi nhận xét cho học viên'); el.disabled = false;
+      return;
+    }
     if (!canWrite()) return;
     if (act === 'new-client') clientSheet(null);
     else if (act === 'edit-client') clientSheet(clientById(el.dataset.id));

@@ -4,6 +4,7 @@
   "installCommand": "",
   "buildCommand": "node nhat-ky-tap/build-web.mjs && node coach-platform/mobile/build-web.mjs",
   "outputDirectory": ".",
+  "functions": { "api/sync.js": { "maxDuration": 60 } },
   "redirects": [
     { "source": "/", "destination": "/nhat-ky-tap/web/", "permanent": false }
   ],

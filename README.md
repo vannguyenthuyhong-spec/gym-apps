@@ -28,7 +28,15 @@ Lên buổi tập trong Sổ HLV có 3 cách:
 
 Bên app học viên, mỗi bài hiện mục tiêu, thời gian nghỉ (đồng hồ nghỉ chạy theo đúng thời gian HLV ghi) và lời dặn của HLV.
 
-Hai app tự đồng bộ khi mở, khi lưu và định kỳ 1,5–2 phút; có nút "Đồng bộ" để chạy ngay. Không có tài khoản: mỗi bên giữ một khoá ngẫu nhiên trên máy, máy chủ chỉ lưu bản băm. Ảnh/video của Sổ HLV không đồng bộ.
+**Mẹo bài tập:** Sổ HLV → tab **Mẹo** → sửa câu nhắc từng bài; mọi học viên đã kết nối thấy mẹo mới. Mẹo riêng cho một người: học viên → **Hồ sơ** → **Mẹo riêng** (theo bài hoặc chung).
+
+**Ăn uống:** học viên mở tab **Ăn uống** → chụp ảnh bữa ăn → chọn khẩu phần theo bàn tay (app tính kcal, đạm) hoặc bấm **AI ước lượng**. HLV xem ở học viên → **Ăn uống**, có ảnh và ô nhận xét gửi lại học viên.
+
+**Ảnh/video tư thế:** học viên chụp/quay trong lúc tập (cuối trang buổi tập) hoặc trong buổi đã tập. Tệp tự về đúng buổi tập trong Sổ HLV. Máy chủ chỉ giữ tạm (tối đa 21 ngày); HLV tải về máy là máy chủ xoá ngay. Video tối đa 18 MB.
+
+**Bật AI ước lượng bữa ăn (tuỳ chọn, tính phí):** tạo khoá API tại console.anthropic.com → Vercel → project → **Settings → Environment Variables** → thêm `ANTHROPIC_API_KEY` → Redeploy. Model `claude-opus-5-5`, mỗi học viên tối đa 30 lượt/ngày. Kiểm tra: `ping` trả `"ai": true`.
+
+Hai app tự đồng bộ khi mở, khi lưu và định kỳ 1,5–2 phút; có nút "Đồng bộ" để chạy ngay. Không có tài khoản: mỗi bên giữ một khoá ngẫu nhiên trên máy, máy chủ chỉ lưu bản băm. Ảnh/video HLV tự chụp trong Sổ HLV chỉ nằm trên máy HLV.
 
 **Bật kho dữ liệu (một lần):** Vercel → project → **Storage** → **Create Database** → **Upstash** → **Upstash for Redis** (Free) → Connect với project → Redeploy. Vercel tự thêm biến `KV_REST_API_URL` và `KV_REST_API_TOKEN`. Kiểm tra: `POST /api/sync {"action":"ping"}` trả `"store": true`.
 
