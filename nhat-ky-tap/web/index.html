@@ -548,6 +548,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
+  const APP_VERSION = '1.1 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 }, settings: { rest: 90, ptName: DEFAULT_PT } });
   let storageOk = true;
@@ -1186,7 +1187,8 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       <section><h3>Sao lưu</h3>
         <p class="sub" style="margin:0">Dữ liệu nằm trong trình duyệt của điện thoại này. Tải tệp sao lưu mỗi tuần và cất lên Drive/Zalo để không mất khi đổi máy.</p>
         <div class="row"><button class="btn sm" id="bExport">Tải tệp sao lưu</button><label class="btn sm" style="position:relative;overflow:hidden">Khôi phục từ tệp<input id="bImport" type="file" accept="application/json,.json" style="position:absolute;inset:0;opacity:0"></label></div></section>
-      <section><h3>Xoá toàn bộ dữ liệu</h3><button class="btn danger" id="bWipe">Xoá hết nhật ký</button><div id="bConfirm"></div></section>`, (root) => {
+      <section><h3>Xoá toàn bộ dữ liệu</h3><button class="btn danger" id="bWipe">Xoá hết nhật ký</button><div id="bConfirm"></div></section>
+      <p class="sub" style="margin:0">Phiên bản ${APP_VERSION} · PT ${esc(D.settings.ptName || DEFAULT_PT)}</p>`, (root) => {
       root.addEventListener('click', (e) => {
         const p = e.target.closest('[data-prog]');
         if (p && p.dataset.prog !== D.program.id) { D.program = { id: p.dataset.prog, next: 0 }; save(); settingsSheet(); render(); toast('Đã đổi giáo án'); }
