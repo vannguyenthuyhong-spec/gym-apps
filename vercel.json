@@ -3,6 +3,7 @@
   "framework": null,
   "installCommand": "",
   "buildCommand": "node nhat-ky-tap/build-web.mjs && node coach-platform/mobile/build-web.mjs",
+  "outputDirectory": ".",
   "headers": [
     { "source": "/(.*)/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     { "source": "/(.*)/index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
