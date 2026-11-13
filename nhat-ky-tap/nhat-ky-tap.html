@@ -182,6 +182,10 @@ svg.body text { fill: var(--muted); font-size: 11px; font-family: var(--font-bod
 .rest .time { font-family: var(--font-display); font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .rest .bar { height: 6px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
 .rest .bar i { display: block; height: 100%; background: var(--accent); width: 0; }
+.paused { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.paused b { color: var(--ink); font-size: 16px; }
+main.workout.is-paused .ex-card { opacity: .55; }
+#elapsed.paused-clock { color: var(--warn); }
 .rest.idle .time { color: var(--muted); font-size: 18px; font-family: var(--font-body); font-weight: 600; }
 
 /* Tab bar */
@@ -1114,7 +1118,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.6 (13/11/2026)';
+  const APP_VERSION = '1.7 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1235,6 +1239,24 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch { /* optional */ }
   }
   function startRest(sec) { rest = { end: Date.now() + sec * 1000, total: sec }; tick(); }
+  // Thời gian tập thực: không tính lúc tạm dừng
+  const activeMs = () => (A ? (A.pausedAt ? new Date(A.pausedAt).getTime() : Date.now()) - new Date(A.startedAt).getTime() - (A.pausedMs || 0) : 0);
+  function setPaused(on) {
+    if (!A || Boolean(A.pausedAt) === on) return;
+    const now = Date.now();
+    if (on) {
+      A.pausedAt = new Date(now).toISOString();
+      if (rest) { rest.left = Math.max(0, rest.end - now); rest.paused = true; }
+      try { wakeLock && wakeLock.release(); } catch { /* ignore */ }
+    } else {
+      A.pausedMs = (A.pausedMs || 0) + (now - new Date(A.pausedAt).getTime());
+      A.pausedAt = null;
+      if (rest && rest.paused) { rest.end = now + rest.left; rest.paused = false; }
+      requestWake();
+    }
+    saveActive(true); render();
+    toast(on ? 'Đã tạm dừng buổi tập. Thời gian dừng không tính vào buổi tập.' : 'Tiếp tục tập!');
+  }
   let wakeLock = null;
   async function requestWake() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch { wakeLock = null; } }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && A) requestWake(); });
@@ -1242,15 +1264,16 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   function tick() {
     if (S.view !== 'workout' || !A) return;
     const el = $('#elapsed');
-    if (el) el.textContent = mmss((Date.now() - new Date(A.startedAt)) / 1000);
+    if (el) { el.textContent = (A.pausedAt ? '⏸ ' : '') + mmss(activeMs() / 1000); el.classList.toggle('paused-clock', Boolean(A.pausedAt)); }
     const r = $('#rest');
     if (rest) {
-      const left = Math.max(0, (rest.end - Date.now()) / 1000);
+      const left = Math.max(0, (rest.paused ? rest.left : rest.end - Date.now()) / 1000);
       r.classList.remove('idle');
       $('#restTime').textContent = left > 0 ? mmss(Math.ceil(left)) : 'Vào hiệp!';
       $('#restBar').style.width = `${100 - (left / rest.total) * 100}%`;
-      $('#restBtns').hidden = left <= 0;
-      if (left <= 0 && !rest.fired) { rest.fired = true; beep(); setTimeout(() => { if (rest && rest.fired) { rest = null; tick(); } }, 4000); }
+      $('#restBtns').hidden = left <= 0 || Boolean(rest.paused);
+      if (rest.paused) $('#restTime').textContent = '⏸ ' + mmss(Math.ceil(left));
+      if (left <= 0 && !rest.fired && !rest.paused) { rest.fired = true; beep(); setTimeout(() => { if (rest && rest.fired) { rest = null; tick(); } }, 4000); }
     } else {
       r.classList.add('idle');
       $('#restTime').textContent = `Nghỉ ${D.settings.rest} giây sau mỗi hiệp`;
@@ -1321,7 +1344,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     v.innerHTML = `
       ${!storageOk ? '<div class="empty"><p>Trình duyệt đang chặn bộ nhớ (chế độ ẩn danh?). Dữ liệu sẽ mất khi đóng trang.</p></div>' : ''}
       ${A ? `<button class="card" data-act="nav" data-to="workout" style="border-color:var(--accent)">
-          <div class="row between"><span class="chip accent">Đang tập</span><span class="muted small num">bắt đầu ${new Date(A.startedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
+          <div class="row between"><span class="chip ${A.pausedAt ? 'warn' : 'accent'}">${A.pausedAt ? 'Đang tạm dừng' : 'Đang tập'}</span><span class="muted small num">bắt đầu ${new Date(A.startedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
           <div class="card-title">Tiếp tục: ${esc(A.title)}</div></button>` : ''}
       ${needBackup ? `<div class="banner-backup"><div><b>${daysSinceBackup == null ? 'Bạn chưa sao lưu lần nào.' : `Đã ${daysSinceBackup} ngày chưa sao lưu.`}</b> Dữ liệu chỉ nằm trên điện thoại này, đổi máy hay xoá dữ liệu trình duyệt là mất.</div>
         <div class="row"><button class="btn sm primary" data-act="backup-now">Sao lưu ngay</button><button class="btn sm ghost" data-act="help" data-sec="backup">Cách sao lưu</button></div></div>` : ''}
@@ -1370,13 +1393,15 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= WORKOUT =================
   function drawWorkout(v) {
-    header(A.title, '', `<button class="btn sm" data-act="add-ex">+ Bài</button>`, false);
+    header(A.title, '', `<div class="row" style="flex-wrap:nowrap"><button class="btn sm${A.pausedAt ? ' primary' : ''}" data-act="pause" aria-label="${A.pausedAt ? 'Tiếp tục buổi tập' : 'Tạm dừng buổi tập'}">${A.pausedAt ? '▶ Tiếp' : '⏸ Dừng'}</button><button class="btn sm" data-act="add-ex">+ Bài</button></div>`, false);
+    v.classList.toggle('is-paused', Boolean(A.pausedAt));
     $('#hTitle').innerHTML = `<span id="elapsed" class="num">0:00</span>`;
     const doneSets = A.items.reduce((n, it) => n + it.sets.filter((s) => s.done).length, 0);
     const allSets = A.items.reduce((n, it) => n + it.sets.length, 0);
     v.innerHTML = `
       <div class="row between"><span class="muted small num">${doneSets}/${allSets} hiệp đã xong</span><button class="btn sm ghost" data-act="cancel-workout">Huỷ buổi</button></div>
       <div id="cancelBox"></div>
+      ${A.pausedAt ? `<div class="paused"><div><b>Đang tạm dừng</b><br>Từ ${new Date(A.pausedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}. Đồng hồ buổi tập và giờ nghỉ đã dừng.</div><button class="btn primary" data-act="pause">▶ Tiếp tục tập</button></div>` : ''}
       ${A.coachNote ? `<div class="hint pt">HLV ${esc((D.link && D.link.coachName) || '')} dặn: ${esc(A.coachNote)}</div>` : ''}
       ${A.items.map((it, i) => {
         const ex = exById(it.ex);
@@ -1440,7 +1465,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     let feeling = null;
     const FEEL = ['Rất mệt', 'Mệt', 'Ổn', 'Tốt', 'Rất tốt'];
     openSheet(`${sheetHead('Kết thúc buổi tập')}
-      <div class="muted">${done} hiệp đã hoàn thành · ${mmss((Date.now() - new Date(A.startedAt)) / 1000)} phút</div>
+      <div class="muted">${done} hiệp đã hoàn thành · ${mmss(activeMs() / 1000)} phút</div>
       ${done ? '' : '<div class="confirm">Chưa có hiệp nào được tick hoàn thành. Bạn có thể quay lại tick, hoặc huỷ buổi này.</div>'}
       <section><h3>Hôm nay thấy thế nào?</h3>
         <div class="scale" id="feel">${FEEL.map((l, i) => `<button type="button" data-v="${i + 1}" aria-pressed="false"><b>${i + 1}</b>${l}</button>`).join('')}</div></section>
@@ -1456,7 +1481,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         const items = A.items.map((it) => ({ ex: it.ex, cue: it.cue, target: it.target, note: it.note.trim(), sets: it.sets.filter((s) => s.done).map((s) => ({ kg: s.kg, reps: s.reps, done: true })) }))
           .filter((it) => it.sets.length || it.note);
         const w = { id: A.id, title: A.title, source: A.source, date: iso(new Date(A.startedAt)), startedAt: A.startedAt,
-          minutes: Math.max(1, Math.round((Date.now() - new Date(A.startedAt)) / 60000)), feeling, note: $('#fNote', root).value.trim(), items };
+          minutes: Math.max(1, Math.round(activeMs() / 60000)), feeling, note: $('#fNote', root).value.trim(), items };
         D.workouts.push(w);
         if (A.source && A.source.type === 'program' && A.source.programId === D.program.id) {
           const p = PROGRAMS.find((x) => x.id === D.program.id);
@@ -2469,7 +2494,9 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       case 'journal-new': journalSheet(null); break;
       case 'journal-edit': journalSheet(D.journal.find((x) => x.id === id)); break;
       // workout
+      case 'pause': setPaused(!A.pausedAt); break;
       case 'toggle-set': {
+        if (A.pausedAt) setPaused(false);
         const it = A.items[Number(el.dataset.i)], s = it.sets[Number(el.dataset.s)];
         const ex = exById(it.ex);
         if (!s.done && s.reps == null) { toast('Nhập số ' + unit(ex.type) + ' trước khi tick.'); break; }
