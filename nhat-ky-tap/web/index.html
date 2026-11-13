@@ -333,6 +333,8 @@ svg.exart[data-anim] .mp { animation: nkPulse 2.4s ease-in-out infinite; }
 svg.exart .fib { fill: none; stroke: #fff; stroke-width: .7; stroke-linecap: round; opacity: .75; }
 svg.exart .ms + .fib, svg.exart .fib.s { opacity: .5; }
 svg.exart .jt { fill: #6a2a44; }
+svg.exart .band { stroke: #2fd6aa; } svg.exart .band.far { opacity: .55; }
+svg.exart .rope { stroke: #f6d46c; }
 .lib-row svg.exart { width: 112px; flex: none; border-radius: 12px; }
 svg.exart.big { max-width: 440px; margin: 0 auto; }
 .legend .dot { background: #ff2e6e; } .legend .dot.s { background: #f2a93b; opacity: 1; }
@@ -534,6 +536,45 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     { id: 'stair-climber', name: 'Leo cầu thang máy (Stair Climber)', group: 'cardio', equip: 'Máy leo cầu thang', type: 'min', inc: 0,
       steps: ['Bắt đầu tốc độ thấp (1–3).', 'Đặt cả bàn chân lên bậc, đứng thẳng.', 'Chỉ chạm nhẹ tay vịn để giữ thăng bằng.'],
       mistakes: ['Gục người, chống cả thân lên tay vịn.'] },
+    { id: 'band-squat', name: 'Squat với dây kháng lực', group: 'legs', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+      steps: ['Đứng lên giữa dây, chân rộng bằng vai; hai tay cầm hai đầu dây đưa lên ngang vai.', 'Đẩy hông ra sau, ngồi xuống đến khi đùi song song sàn.', 'Đạp cả bàn chân đứng lên; dây căng nhất ở trên cùng.'],
+      mistakes: ['Gối đổ vào trong khi đứng lên.', 'Dây tuột khỏi chân — đặt dây giữa bàn chân.'] },
+    { id: 'band-glute-kickback', name: 'Đá mông với dây mini', group: 'glutes', equip: 'Dây mini (vòng)', type: 'reps', inc: 0,
+      steps: ['Quỳ bốn điểm, dây mini vòng quanh hai cổ chân (hoặc trên gối).', 'Giữ gối gập 90°, đạp gót chân lên trần đến khi đùi ngang lưng.', 'Siết mông 1 giây rồi hạ chậm. Tập đủ một bên rồi đổi chân.'],
+      mistakes: ['Ưỡn lưng để đá cao hơn.', 'Xoay hông mở sang bên.'] },
+    { id: 'band-lateral-walk', name: 'Đi ngang với dây mini (Lateral Walk)', group: 'glutes', equip: 'Dây mini (vòng)', type: 'reps', inc: 0,
+      steps: ['Dây mini vòng trên cổ chân hoặc trên gối, chân rộng bằng vai.', 'Hạ thấp người như nửa squat, ngực mở.', 'Bước ngang 10–15 bước rồi đi ngược lại; luôn giữ dây căng. Ghi số bước mỗi bên.'],
+      mistakes: ['Đứng thẳng người — mông không làm việc.', 'Gối đổ vào trong theo lực kéo của dây.'] },
+    { id: 'band-clamshell', name: 'Mở gối nằm nghiêng (Clamshell)', group: 'glutes', equip: 'Dây mini (vòng)', type: 'reps', inc: 0,
+      steps: ['Nằm nghiêng, gối gập khoảng 90°, dây mini vòng trên gối.', 'Giữ hai bàn chân chạm nhau, mở gối trên lên cao.', 'Giữ 1 giây rồi hạ chậm. Đủ số lần thì đổi bên.'],
+      mistakes: ['Lăn hông ra sau khi mở gối.', 'Mở quá nhanh, thả dây giật về.'] },
+    { id: 'band-glute-bridge', name: 'Glute Bridge với dây mini', group: 'glutes', equip: 'Dây mini (vòng)', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, gối gập, dây mini vòng trên gối.', 'Đẩy gối hơi mở ra chống lại dây, đẩy hông lên.', 'Siết mông 1–2 giây ở trên rồi hạ chậm.'],
+      mistakes: ['Gối khép vào theo dây.', 'Ưỡn lưng thay vì dùng mông.'] },
+    { id: 'band-row', name: 'Kéo dây chèo đứng (Band Row)', group: 'back', equip: 'Dây kháng lực dài + chỗ neo', type: 'reps', inc: 0,
+      steps: ['Neo dây vào cột hoặc khung cửa ngang ngực, lùi ra cho dây hơi căng.', 'Đứng chân rộng bằng vai, gối hơi chùng, ngực mở.', 'Kéo tay về bụng, khuỷu tay lướt sát người; ép hai bả vai rồi duỗi chậm.'],
+      mistakes: ['Kéo bằng tay, nhún vai lên tai.', 'Ngả người ra sau lấy đà.'] },
+    { id: 'band-pull-apart', name: 'Kéo giãn dây trước ngực (Pull-Apart)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+      steps: ['Hai tay cầm dây rộng bằng vai, duỗi thẳng ngang ngực.', 'Kéo giãn dây sang hai bên đến khi dây chạm ngực, ép hai bả vai.', 'Về chậm, không để dây giật.'],
+      mistakes: ['Nhún vai lên.', 'Gập khuỷu tay nhiều — giữ tay gần thẳng.'] },
+    { id: 'band-chest-press', name: 'Đẩy ngực với dây', group: 'chest', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+      steps: ['Vòng dây sau lưng ngang nách, hai tay cầm hai đầu dây.', 'Đứng một chân trước một chân sau, gồng bụng.', 'Đẩy hai tay thẳng ra trước ngang ngực rồi về chậm.'],
+      mistakes: ['Dây trượt lên cổ.', 'Ưỡn lưng khi đẩy.'] },
+    { id: 'band-shoulder-press', name: 'Đẩy vai với dây', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+      steps: ['Đứng lên giữa dây, hai tay cầm hai đầu dây ngang vai.', 'Gồng bụng, đẩy tay thẳng lên trên đầu.', 'Hạ chậm về ngang vai.'],
+      mistakes: ['Ưỡn lưng dưới khi đẩy.', 'Khuỷu tay xoè quá rộng ra sau.'] },
+    { id: 'band-curl', name: 'Cuốn tay với dây', group: 'arms', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+      steps: ['Đứng lên giữa dây, hai tay cầm hai đầu, lòng bàn tay hướng ra trước.', 'Giữ khuỷu tay sát người, cuốn tay lên vai.', 'Hạ chậm đến khi tay gần thẳng.'],
+      mistakes: ['Đung đưa người lấy đà.', 'Khuỷu tay đưa ra trước.'] },
+    { id: 'band-triceps-ext', name: 'Ép tay sau với dây', group: 'arms', equip: 'Dây kháng lực dài + chỗ neo cao', type: 'reps', inc: 0,
+      steps: ['Neo dây trên cao (khung cửa), hai tay cầm dây.', 'Khuỷu tay ép sát người, duỗi tay xuống đến khi thẳng.', 'Về chậm đến khi cẳng tay ngang ngực.'],
+      mistakes: ['Khuỷu tay rời khỏi người.', 'Gập người dùng sức lưng.'] },
+    { id: 'band-lat-pulldown', name: 'Kéo xô với dây', group: 'back', equip: 'Dây kháng lực dài + chỗ neo cao', type: 'reps', inc: 0,
+      steps: ['Neo dây trên cao, cầm dây rộng hơn vai, tay duỗi lên.', 'Kéo khuỷu tay xuống và ra sau đến khi tay ngang cằm.', 'Ép xô 1 giây rồi đưa tay lên chậm.'],
+      mistakes: ['Kéo bằng tay, không dùng lưng.', 'Ngả người quá nhiều ra sau.'] },
+    { id: 'jump-rope', name: 'Nhảy dây', group: 'cardio', equip: 'Dây nhảy', type: 'min', inc: 0,
+      steps: ['Cầm dây hai tay ngang hông, khuỷu tay sát người.', 'Quay dây bằng cổ tay, bật nhẹ bằng mũi chân vừa đủ dây qua.', 'Người mới: nhảy 30–60 giây, nghỉ 30 giây, lặp lại cho đủ số phút.'],
+      mistakes: ['Bật quá cao, tiếp đất bằng gót.', 'Quay dây bằng cả cánh tay.'] },
   ];
 
   const PROGRAMS = [
@@ -549,6 +590,12 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       days: [
         { name: 'Buổi A', items: [['bw-squat', 3, 15], ['knee-pushup', 3, 10], ['glute-bridge', 3, 15], ['superman', 3, 12], ['plank', 3, 30]] },
         { name: 'Buổi B', items: [['reverse-lunge', 3, 10], ['pike-pushup', 3, 8], ['wall-sit', 3, 30], ['bird-dog', 3, 10], ['mountain-climber', 3, 30]] },
+      ] },
+    { id: 'band3', name: 'Người mới · Dây kháng lực tại nhà', place: 'Tại nhà', weeks: 6,
+      desc: 'Chỉ cần 1 dây dài và 1 dây mini. Tập 3 buổi/tuần, luân phiên A → B. Mỗi buổi khoảng 30–35 phút, nghỉ 60 giây giữa hiệp. Chọn dây đủ nặng để 2–3 lần cuối thấy khó.',
+      days: [
+        { name: 'Buổi A', items: [['band-squat', 3, 15], ['band-row', 3, 12], ['band-chest-press', 3, 12], ['band-glute-bridge', 3, 15], ['band-pull-apart', 3, 15], ['dead-bug', 3, 10]] },
+        { name: 'Buổi B', items: [['band-lateral-walk', 3, 12], ['band-lat-pulldown', 3, 12], ['band-shoulder-press', 3, 12], ['band-glute-kickback', 3, 12], ['band-curl', 3, 12], ['band-triceps-ext', 3, 12], ['jump-rope', 3, 1]] },
       ] },
   ];
 
@@ -602,6 +649,19 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'bulgarian-split-squat': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân hơi đổ trước để ăn mông nhiều hơn', 'Đạp bằng gót chân trước', 'Đi xuống như thang máy, không lao về trước'] },
     'hip-abduction': { b: 'lift', c: ['Ngồi thẳng, lưng dính đệm', 'Mở gối ra bằng mông, giữ 1 giây', 'Về chậm 2–3 giây'] },
     'stair-climber': { b: 'cardio', c: ['Đứng thẳng, không gục vào tay vịn', 'Đặt cả bàn chân lên bậc', 'Giữ mức thở vẫn nói chuyện được'] },
+    'band-squat': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Dây giữa bàn chân, tay giữ ngang vai', 'Đứng lên mạnh, siết mông ở trên'] },
+    'band-glute-kickback': { b: 'lift', c: ['Gót chân dẫn đường lên trần', 'Lưng phẳng như mặt bàn', 'Siết mông 1 giây ở trên'] },
+    'band-lateral-walk': { b: 'lift', c: ['Gối đẩy ra theo hướng mũi chân', 'Hạ thấp hông, ngực mở', 'Dây luôn căng, bước ngắn đều'] },
+    'band-clamshell': { b: 'lift', c: ['Hai bàn chân luôn chạm nhau', 'Hông trên hơi đổ về trước', 'Mở gối bằng mông, về chậm'] },
+    'band-glute-bridge': { b: 'lift', c: ['Đẩy gối ra chống lại dây', 'Đẩy bằng gót chân', 'Siết mông 1–2 giây ở trên'] },
+    'band-row': { b: 'lift', c: ['Cùi chỏ dẫn đường về sau', 'Ép hai bả vai vào nhau', 'Vai thả xa tai'] },
+    'band-pull-apart': { b: 'lift', c: ['Tay gần thẳng, kéo bằng lưng trên', 'Ép bả vai, ngực mở', 'Về chậm, không thả dây'] },
+    'band-chest-press': { b: 'lift', c: ['Gồng core, không ưỡn lưng', 'Đẩy thẳng ra trước ngang ngực', 'Về chậm 2–3 giây'] },
+    'band-shoulder-press': { b: 'lift', c: ['Gồng bụng, siết mông', 'Cùi chỏ hơi đưa ra trước', 'Đẩy thẳng lên, đầu chui qua giữa hai tay'] },
+    'band-curl': { b: 'lift', c: ['Cùi chỏ ghim sát hông', 'Siết tay trước ở trên', 'Hạ chậm 2–3 giây'] },
+    'band-triceps-ext': { b: 'lift', c: ['Cùi chỏ ghim sát người', 'Duỗi hết tay, siết tay sau', 'Về chậm'] },
+    'band-lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần', 'Ngực mở, vai thả xa tai', 'Đưa tay lên chậm'] },
+    'jump-rope': { b: 'cardio', c: ['Bật nhẹ bằng mũi chân', 'Khuỷu tay sát người, quay bằng cổ tay', 'Gối hơi chùng khi tiếp đất'] },
   };
   const tipsFor = (ex) => {
     const t = TIPS[ex.id];
@@ -688,6 +748,10 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'bird-dog': ['lowerback abs', 'glutes'], 'crunch': ['abs', ''], 'mountain-climber': ['abs', 'quads delts'],
     'incline-walk': ['calves glutes', 'hamstrings quads'], 'bike': ['quads', 'calves hamstrings'],
     'bulgarian-split-squat': ['quads glutes', 'hamstrings'], 'hip-abduction': ['glutes', ''], 'stair-climber': ['glutes quads', 'calves hamstrings'],
+    'band-squat': ['quads glutes', 'hamstrings'], 'band-glute-kickback': ['glutes', 'hamstrings lowerback'], 'band-lateral-walk': ['glutes', 'quads'],
+    'band-clamshell': ['glutes', ''], 'band-glute-bridge': ['glutes', 'hamstrings abs'], 'band-row': ['lats traps', 'biceps reardelts'],
+    'band-pull-apart': ['reardelts traps', 'lats'], 'band-chest-press': ['chest', 'delts triceps'], 'band-shoulder-press': ['delts', 'triceps traps'],
+    'band-curl': ['biceps', 'forearms'], 'band-triceps-ext': ['triceps', ''], 'band-lat-pulldown': ['lats', 'biceps reardelts'], 'jump-rope': ['calves', 'quads delts'],
   };
   const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves' };
   const split = (s) => (s || '').split(' ').filter(Boolean);
@@ -875,6 +939,45 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'stair-climber': { dur: 1500, props: [{ k: 'path', d: 'M30 160V146H92V132H150V118H206', w: 3 }, { k: 'line', p: [150, 92, 206, 92], w: 5 }], f: [
       { h: [108, 74], t: 6, hd: 4, ln: { a: [130, 128], toe: 90 }, lf: { a: [86, 142], toe: 90 }, an: { w: [156, 94], e: [0, 1] } },
       { ln: { a: [86, 142], toe: 90 }, lf: { a: [130, 128], toe: 90 } }] },
+    'band-squat': { props: [{ k: 'band', pts: [{ j: 'an', dx: 5, dy: 3 }, { j: 'wn' }] }, { k: 'band', far: 1, pts: [{ j: 'af', dx: 5, dy: 3 }, { j: 'wf' }] }], f: [
+      { h: [118, 84], t: 2, ln: { a: [122, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { wr: [8, 2], e: [0.3, 1] } },
+      { h: [100, 122], t: 30 }] },
+    'band-glute-kickback': { props: [MAT, { k: 'band', pts: [{ j: 'kf', dy: -4 }, { j: 'kn', dy: -4 }] }], f: [
+      { h: [90, 112], t: 90, hd: 94, ln: { th: 180, sh: 270 }, lf: { th: 180, sh: 270 }, an: { ua: 180, fa: 180 } },
+      { ln: { th: 285, sh: 365 } }] },
+    'band-lateral-walk': { v: 'back', props: [{ k: 'band', pts: [{ j: 'fR', dy: -9 }, { j: 'fL', dy: -9 }] }], f: [
+      { h: [120, 98], t: 0, l: { a: [146, 156], k: [1, 0] }, lL: { a: [94, 156], k: [-1, 0] }, a: { wh: [13, -4], e: [1, 0] } },
+      { h: [130, 98], lL: { a: [116, 156], k: [-1, 0] } }] },
+    'band-clamshell': { v: 'back', props: [MAT, { k: 'band', pts: [{ j: 'kR', dx: -8 }, { j: 'kL', dx: -8 }] }], f: [
+      { h: [118, 138], t: -90, l: { th: 96, sh: 100 }, lL: { th: 100, sh: 95 }, a: { ua: 105, fa: 100 }, aL: { ua: -95, fa: -40 } },
+      { l: { th: 62, sh: 122 } }] },
+    'band-glute-bridge': { props: [MAT, { k: 'loop', at: 'kn' }], f: [
+      { h: [110, 150], t: -88, hd: -93, ln: { a: [152, 156], toe: 90, k: [0, -1] }, lf: { a: [148, 156], toe: 90, k: [0, -1] }, an: { wr: [38, 7], e: [0, 1] } },
+      { h: [110, 130], t: -116, hd: -104 }] },
+    'band-row': { props: [{ k: 'line', p: [220, 10, 220, 158], w: 6 }, { k: 'band', pts: [{ j: 'wn' }, [218, 52]] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [104, 86], t: -4, hd: 0, ln: { a: [114, 156], toe: 90 }, lf: { a: [98, 156], toe: 90 }, an: { wr: [44, 6], e: [0, 1] } },
+      { an: { wr: [10, 22], e: [-1, 0] } }] },
+    'band-pull-apart': { v: 'back', props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
+      { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { w: [128, 60], e: [1, 0] } },
+      { a: { w: [178, 56], e: [1, 0] } }] },
+    'band-chest-press': { props: [{ k: 'band', pts: [{ j: 'wn' }, { j: 's', dx: -10, dy: 6 }, { j: 'wf' }] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [110, 84], t: 4, ln: { a: [124, 156], toe: 90 }, lf: { a: [96, 156], toe: 90 }, an: { wr: [12, 10], e: [-1, 0.2] } },
+      { an: { wr: [45, 6], e: [-1, 0.2] } }] },
+    'band-shoulder-press': { v: 'front', props: [{ k: 'band', pts: [{ j: 'fR', dy: 2 }, { j: 'wR' }] }, { k: 'band', pts: [{ j: 'fL', dy: 2 }, { j: 'wL' }] }], f: [
+      { h: [120, 84], t: 0, l: { a: [132, 156], k: [1, 0] }, a: { w: [154, 36], e: [1, 0.6] } },
+      { a: { w: [141, -6], e: [1, 0] } }] },
+    'band-curl': { props: [{ k: 'band', pts: [{ j: 'an', dx: 5, dy: 3 }, { j: 'wn' }] }, { k: 'band', far: 1, pts: [{ j: 'af', dx: 5, dy: 3 }, { j: 'wf' }] }], f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 178, fa: 178 } },
+      { an: { ua: 172, fa: 22 } }] },
+    'band-triceps-ext': { props: [{ k: 'line', p: [170, 0, 170, 158], w: 6 }, { k: 'band', pts: [{ j: 'wn' }, [168, 8]] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [112, 84], t: 10, hd: 6, ln: { a: [118, 156], toe: 90 }, lf: { a: [104, 156], toe: 90 }, an: { ua: 172, fa: 28 } },
+      { an: { ua: 174, fa: 172 } }] },
+    'band-lat-pulldown': { v: 'back', props: [{ k: 'band', pts: [{ j: 'wR' }, [120, -34], { j: 'wL' }] }], f: [
+      { h: [120, 84], t: 0, l: { a: [132, 156], k: [1, 0] }, a: { w: [160, -4], e: [1, 0] } },
+      { a: { w: [156, 32], e: [1, 1] } }] },
+    'jump-rope': { v: 'front', dur: 760, props: [{ k: 'rope' }], f: [
+      { h: [120, 84], t: 0, l: { a: [126, 156], k: [1, 0] }, a: { w: [150, 86], e: [1, 0.3] }, ry: 178 },
+      { h: [120, 76], l: { a: [126, 148], k: [1, 0] }, ry: -26 }] },
   };
 
   const av = (a) => { const r = (a * Math.PI) / 180; return [Math.sin(r), -Math.cos(r)]; };
@@ -958,7 +1061,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const J = v === 'side' ? solveSide(f) : solveFront(f);
     const lv = (m) => (act.p.includes(m) ? 'mp' : act.s.includes(m) ? 'ms' : 'mi');
     const mus = (name, p0, p1, t0, t1, side, off, w, far) => { const c = lv(name), a = vlerp(p0, p1, t0), b = vlerp(p0, p1, t1), n = nrmOf(p0, p1); return `<path class="${c}${far ? ' far' : ''}" d="${lensPath(a, b, n, side, off, w)}"/>` + (c !== 'mi' && !far ? fiber(a, b, n, side, off, w) : ''); };
-    const props = (layer) => (spec.props || []).filter((p) => (p.layer || (['rect', 'line', 'plate', 'circle', 'path', 'hbar'].includes(p.k) ? 'back' : 'front')) === layer).map((p) => drawProp(p, J, v)).join('');
+    const props = (layer) => (spec.props || []).filter((p) => (p.layer || (['rect', 'line', 'plate', 'circle', 'path', 'hbar'].includes(p.k) ? 'back' : 'front')) === layer).map((p) => drawProp(p, J, v, f)).join('');
     let body = '';
     const hairColor = 'hair';
     if (v === 'side') {
@@ -1027,7 +1130,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       + (back ? `<path d="M${pt(hc)}L${pt(tail)}" class="tail" stroke-width="5.5" stroke-linecap="round"/><circle cx="${nf(hc[0])}" cy="${nf(hc[1])}" r="9" class="hair"/>`
         : `<circle cx="${nf(hc[0] + d[0] * 1.2)}" cy="${nf(hc[1] + d[1] * 1.2)}" r="9.4" class="hair"/><circle cx="${nf(hc[0] - d[0] * 1)}" cy="${nf(hc[1] - d[1] * 1)}" r="7.6" class="face"/>`);
   }
-  function drawProp(p, J, v) {
+  function drawProp(p, J, v, f) {
     const at = p.at && J[p.at] ? vadd(J[p.at], [p.dx || 0, p.dy || 0]) : null;
     const far = p.far ? ' far' : '';
     switch (p.k) {
@@ -1049,6 +1152,17 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         if (!J.wR) return '';
         const y = (J.wR[1] + J.wL[1]) / 2, x0 = Math.min(J.wR[0], J.wL[0]) - 16, x1 = Math.max(J.wR[0], J.wL[0]) + 16, cx = (x0 + x1) / 2;
         return `<line x1="${nf(cx)}" y1="${nf(y)}" x2="${nf(cx)}" y2="-4" class="pc"/><line x1="${nf(x0)}" y1="${nf(y)}" x2="${nf(x1)}" y2="${nf(y)}" class="pr2l" stroke-width="3.2" stroke-linecap="round"/>`;
+      }
+      case 'band': {
+        const P = p.pts.map((q) => (Array.isArray(q) ? q : J[q.j] ? vadd(J[q.j], [q.dx || 0, q.dy || 0]) : null)).filter(Boolean);
+        if (P.length < 2) return '';
+        return `<path d="M${P.map(pt).join('L')}" class="band${far}" stroke-width="${p.w || 2.6}" stroke-linejoin="round" stroke-linecap="round" fill="none"/>`;
+      }
+      case 'loop': return at ? `<ellipse cx="${nf(at[0])}" cy="${nf(at[1])}" rx="3.2" ry="7.5" class="band" stroke-width="2.6" fill="none"/>` : '';
+      case 'rope': {
+        if (!J.wR || !f) return '';
+        const c = [(J.wR[0] + J.wL[0]) / 2, f.ry ?? 170];
+        return `<path d="M${pt(J.wL)}Q${pt(c)} ${pt(J.wR)}" class="rope" stroke-width="1.8" fill="none"/>`;
       }
       default: return '';
     }
@@ -1137,7 +1251,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.7 (13/11/2026)';
+  const APP_VERSION = '1.8 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1783,10 +1897,10 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   // ================= LIBRARY =================
   function drawLibrary(v) {
     header(`${allEx().length} bài tập`, 'Thư viện bài tập', `<button class="btn sm primary" data-act="custom-new">+ Bài riêng</button>`, false);
-    const items = allEx().filter((e) => (S.libGroup === 'all' || e.group === S.libGroup) && (!S.libQuery || e.name.toLowerCase().includes(S.libQuery.toLowerCase())));
+    const items = allEx().filter((e) => (S.libGroup === 'all' || (S.libGroup === 'band' ? /^Dây/.test(e.equip || '') : e.group === S.libGroup)) && (!S.libQuery || e.name.toLowerCase().includes(S.libQuery.toLowerCase())));
     v.innerHTML = `
       <input class="search" id="libQ" type="search" value="${esc(S.libQuery)}" placeholder="Tìm bài tập" aria-label="Tìm bài tập">
-      <div class="chips-scroll">${[['all', 'Tất cả'], ...Object.entries(GROUPS)].map(([k, l]) => `<button data-act="lib-group" data-g="${k}" aria-pressed="${S.libGroup === k}">${l}</button>`).join('')}</div>
+      <div class="chips-scroll">${[['all', 'Tất cả'], ['band', 'Bài với dây'], ...Object.entries(GROUPS)].map(([k, l]) => `<button data-act="lib-group" data-g="${k}" aria-pressed="${S.libGroup === k}">${l}</button>`).join('')}</div>
       <button class="card" data-act="guide" style="background:var(--good-bg);border-color:transparent">
         <span class="tip-label">Cẩm nang</span>
         <span class="card-title">Mẹo tập cho người mới</span>

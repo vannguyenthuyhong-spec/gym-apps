@@ -405,6 +405,19 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     ['incline-walk', 'Đi bộ dốc trên máy chạy', 'cardio', 'min', 'di bo doc|incline walk|di bo|treadmill|chay bo|may chay'],
     ['bike', 'Đạp xe tại chỗ', 'cardio', 'min', 'dap xe|bike|xe dap'],
     ['stair-climber', 'Leo cầu thang máy (Stair Climber)', 'cardio', 'min', 'leo cau thang|stair climber|stairmaster|cau thang'],
+    ['band-squat', 'Squat với dây kháng lực', 'legs', 'reps', 'squat voi day|squat day|band squat'],
+    ['band-glute-kickback', 'Đá mông với dây mini', 'glutes', 'reps', 'kickback|da mong|da mong voi day'],
+    ['band-lateral-walk', 'Đi ngang với dây mini (Lateral Walk)', 'glutes', 'reps', 'lateral walk|monster walk|di ngang'],
+    ['band-clamshell', 'Mở gối nằm nghiêng (Clamshell)', 'glutes', 'reps', 'clamshell|mo goi'],
+    ['band-glute-bridge', 'Glute Bridge với dây mini', 'glutes', 'reps', 'glute bridge voi day|glute bridge day|banded glute bridge|cau mong voi day'],
+    ['band-row', 'Kéo dây chèo đứng (Band Row)', 'back', 'reps', 'band row|keo day cheo|cheo day|keo day'],
+    ['band-pull-apart', 'Kéo giãn dây trước ngực (Pull-Apart)', 'shoulders', 'reps', 'pull apart|keo gian day'],
+    ['band-chest-press', 'Đẩy ngực với dây', 'chest', 'reps', 'day nguc voi day|band chest press'],
+    ['band-shoulder-press', 'Đẩy vai với dây', 'shoulders', 'reps', 'day vai voi day|band shoulder press'],
+    ['band-curl', 'Cuốn tay với dây', 'arms', 'reps', 'cuon tay voi day|band curl'],
+    ['band-triceps-ext', 'Ép tay sau với dây', 'arms', 'reps', 'ep tay sau voi day|band pushdown|band triceps'],
+    ['band-lat-pulldown', 'Kéo xô với dây', 'back', 'reps', 'keo xo voi day|band pulldown|band lat pulldown'],
+    ['jump-rope', 'Nhảy dây', 'cardio', 'min', 'nhay day|jump rope|skipping'],
   ].map(([id, name, group, type, kw]) => {
     const keys = new Set([fold(name), fold(name.replace(/\(.*?\)/g, '')), ...(/\(([^)]+)\)/.exec(name) ? [fold(/\(([^)]+)\)/.exec(name)[1])] : []), ...kw.split('|').filter(Boolean)]);
     return { id, name, group, type, keys: [...keys].filter(Boolean) };
@@ -1382,6 +1395,19 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     'bulgarian-split-squat': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân hơi đổ trước để ăn mông nhiều hơn', 'Đạp bằng gót chân trước', 'Đi xuống như thang máy, không lao về trước'] },
     'hip-abduction': { b: 'lift', c: ['Ngồi thẳng, lưng dính đệm', 'Mở gối ra bằng mông, giữ 1 giây', 'Về chậm 2–3 giây'] },
     'stair-climber': { b: 'cardio', c: ['Đứng thẳng, không gục vào tay vịn', 'Đặt cả bàn chân lên bậc', 'Giữ mức thở vẫn nói chuyện được'] },
+    'band-squat': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Dây giữa bàn chân, tay giữ ngang vai', 'Đứng lên mạnh, siết mông ở trên'] },
+    'band-glute-kickback': { b: 'lift', c: ['Gót chân dẫn đường lên trần', 'Lưng phẳng như mặt bàn', 'Siết mông 1 giây ở trên'] },
+    'band-lateral-walk': { b: 'lift', c: ['Gối đẩy ra theo hướng mũi chân', 'Hạ thấp hông, ngực mở', 'Dây luôn căng, bước ngắn đều'] },
+    'band-clamshell': { b: 'lift', c: ['Hai bàn chân luôn chạm nhau', 'Hông trên hơi đổ về trước', 'Mở gối bằng mông, về chậm'] },
+    'band-glute-bridge': { b: 'lift', c: ['Đẩy gối ra chống lại dây', 'Đẩy bằng gót chân', 'Siết mông 1–2 giây ở trên'] },
+    'band-row': { b: 'lift', c: ['Cùi chỏ dẫn đường về sau', 'Ép hai bả vai vào nhau', 'Vai thả xa tai'] },
+    'band-pull-apart': { b: 'lift', c: ['Tay gần thẳng, kéo bằng lưng trên', 'Ép bả vai, ngực mở', 'Về chậm, không thả dây'] },
+    'band-chest-press': { b: 'lift', c: ['Gồng core, không ưỡn lưng', 'Đẩy thẳng ra trước ngang ngực', 'Về chậm 2–3 giây'] },
+    'band-shoulder-press': { b: 'lift', c: ['Gồng bụng, siết mông', 'Cùi chỏ hơi đưa ra trước', 'Đẩy thẳng lên, đầu chui qua giữa hai tay'] },
+    'band-curl': { b: 'lift', c: ['Cùi chỏ ghim sát hông', 'Siết tay trước ở trên', 'Hạ chậm 2–3 giây'] },
+    'band-triceps-ext': { b: 'lift', c: ['Cùi chỏ ghim sát người', 'Duỗi hết tay, siết tay sau', 'Về chậm'] },
+    'band-lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần', 'Ngực mở, vai thả xa tai', 'Đưa tay lên chậm'] },
+    'jump-rope': { b: 'cardio', c: ['Bật nhẹ bằng mũi chân', 'Khuỷu tay sát người, quay bằng cổ tay', 'Gối hơi chùng khi tiếp đất'] },
   };
   function coachTips() { try { const t = JSON.parse(lsGet('so-hlv.tips') || '{}'); return t && typeof t === 'object' ? t : {}; } catch { return {}; } }
   function setCoachTips(t) { lsSet('so-hlv.tips', JSON.stringify(t)); S.clients.filter((c) => c.link).forEach((c) => pushSoon(c.id)); }
