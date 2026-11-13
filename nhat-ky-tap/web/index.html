@@ -335,6 +335,7 @@ svg.exart .ms + .fib, svg.exart .fib.s { opacity: .5; }
 svg.exart .jt { fill: #6a2a44; }
 svg.exart .band { stroke: #2fd6aa; } svg.exart .band.far { opacity: .55; }
 svg.exart .rope { stroke: #f6d46c; }
+svg.exart .bed { fill: #3a3346; stroke: #554c66; stroke-width: 1; } svg.exart .bedf { fill: #262030; } svg.exart .pillow { fill: #5d5672; } svg.exart .nose { fill: #a45272; }
 .lib-row svg.exart { width: 112px; flex: none; border-radius: 12px; }
 svg.exart.big { max-width: 440px; margin: 0 auto; }
 .legend .dot { background: #ff2e6e; } .legend .dot.s { background: #f2a93b; opacity: 1; }
@@ -407,7 +408,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   const weekStart = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
 
   // ================= exercise library =================
-  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', other: 'Khác' };
+  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', neck: 'Cổ', other: 'Khác' };
   // type: weight = kg × lần · reps = số lần · time = giây · min = phút
   const LIB = [
     { id: 'goblet-squat', name: 'Goblet Squat', group: 'legs', equip: 'Tạ đơn / kettlebell', type: 'weight', inc: 2,
@@ -581,6 +582,27 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     { id: 'band-ext-rot', name: 'Xoay ngoài khớp vai với dây (Band External Rotation)', group: 'shoulders', equip: 'Dây kháng lực dài (dây nhẹ)', type: 'reps', inc: 0,
       steps: ['Đứng thẳng, hai tay cầm dây cách nhau khoảng một gang tay; khuỷu tay gập 90°, ép sát sườn, cẳng tay song song sàn.', 'Giữ khuỷu tay dính sườn, xoay cẳng tay ra ngoài để kéo giãn dây (như mở cửa hai cánh).', 'Giữ 1 giây rồi về chậm. Có thể kẹp khăn nhỏ giữa khuỷu tay và sườn để nhớ giữ khuỷu.'],
       mistakes: ['Khuỷu tay rời khỏi sườn.', 'Nhún vai hoặc ưỡn lưng để xoay được xa hơn.', 'Dùng dây quá nặng — bài này cần dây nhẹ, đi chậm.'] },
+    { id: 'neck-chin-tuck', name: 'Gập cằm nằm ngửa (Chin Tuck)', group: 'neck', equip: 'Giường + gối mỏng', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa trên giường, gối mỏng dưới đầu, mắt nhìn trần.', 'Thu cằm vào như gật nhẹ, ấn nhẹ gáy xuống gối; đầu không nhấc lên.', 'Giữ 5 giây rồi thả lỏng. Mỗi hiệp 10 lần.'],
+      mistakes: ['Nhấc cả đầu khỏi gối.', 'Ngửa cằm lên trần.', 'Gồng hàm, nín thở.'] },
+    { id: 'neck-press-back', name: 'Ấn gáy xuống gối (giữ tĩnh)', group: 'neck', equip: 'Giường + gối', type: 'time', inc: 0,
+      steps: ['Nằm ngửa, đầu trên gối, cằm hơi thu.', 'Ấn nhẹ phía sau đầu xuống gối khoảng 30–50% sức, đầu không di chuyển.', 'Giữ 10 giây, thả lỏng 5 giây. Ghi số giây giữ mỗi lần.'],
+      mistakes: ['Ấn quá mạnh gây nhức đầu.', 'Ngửa cằm khi ấn.', 'Nín thở.'] },
+    { id: 'neck-rotation', name: 'Xoay đầu chậm nằm ngửa', group: 'neck', equip: 'Giường + gối', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, đầu trên gối, cằm hơi thu.', 'Quay đầu chậm sang một bên đến khi thấy căng nhẹ, giữ 2 giây.', 'Về giữa rồi sang bên kia. Mỗi bên tính 1 lần.'],
+      mistakes: ['Quay nhanh, giật cổ.', 'Nhấc vai theo đầu.', 'Cố quay quá tầm đến mức đau.'] },
+    { id: 'neck-side-bend', name: 'Nghiêng tai về vai nằm ngửa', group: 'neck', equip: 'Giường + gối', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, đầu trên gối, mặt nhìn trần.', 'Trượt tai về phía vai (không quay mặt) đến khi căng nhẹ bên đối diện, giữ 5 giây.', 'Về giữa rồi đổi bên. Mỗi bên tính 1 lần.'],
+      mistakes: ['Quay mặt thay vì nghiêng.', 'Kéo vai lên gặp tai.', 'Dùng tay kéo đầu mạnh.'] },
+    { id: 'neck-head-lift', name: 'Gập cằm nâng đầu nằm ngửa', group: 'neck', equip: 'Giường', type: 'time', inc: 0,
+      steps: ['Nằm ngửa, gối gập, bỏ gối kê đầu.', 'Thu cằm trước, rồi nhấc đầu lên khoảng 2–3 cm, vẫn giữ cằm thu.', 'Giữ 5–10 giây rồi hạ chậm. Ghi số giây giữ mỗi lần.'],
+      mistakes: ['Nhấc đầu mà cằm chĩa lên (không thu cằm).', 'Nhấc quá cao, dùng bụng kéo người lên.', 'Cổ run mạnh hoặc đau — giảm thời gian giữ.'] },
+    { id: 'neck-prone-lift', name: 'Nằm sấp nâng đầu (cổ sau)', group: 'neck', equip: 'Giường (đầu ra mép giường)', type: 'reps', inc: 0,
+      steps: ['Nằm sấp, ngực ở mép giường, đầu thả nhẹ ra ngoài, tay xuôi theo người.', 'Thu cằm nhẹ, nâng đầu lên đến khi cổ thẳng hàng với lưng.', 'Giữ 3–5 giây rồi hạ chậm.'],
+      mistakes: ['Ngửa đầu nhìn lên trước (gập gáy).', 'Nhấc vai, gồng lưng dưới.', 'Thả đầu rơi tự do.'] },
+    { id: 'neck-side-lift', name: 'Nằm nghiêng nâng đầu', group: 'neck', equip: 'Giường', type: 'reps', inc: 0,
+      steps: ['Nằm nghiêng, chân duỗi chồng lên nhau, bỏ gối kê đầu (hoặc gối thật mỏng).', 'Nhấc đầu lên về phía trần (tai hướng về vai trên), mặt nhìn thẳng.', 'Giữ 3 giây rồi hạ chậm. Đủ số lần thì đổi bên.'],
+      mistakes: ['Xoay mặt xuống giường hoặc lên trần.', 'Nhún vai trên lên.', 'Nhấc quá cao gây đau.'] },
     { id: 'band-overhead-rot', name: 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Cầm dây thật rộng (rộng hơn vai nhiều), hai tay duỗi thẳng trước đùi.', 'Giữ tay thẳng, đưa dây lên qua đầu rồi ra sau lưng đến ngang mông.', 'Đưa ngược về trước là 1 lần. Đi chậm; thấy kẹt vai thì cầm rộng tay hơn.'],
       mistakes: ['Gập khuỷu tay để đưa qua được.', 'Ưỡn lưng, sườn bật ra trước.', 'Cầm dây quá hẹp gây đau vai.'] },
@@ -602,6 +624,11 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       days: [
         { name: 'Buổi A', items: [['bw-squat', 3, 15], ['knee-pushup', 3, 10], ['glute-bridge', 3, 15], ['superman', 3, 12], ['plank', 3, 30]] },
         { name: 'Buổi B', items: [['reverse-lunge', 3, 10], ['pike-pushup', 3, 8], ['wall-sit', 3, 30], ['bird-dog', 3, 10], ['mountain-climber', 3, 30]] },
+      ] },
+    { id: 'neck-bed', name: 'Cổ vai gáy · Tập trên giường 10 phút', place: 'Tại nhà (trên giường)', weeks: 4,
+      desc: 'Tập mỗi ngày, sáng khi thức dậy hoặc tối trước khi ngủ. Làm chậm, chỉ căng nhẹ, không đau; nghỉ 20–30 giây giữa hiệp. Đau tăng, tê lan xuống tay hay chóng mặt thì dừng lại và hỏi bác sĩ.',
+      days: [
+        { name: 'Mỗi ngày', items: [['neck-chin-tuck', 2, 10], ['neck-press-back', 3, 10], ['neck-rotation', 2, 8], ['neck-side-bend', 2, 8], ['neck-head-lift', 3, 10], ['neck-prone-lift', 2, 8], ['neck-side-lift', 2, 8]] },
       ] },
     { id: 'band3', name: 'Người mới · Dây kháng lực tại nhà', place: 'Tại nhà', weeks: 6,
       desc: 'Chỉ cần 1 dây dài và 1 dây mini. Mỗi buổi mở đầu bằng 1 bài xoay vai với dây để khởi động. Tập 3 buổi/tuần, luân phiên A → B. Mỗi buổi khoảng 30–35 phút, nghỉ 60 giây giữa hiệp. Chọn dây đủ nặng để 2–3 lần cuối thấy khó.',
@@ -676,6 +703,13 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'jump-rope': { b: 'cardio', c: ['Bật nhẹ bằng mũi chân', 'Khuỷu tay sát người, quay bằng cổ tay', 'Gối hơi chùng khi tiếp đất'] },
     'band-w-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần sau', 'Kéo giãn dây sang hai bên suốt động tác', 'Ép bả vai xuống và vào trong, vai xa tai'] },
     'band-ext-rot': { b: 'lift', c: ['Khuỷu tay dính sườn suốt bài', 'Xoay bằng vai, cổ tay thẳng', 'Dây nhẹ, đi chậm và đều'] },
+    'neck-chin-tuck': { b: 'hold', c: ['Thu cằm như làm "cằm đôi"', 'Gáy dài ra, ấn nhẹ xuống gối', 'Thở đều, không gồng hàm'] },
+    'neck-press-back': { b: 'hold', c: ['Ấn nhẹ, đầu không di chuyển', 'Cằm hơi thu', 'Thở đều trong lúc giữ'] },
+    'neck-rotation': { b: 'hold', c: ['Chậm như kim giây', 'Vai nằm yên trên giường', 'Chỉ quay đến khi căng nhẹ'] },
+    'neck-side-bend': { b: 'hold', c: ['Mặt luôn nhìn trần', 'Vai thả xa tai', 'Căng nhẹ, không đau'] },
+    'neck-head-lift': { b: 'hold', c: ['Thu cằm trước rồi mới nhấc đầu', 'Chỉ nhấc 2–3 cm', 'Thở đều, vai thả lỏng'] },
+    'neck-prone-lift': { b: 'hold', c: ['Cằm hơi thu, mắt nhìn sàn', 'Nâng đến thẳng hàng với lưng là đủ', 'Hạ chậm 2–3 giây'] },
+    'neck-side-lift': { b: 'hold', c: ['Mặt nhìn thẳng, không xoay', 'Nhấc vừa đủ, cổ thẳng hàng', 'Hạ chậm'] },
     'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
     'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
   };
@@ -745,7 +779,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   const MUSCLE_NAMES = {
     chest: 'Ngực', delts: 'Vai trước/giữa', reardelts: 'Vai sau', biceps: 'Tay trước', triceps: 'Tay sau', forearms: 'Cẳng tay',
     abs: 'Cơ bụng', obliques: 'Cơ liên sườn', quads: 'Đùi trước', hamstrings: 'Đùi sau', glutes: 'Mông', calves: 'Bắp chân',
-    lats: 'Cơ xô', traps: 'Cơ thang', lowerback: 'Lưng dưới',
+    lats: 'Cơ xô', traps: 'Cơ thang', lowerback: 'Lưng dưới', neckf: 'Cơ cổ trước (gập cổ)', neckb: 'Cơ cổ sau (duỗi cổ)',
   };
   const MUSCLES = {
     'goblet-squat': ['quads glutes', 'hamstrings abs'], 'back-squat': ['quads glutes', 'hamstrings lowerback abs'],
@@ -770,9 +804,11 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'band-curl': ['biceps', 'forearms'], 'band-triceps-ext': ['triceps', ''], 'band-lat-pulldown': ['lats', 'biceps reardelts'], 'jump-rope': ['calves', 'quads delts'],
     'band-w-pulldown': ['lats traps', 'reardelts biceps'],
     'band-ext-rot': ['reardelts', 'traps delts'],
+    'neck-chin-tuck': ['neckf', ''], 'neck-press-back': ['neckb', 'traps'], 'neck-rotation': ['neckf neckb', 'traps'], 'neck-side-bend': ['neckf neckb', 'traps'],
+    'neck-head-lift': ['neckf', 'abs'], 'neck-prone-lift': ['neckb traps', ''], 'neck-side-lift': ['neckf neckb', 'traps'],
     'band-overhead-rot': ['delts reardelts', 'traps chest'], 'band-alt-rot': ['delts reardelts', 'lats traps'],
   };
-  const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves' };
+  const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves', neck: 'neckf neckb' };
   const split = (s) => (s || '').split(' ').filter(Boolean);
   function musclesFor(ex) {
     const m = MUSCLES[ex.id];
@@ -782,13 +818,13 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   const FRONT = [
     ['delts', 36, 52, 8, 7, 0], ['delts', 84, 52, 8, 7, 0], ['chest', 49, 62, 11, 8, 0], ['chest', 71, 62, 11, 8, 0],
     ['biceps', 30, 76, 5, 13, 11], ['biceps', 90, 76, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
-    ['abs', 60, 98, 8, 22, 0], ['obliques', 44, 102, 4, 14, 10], ['obliques', 76, 102, 4, 14, -10],
+    ['neckf', 60, 37, 5, 5, 0], ['abs', 60, 98, 8, 22, 0], ['obliques', 44, 102, 4, 14, 10], ['obliques', 76, 102, 4, 14, -10],
     ['quads', 49, 176, 8, 22, 3], ['quads', 71, 176, 8, 22, -3], ['calves', 47, 224, 4, 13, 0], ['calves', 73, 224, 4, 13, 0],
   ];
   const BACK = [
     ['reardelts', 36, 53, 8, 7, 0], ['reardelts', 84, 53, 8, 7, 0], ['lats', 46, 86, 8, 19, -12], ['lats', 74, 86, 8, 19, 12],
     ['triceps', 30, 78, 5, 13, 11], ['triceps', 90, 78, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
-    ['lowerback', 60, 116, 9, 11, 0], ['glutes', 51, 143, 10, 9, 0], ['glutes', 69, 143, 10, 9, 0],
+    ['neckb', 60, 37, 5, 5, 0], ['lowerback', 60, 116, 9, 11, 0], ['glutes', 51, 143, 10, 9, 0], ['glutes', 69, 143, 10, 9, 0],
     ['hamstrings', 49, 180, 8, 20, 3], ['hamstrings', 71, 180, 8, 20, -3], ['calves', 47, 222, 6, 15, 0], ['calves', 73, 222, 6, 15, 0],
   ];
   const silhouette = `
@@ -1008,6 +1044,20 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 180, fa: -90, fs: 0.9 } },
       { a: { ua: 180, fa: 0, fs: 0.12 } },
       { a: { ua: 180, fa: 88, fs: 1 } }] },
+    'neck-chin-tuck': { box: { x: 40, y: 74, w: 112, h: 84 }, dur: 3000, props: [{ k: 'bed', x: 28, y: 128, w: 186, h: 14 }, { k: 'pillow', c: [72, 126], rx: 18, ry: 5 }], f: [
+      { h: [138, 119], t: -90, ln: { th: 90, sh: 90, toe: 0 }, lf: { th: 90, sh: 89, toe: 0 }, an: { ua: 95, fa: 92 }, hd: -94 }, { hd: -70 }] },
+    'neck-press-back': { box: { x: 40, y: 74, w: 112, h: 84 }, dur: 3000, props: [{ k: 'bed', x: 28, y: 128, w: 186, h: 14 }, { k: 'pillow', c: [72, 126], rx: 18, ry: 5 }], f: [
+      { h: [138, 119], t: -90, ln: { th: 90, sh: 90, toe: 0 }, lf: { th: 90, sh: 89, toe: 0 }, an: { ua: 95, fa: 92 }, hd: -90 }, { hd: -95 }] },
+    'neck-head-lift': { box: { x: 36, y: 72, w: 120, h: 90 }, dur: 3200, props: [{ k: 'bed', x: 28, y: 128, w: 186, h: 14 }], f: [
+      { h: [138, 119], t: -90, ln: { a: [190, 124], k: [0, -1], toe: 0 }, lf: { a: [186, 124], k: [0, -1], toe: 0 }, an: { ua: 95, fa: 92 }, hd: -92 }, { hd: -55 }] },
+    'neck-rotation': { box: { x: 44, y: 68, w: 112, h: 84 }, v: 'front', dur: 3200, props: [{ k: 'bed', x: 22, y: 78, w: 196, h: 66 }, { k: 'pillow', c: [74, 110], rx: 13, ry: 22 }], f: [
+      { h: [140, 110], t: -90, l: { th: 90, sh: 90, toe: 0 }, a: { ua: 95, fa: 92 }, hd: -90, yaw: -1 }, { yaw: 1 }] },
+    'neck-side-bend': { box: { x: 44, y: 68, w: 112, h: 84 }, v: 'front', dur: 3200, props: [{ k: 'bed', x: 22, y: 78, w: 196, h: 66 }, { k: 'pillow', c: [74, 110], rx: 13, ry: 22 }], f: [
+      { h: [140, 110], t: -90, l: { th: 90, sh: 90, toe: 0 }, a: { ua: 95, fa: 92 }, hd: -112 }, { hd: -68 }] },
+    'neck-prone-lift': { box: { x: 98, y: 76, w: 112, h: 84 }, dur: 3000, props: [{ k: 'bed', x: 22, y: 128, w: 140, h: 14 }], f: [
+      { h: [100, 119], t: 90, hd: 118, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { ua: -86, fa: -88 } }, { hd: 82 }] },
+    'neck-side-lift': { box: { x: 30, y: 82, w: 112, h: 84 }, v: 'front', dur: 3000, props: [{ k: 'bed', x: 30, y: 140, w: 184, h: 12 }, { k: 'pillow', c: [64, 138], rx: 14, ry: 3 }], f: [
+      { h: [128, 124], t: -90, hd: -90, l: { th: 92, sh: 92 }, lL: { th: 94, sh: 92 }, a: { ua: 100, fa: 96 }, aL: { ua: 95, fa: 92 } }, { hd: -64 }] },
     'band-alt-rot': { v: 'back', cycle: 1, dur: 3400, props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 28, fa: 28 }, aL: { ua: -28, fa: -28 } },
       { a: { ua: 100, fa: 100 } },
@@ -1069,7 +1119,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const lR = solveLimb(hR, f.l, L.th, L.sh, [1, 0], ctx);
     const lL = f.lL ? solveLimb(hL, f.lL, L.th, L.sh, [-1, 0], ctx) : solveLimb(hL, f.l, L.th, L.sh, [1, 0], ctx, mir);
     const nb = vadd(S, d, 2), hd = f.hd ?? t;
-    return { H, S, d, r, sR, sL, hR, hL, nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
+    return { yaw: f.yaw || 0, H, S, d, r, sR, sL, hR, hL, nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
       eR: aR[0], wR: aR[1], eL: aL[0], wL: aL[1], kR: lR[0], fR: lR[1], kL: lL[0], fL: lL[1] };
   }
 
@@ -1096,7 +1146,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const J = v === 'side' ? solveSide(f) : solveFront(f);
     const lv = (m) => (act.p.includes(m) ? 'mp' : act.s.includes(m) ? 'ms' : 'mi');
     const mus = (name, p0, p1, t0, t1, side, off, w, far) => { const c = lv(name), a = vlerp(p0, p1, t0), b = vlerp(p0, p1, t1), n = nrmOf(p0, p1); return `<path class="${c}${far ? ' far' : ''}" d="${lensPath(a, b, n, side, off, w)}"/>` + (c !== 'mi' && !far ? fiber(a, b, n, side, off, w) : ''); };
-    const props = (layer) => (spec.props || []).filter((p) => (p.layer || (['rect', 'line', 'plate', 'circle', 'path', 'hbar'].includes(p.k) ? 'back' : 'front')) === layer).map((p) => drawProp(p, J, v, f)).join('');
+    const props = (layer) => (spec.props || []).filter((p) => (p.layer || (['rect', 'line', 'plate', 'circle', 'path', 'hbar', 'bed', 'pillow'].includes(p.k) ? 'back' : 'front')) === layer).map((p) => drawProp(p, J, v, f)).join('');
     let body = '';
     const hairColor = 'hair';
     if (v === 'side') {
@@ -1120,7 +1170,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         + mus('glutes', H, S, -0.18, 0.22, -1, 6.2, 5.6) + mus('lowerback', H, S, 0.08, 0.42, -1, 4.6, 2.2) + mus('lats', H, S, 0.42, 0.84, -1, 4, 3.4)
         + mus('traps', H, S, 0.84, 1.08, -1, 2.6, 2.6) + mus('abs', H, S, 0.14, 0.56, 1, 4, 2.2) + mus('obliques', H, S, 0.18, 0.52, 0, 0, 3)
         + mus('chest', H, S, 0.62, 0.9, 1, 5.5, 3.6);
-      const head = drawHeadSide(J);
+      const head = drawHeadSide(J, mus('neckf', J.nb, J.hc, -0.2, 0.5, 1, 1.4, 2.6) + mus('neckb', J.nb, J.hc, -0.2, 0.5, -1, 1.4, 2.8));
       body = arm(J.ef, J.wf, true) + leg(J.kf, J.af, J.tf, true) + torso + head + leg(J.kn, J.an, J.tn, false) + arm(J.en, J.wn, false);
     } else {
       const back = v === 'back';
@@ -1143,27 +1193,27 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         + mus(back ? 'reardelts' : 'delts', sp, e, -0.16, 0.34, 0, 0, 4.4)
         + (back ? mus('triceps', sp, e, 0.26, 0.88, 0, 0, 3) : mus('biceps', sp, e, 0.3, 0.86, 0, 0, 2.8))
         + mus('forearms', e, w, 0.06, 0.6, 0, 0, 2.2) + `<circle cx="${nf(w[0])}" cy="${nf(w[1])}" r="3.4" class="hd"/>`;
-      body = legF(J.hR, J.kR, J.fR) + legF(J.hL, J.kL, J.fL) + torso + drawHeadFront(J, back) + armF(J.sR, J.eR, J.wR) + armF(J.sL, J.eL, J.wL);
+      body = legF(J.hR, J.kR, J.fR) + legF(J.hL, J.kL, J.fL) + torso + drawHeadFront(J, back, mus(back ? 'neckb' : 'neckf', J.nb, J.hc, -0.15, 0.5, 0, 0, 3.4)) + armF(J.sR, J.eR, J.wR) + armF(J.sL, J.eL, J.wL);
     }
     const shadowX = J.h[0];
     return `<ellipse cx="${nf(shadowX)}" cy="161" rx="46" ry="3.2" class="shadow"/>` + props('back') + body + props('front');
   }
-  function drawHeadSide(J) {
+  function drawHeadSide(J, neckMus) {
     const { nb, hc, hd } = J;
     const fwd = av(hd + 90), up = av(hd), back = [-fwd[0], -fwd[1]];
     const hairC = vadd(vadd(hc, back, 1.4), up, 0.8);
     const tail0 = vadd(vadd(hc, back, 7), up, 3), tail1 = vadd(vadd(hc, back, 15), up, -9), tailC = vadd(vadd(hc, back, 17), up, 4);
-    return seg(nb, hc, 6.5, 'bd')
+    return seg(nb, hc, 8.5, 'bd') + (neckMus || '')
       + `<path d="M${pt(tail0)}Q${pt(tailC)} ${pt(tail1)}" class="tail" stroke-width="5" stroke-linecap="round" fill="none"/>`
       + `<circle cx="${nf(hairC[0])}" cy="${nf(hairC[1])}" r="9.2" class="hair"/>`
       + `<circle cx="${nf(hc[0] + fwd[0] * 1.6 - up[0] * 1)}" cy="${nf(hc[1] + fwd[1] * 1.6 - up[1] * 1)}" r="7.6" class="face"/>`;
   }
-  function drawHeadFront(J, back) {
-    const { nb, hc, d } = J;
+  function drawHeadFront(J, back, neckMus) {
+    const { nb, hc, r } = J, d = av(J.hd), yaw = J.yaw || 0, fc = vadd(vadd(hc, d, -1), r, yaw * 3);
     const tail = vadd(hc, d, -15);
-    return seg(nb, hc, 6.5, 'bd')
+    return seg(nb, hc, 6.5, 'bd') + (neckMus || '')
       + (back ? `<path d="M${pt(hc)}L${pt(tail)}" class="tail" stroke-width="5.5" stroke-linecap="round"/><circle cx="${nf(hc[0])}" cy="${nf(hc[1])}" r="9" class="hair"/>`
-        : `<circle cx="${nf(hc[0] + d[0] * 1.2)}" cy="${nf(hc[1] + d[1] * 1.2)}" r="9.4" class="hair"/><circle cx="${nf(hc[0] - d[0] * 1)}" cy="${nf(hc[1] - d[1] * 1)}" r="7.6" class="face"/>`);
+        : `<circle cx="${nf(hc[0] + d[0] * 1.2)}" cy="${nf(hc[1] + d[1] * 1.2)}" r="9.4" class="hair"/><circle cx="${nf(fc[0])}" cy="${nf(fc[1])}" r="7.6" class="face"/>${yaw ? `<circle cx="${nf(fc[0] + r[0] * yaw * 4.6)}" cy="${nf(fc[1] + r[1] * yaw * 4.6)}" r="1.8" class="nose"/>` : ''}`);
   }
   function drawProp(p, J, v, f) {
     const at = p.at && J[p.at] ? vadd(J[p.at], [p.dx || 0, p.dy || 0]) : null;
@@ -1199,6 +1249,8 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         const c = [(J.wR[0] + J.wL[0]) / 2, f.ry ?? 170];
         return `<path d="M${pt(J.wL)}Q${pt(c)} ${pt(J.wR)}" class="rope" stroke-width="1.8" fill="none"/>`;
       }
+      case 'bed': return `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="6" class="bed"/><rect x="${p.x}" y="${p.y + p.h}" width="${p.w}" height="5" rx="2" class="bedf"/><line x1="${p.x + 8}" y1="${p.y + p.h + 5}" x2="${p.x + 8}" y2="159" class="pl" stroke-width="4"/><line x1="${p.x + p.w - 8}" y1="${p.y + p.h + 5}" x2="${p.x + p.w - 8}" y2="159" class="pl" stroke-width="4"/>`;
+      case 'pillow': return `<ellipse cx="${p.c[0]}" cy="${p.c[1]}" rx="${p.rx}" ry="${p.ry}" class="pillow"/>`;
       default: return '';
     }
   }
@@ -1239,6 +1291,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   // Khung tự căn: gom mọi khớp & dụng cụ qua các khung chuyển động → người tập luôn to, rõ trong ô 4:3
   function artBox(sp) {
     if (sp._box) return sp._box;
+    if (sp.box) return (sp._box = sp.box); // khung cố định (VD bài cổ: phóng to vào đầu và vai)
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     const take = (p, r = 0) => { x0 = Math.min(x0, p[0] - r); y0 = Math.min(y0, p[1] - r); x1 = Math.max(x1, p[0] + r); y1 = Math.max(y1, p[1] + r); };
     const fr = framesOf(sp);
@@ -1249,7 +1302,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       take(J.hc, 13);
     }
     for (const p of sp.props || []) {
-      if (p.k === 'rect' && !p.mat) { take([p.x, p.y]); take([p.x + p.w, p.y + p.h]); }
+      if ((p.k === 'rect' && !p.mat) || p.k === 'bed') { take([p.x, p.y]); take([p.x + p.w, p.y + p.h]); }
       if (p.k === 'line') { take([p.p[0], Math.max(p.p[1], y0 - 10)]); take([p.p[2], p.p[3]]); }
     }
     take([x0, 163]);
@@ -1286,7 +1339,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.11 (13/11/2026)';
+  const APP_VERSION = '1.12 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
