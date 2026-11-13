@@ -324,6 +324,19 @@ svg.exart .bed { fill: #3a3346; stroke: #554c66; stroke-width: 1; } svg.exart .b
 svg.exart.big { max-width: 440px; margin: 0 auto; }
 .legend .dot { background: #ff2e6e; } .legend .dot.s { background: #f2a93b; opacity: 1; }
 /* @@EXART-CSS-END */
+/* Hình nhóm cơ kiểu giải phẫu */
+svg.body.anat { max-width: 360px; border-radius: 16px; }
+svg.body.anat text { fill: #6b4a56; font-size: 11px; font-weight: 600; }
+svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; display: block; }
+.an-b { fill: #8f9097; stroke: #55565c; stroke-width: .9; }
+.an-o { fill: url(#anOff); stroke: #6a6b72; stroke-width: .6; }
+.an-p { fill: url(#anOn); stroke: #8c130d; stroke-width: .6; }
+.an-s { fill: url(#anSec); stroke: #b8574b; stroke-width: .6; }
+.an-f { fill: url(#anFib); pointer-events: none; }
+.an-h { fill: #1f1f24; } .an-hl { fill: none; stroke: #5b5b63; stroke-width: .7; stroke-linecap: round; }
+.an-face { fill: #d9dade; stroke: #6a6b72; stroke-width: .6; }
+.an-l { fill: none; stroke: #5f6067; stroke-width: .6; stroke-opacity: .7; stroke-linecap: round; }
+.legend .dot { background: #e5322a !important; } .legend .dot.s { background: #f2998c !important; opacity: 1; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -876,40 +889,89 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const m = MUSCLES[ex.id];
     return m ? { p: split(m[0]), s: split(m[1]) } : { p: split(GROUP_MUSCLES[ex.group]), s: [] };
   }
-  // [key, cx, cy, rx, ry, rotate]
-  const FRONT = [
-    ['delts', 36, 52, 8, 7, 0], ['delts', 84, 52, 8, 7, 0], ['chest', 49, 62, 11, 8, 0], ['chest', 71, 62, 11, 8, 0],
-    ['biceps', 30, 76, 5, 13, 11], ['biceps', 90, 76, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
-    ['neckf', 60, 37, 5, 5, 0], ['abs', 60, 98, 8, 22, 0], ['obliques', 44, 102, 4, 14, 10], ['obliques', 76, 102, 4, 14, -10],
-    ['quads', 49, 176, 8, 22, 3], ['quads', 71, 176, 8, 22, -3], ['calves', 47, 224, 4, 13, 0], ['calves', 73, 224, 4, 13, 0],
-  ];
-  const BACK = [
-    ['reardelts', 36, 53, 8, 7, 0], ['reardelts', 84, 53, 8, 7, 0], ['lats', 46, 86, 8, 19, -12], ['lats', 74, 86, 8, 19, 12],
-    ['triceps', 30, 78, 5, 13, 11], ['triceps', 90, 78, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
-    ['neckb', 60, 37, 5, 5, 0], ['lowerback', 60, 116, 9, 11, 0], ['glutes', 51, 143, 10, 9, 0], ['glutes', 69, 143, 10, 9, 0],
-    ['hamstrings', 49, 180, 8, 20, 3], ['hamstrings', 71, 180, 8, 20, -3], ['calves', 47, 222, 6, 15, 0], ['calves', 73, 222, 6, 15, 0],
-  ];
-  const silhouette = `
-    <circle cx="60" cy="20" r="13"/><rect x="54" y="30" width="12" height="14" rx="4"/>
-    <path d="M34 46 Q60 40 86 46 L82 92 Q80 118 76 132 L44 132 Q40 118 38 92 Z"/><path d="M44 128 L76 128 L81 152 L39 152 Z"/>
-    <circle cx="18" cy="156" r="6"/><circle cx="102" cy="156" r="6"/><ellipse cx="45" cy="256" rx="9" ry="4"/><ellipse cx="75" cy="256" rx="9" ry="4"/>
-    <g fill="none" stroke="var(--body)" stroke-linecap="round">
-      <line x1="35" y1="50" x2="25" y2="100" stroke-width="14"/><line x1="25" y1="100" x2="19" y2="148" stroke-width="11"/>
-      <line x1="85" y1="50" x2="95" y2="100" stroke-width="14"/><line x1="95" y1="100" x2="101" y2="148" stroke-width="11"/>
-      <line x1="50" y1="150" x2="47" y2="202" stroke-width="20"/><line x1="47" y1="202" x2="46" y2="248" stroke-width="14"/>
-      <line x1="70" y1="150" x2="73" y2="202" stroke-width="20"/><line x1="73" y1="202" x2="74" y2="248" stroke-width="14"/>
-    </g>`;
+  // ================= HÌNH NHÓM CƠ kiểu giải phẫu: người tập nữ xám, cơ tập tô đỏ =================
+  // Mỗi hình 120×270, tâm x=60. Đường dẫn vẽ nửa trái rồi lật gương; mục thứ 3 = 1 → hình ở giữa (không lật).
+  const AN_TORSO = 'M60 34L55 34C55 38 54 40 52 41C45 44 38 45 33 47C28 49 26 54 26 60L30 64C34 70 37 80 38 90C39 98 41 104 40 110C38 118 34 126 33 138C32 150 34 160 36 172C38 186 40 196 41 204C40 214 38 224 39 236C40 246 41 252 41 258C40 262 42 264 47 264L52 264C52 258 52 252 53 246C54 236 55 224 54 214C55 206 56 196 57 184C58 172 59 164 60 160Z';
+  const AN_ARM = 'M27 52C22 56 21 64 21 72C20 82 21 90 21 98C20 108 19 118 19 128C19 134 18 138 18 142C17 148 19 154 22 154C25 154 26 148 25 142C25 136 26 130 27 122C28 112 29 104 30 96C31 86 32 76 33 66C32 60 30 54 27 52Z';
+  const AN_FORE = 'M21 100C20 108 20 118 20 126C22 128 24 128 25 126C26 118 27 110 29 100C26 98 23 98 21 100Z';
+  const AN_HAM = 'M37 162C42 165 52 165 58 162C57 176 56 190 54 202C50 204 44 204 41 202C39 190 37 176 37 162Z';
+  const AN = {
+    back: [
+      ['neckb', 'M54 30L66 30L67 41C63 43 57 43 53 41Z', 1],
+      ['traps', 'M60 33C58 38 55 41 50 43C44 45 38 46 34 48C40 52 48 60 52 70C55 78 58 88 60 96C62 88 65 78 68 70C72 60 80 52 86 48C82 46 76 45 70 43C65 41 62 38 60 33Z', 1],
+      ['reardelts', 'M34 48C28 49 25 54 25 61C26 66 28 70 30 72C31 66 33 60 38 55C40 53 38 50 34 48Z'],
+      ['reardelts', 'M37 55C43 55 48 62 51 69C45 69 39 66 33 62C34 58 35 56 37 55Z'],
+      ['lats', 'M32 63C40 65 48 70 53 76C56 84 58 94 59 104L59 112C52 110 45 104 41 96C37 86 34 74 32 63Z'],
+      ['obliques', 'M38 94C40 100 41 106 40 113C38 108 37 101 38 94Z'],
+      ['lowerback', 'M59 98C55 104 53 112 53 122C55 124 57 124 59 124Z'],
+      ['glutes', 'M37 128C40 121 48 117 57 118C50 121 43 124 38 131Z'],
+      ['glutes', 'M59 122C52 120 43 123 38 131C34 139 35 150 39 157C44 163 53 163 59 160Z'],
+      ['hamstrings', AN_HAM],
+      ['calves', 'M41 206C44 205 52 205 54 208C55 216 54 226 52 234C49 238 44 238 42 234C39 226 39 214 41 206Z'],
+      ['triceps', 'M27 54C23 60 22 70 22 80C22 88 24 94 26 98C28 92 30 84 31 74C32 66 31 58 27 54Z'],
+      ['forearms', AN_FORE],
+    ],
+    front: [
+      ['neckf', 'M54 30L66 30L67 41C63 43 57 43 53 41Z', 1],
+      ['traps', 'M53 40C47 43 40 45 34 47C40 46 47 46 54 44Z'],
+      ['delts', 'M34 47C28 48 25 54 25 61C25 67 27 71 29 73C31 66 34 60 38 56C39 52 37 48 34 47Z'],
+      ['chest', 'M38 50C44 47 52 47 59 49L59 69C54 74 46 74 41 70C37 66 36 60 38 50Z'],
+      ['biceps', 'M28 60C24 66 22 74 22 82C22 88 24 94 26 97C28 92 31 84 32 76C33 68 32 62 28 60Z'],
+      ['forearms', AN_FORE],
+      ['abs', 'M53 74C56 73 64 73 67 74L66 118C63 122 57 122 54 118Z', 1],
+      ['obliques', 'M39 72C44 76 49 78 52 80L53 116C47 115 42 110 40 104C38 94 38 82 39 72Z'],
+      ['quads', 'M37 132C42 128 50 130 55 140C58 152 57 172 55 190C53 198 50 204 46 204C41 202 39 194 38 182C36 166 35 148 37 132Z'],
+      ['', 'M56 146C58 150 59 156 59 162L57 176C56 164 55 154 56 146Z'],
+      ['calves', 'M41 210C43 207 47 209 48 214C48 224 46 234 44 240C42 236 40 226 40 218Z'],
+    ],
+  };
+  const AN_LINES = {
+    back: '<path d="M60 34V124M52 70C55 64 57 58 60 52M68 70C65 64 63 58 60 52M45 183V200M75 183V200" class="an-l"/>',
+    front: '<path d="M54 84H66M54 94H66M54 104H66M60 74V120M55 33L59 41M65 33L61 41M46 150C47 165 47 180 46 196M74 150C73 165 73 180 74 196" class="an-l"/>',
+  };
+  const AN_FRONT_SET = ['chest', 'delts', 'biceps', 'abs', 'obliques', 'quads', 'neckf'];
+  const AN_BACK_SET = ['reardelts', 'triceps', 'lats', 'traps', 'lowerback', 'glutes', 'hamstrings', 'neckb'];
+  function ensureAnatDefs() {
+    if (document.getElementById('anOff')) return;
+    document.body.insertAdjacentHTML('afterbegin', `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+      <linearGradient id="anOff" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f6f8"/><stop offset=".55" stop-color="#d6d7db"/><stop offset="1" stop-color="#a9aab1"/></linearGradient>
+      <linearGradient id="anOn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7461"/><stop offset=".6" stop-color="#ec3326"/><stop offset="1" stop-color="#b51b13"/></linearGradient>
+      <linearGradient id="anSec" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9c0"/><stop offset="1" stop-color="#ee8a7d"/></linearGradient>
+      <linearGradient id="anBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8e7ee"/><stop offset="1" stop-color="#e6c3d1"/></linearGradient>
+      <pattern id="anFib" width="2.4" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(68)"><line x1="0" y1="0" x2="0" y2="2.4" stroke="#000" stroke-opacity=".14" stroke-width=".55"/></pattern>
+    </defs></svg>`);
+  }
+  function anatFigure(view, p, s) {
+    const cls = (k) => (!k ? 'an-o' : p.includes(k) ? 'an-p' : s.includes(k) ? 'an-s' : 'an-o');
+    const part = ([k, d]) => `<path class="${cls(k)}" d="${d}"/><path class="an-f" d="${d}"/>`;
+    const side = AN[view].filter((x) => !x[2]).map(part).join('');
+    const mid = AN[view].filter((x) => x[2]).map(part).join('');
+    const halfBase = `<path class="an-b" d="${AN_TORSO}"/><path class="an-b" d="${AN_ARM}"/>`;
+    const head = view === 'back'
+      ? `<ellipse cx="60" cy="21" rx="10.5" ry="12.5" class="an-h"/><circle cx="60" cy="7.5" r="7" class="an-h"/><path d="M60 10C56 16 53 24 54 32M60 10C64 16 67 24 66 32M60 10V33M55 6C57 3 63 3 65 6M56 9C58 11 62 11 64 9" class="an-hl"/>`
+      : `<ellipse cx="60" cy="22" rx="9.5" ry="12" class="an-face"/><path d="M50 19C50 8 70 8 70 19C66 13 54 13 50 19Z" class="an-h"/><circle cx="60" cy="5.5" r="6.5" class="an-h"/><path d="M56 4C58 2 62 2 64 4" class="an-hl"/>`;
+    return `${halfBase}<g transform="matrix(-1 0 0 1 120 0)">${halfBase}</g>${head}<g>${side}</g><g transform="matrix(-1 0 0 1 120 0)">${side}</g>${mid}${AN_LINES[view]}`;
+  }
+  // Bản đồ cơ: mặt trước + mặt sau
   function bodySvg(ex, opts = {}) {
+    ensureAnatDefs();
     const { p, s } = musclesFor(ex);
-    const fill = (k) => (p.includes(k) ? 'fill="var(--accent)"' : s.includes(k) ? 'fill="var(--accent)" fill-opacity=".4"' : 'fill="var(--muscle-off)"');
-    const shapes = (list) => list.map(([k, cx, cy, rx, ry, r]) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${cx} ${cy})" ${fill(k)}/>`).join('');
-    const traps = `<polygon points="60,40 76,52 60,82 44,52" ${fill('traps')}/>`;
     const label = `Cơ tác động: ${p.map((k) => MUSCLE_NAMES[k]).join(', ')}${s.length ? '; cơ phụ: ' + s.map((k) => MUSCLE_NAMES[k]).join(', ') : ''}`;
-    return `<svg class="body" viewBox="0 0 250 ${opts.labels === false ? 262 : 276}" role="img" aria-label="${esc(label)}">
-      <g fill="var(--body)">${silhouette}</g><g>${shapes(FRONT)}</g>
-      <g transform="translate(130 0)"><g fill="var(--body)">${silhouette}</g>${traps}<g>${shapes(BACK)}</g></g>
-      ${opts.labels === false ? '' : '<text x="60" y="273" text-anchor="middle">Mặt trước</text><text x="190" y="273" text-anchor="middle">Mặt sau</text>'}
+    const lab = opts.labels !== false;
+    return `<svg class="body anat" viewBox="0 0 250 ${lab ? 290 : 276}" role="img" aria-label="${esc(label)}">
+      <rect width="250" height="${lab ? 290 : 276}" rx="16" fill="url(#anBg)"/>
+      <g transform="translate(0 4)">${anatFigure('front', p, s)}</g><g transform="translate(130 4)">${anatFigure('back', p, s)}</g>
+      ${lab ? '<text x="60" y="284" text-anchor="middle">Mặt trước</text><text x="190" y="284" text-anchor="middle">Mặt sau</text>' : ''}
     </svg>`;
+  }
+  // Ảnh thẻ thư viện: một mặt (bên có nhiều cơ chính hơn), cắt phần thân trên hoặc thân dưới
+  function anatThumb(ex) {
+    ensureAnatDefs();
+    const { p, s } = musclesFor(ex);
+    const score = (set) => p.filter((k) => set.includes(k)).length * 2 + s.filter((k) => set.includes(k)).length;
+    const view = score(AN_BACK_SET) > score(AN_FRONT_SET) ? 'back' : 'front';
+    const vb = p.includes('calves') && p.every((k) => ['calves', 'quads', 'hamstrings'].includes(k)) ? '0 92 120 176' : '0 -2 120 184';
+    return `<svg class="anat-thumb" viewBox="${vb}" role="img" aria-label="${esc('Cơ tác động: ' + p.map((k) => MUSCLE_NAMES[k]).join(', '))}"><rect x="-10" y="-10" width="140" height="290" fill="url(#anBg)"/>${anatFigure(view, p, s)}</svg>`;
   }
   function muscleLegend(ex) {
     const { p, s } = musclesFor(ex);
@@ -1455,7 +1517,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.13 (13/11/2026)';
+  const APP_VERSION = '1.14 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2112,7 +2174,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         <span class="sub" style="color:var(--ink)">Hít thở, gồng core, gối theo mũi chân, cùi chỏ dẫn đường, khởi động, tăng tạ an toàn</span>
       </button>
       <div class="list" id="libList">${items.map((e) => { const m = musclesFor(e); return `<button class="card" data-act="ex-info" data-id="${esc(e.id)}">
-        <div class="lib-row">${exArt(e, { labels: false })}<div class="grow">
+        <div class="lib-row">${anatThumb(e)}<div class="grow">
           <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><span class="card-title">${esc(e.name)}</span>${e.custom ? '<span class="chip">Bài riêng</span>' : `<span class="chip">${GROUPS[e.group]}</span>`}</div>
           <div class="sub"><b style="color:var(--accent)">${esc(m.p.map((k) => MUSCLE_NAMES[k]).join(', '))}</b>${m.s.length ? ' · ' + esc(m.s.map((k) => MUSCLE_NAMES[k]).join(', ')) : ''}</div>
           <div class="sub">${esc(e.equip || '')}</div>
@@ -2126,7 +2188,8 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const tp = tipsFor(e);
     openSheet(`${sheetHead(e.name)}
       <div class="row"><span class="chip accent">${GROUPS[e.group] || ''}</span>${e.equip ? `<span class="chip">${esc(e.equip)}</span>` : ''}<span class="chip">${e.type === 'weight' ? 'kg × lần' : unit(e.type)}</span></div>
-      <section><h3>Động tác & cơ tác động</h3>${exArt(e, { anim: true, cls: 'big' })}${muscleLegend(e)}${ART[e.id] ? `<details class="tips"><summary>Bản đồ cơ mặt trước / mặt sau</summary><div class="in">${bodySvg(e)}</div></details>` : ''}</section>
+      <section><h3>Cơ tác động</h3>${bodySvg(e)}${muscleLegend(e)}</section>
+      ${ART[e.id] ? `<section><h3>Động tác</h3>${exArt(e, { anim: true, cls: 'big' })}</section>` : ''}
       ${tp.personal.length ? `<section><h3>HLV dặn riêng bạn</h3><ul class="cue-list">${tp.personal.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       ${tp.cues.length ? `<section><h3>Câu nhắc khi tập${tp.fromCoach ? ' <span class="chip warn">HLV cập nhật</span>' : ''}</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       <section><h3>Hít thở</h3><p style="margin:0">${esc(tp.breath)}</p></section>
