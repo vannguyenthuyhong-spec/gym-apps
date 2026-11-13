@@ -174,6 +174,23 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
 .ex-row .mini input { min-height: 40px; text-align: center; padding: 6px; font-variant-numeric: tabular-nums; }
 .ex-row .tick { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .ex-row .tick input { width: 22px; height: 22px; min-height: 0; accent-color: var(--done); }
+.ex-row .ex-more { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 2fr; gap: 6px; }
+.ex-row .ex-more .note input { text-align: left; }
+.ex-tag { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: -2px; }
+.ex-tag b { color: var(--done); font-weight: 600; }
+.ex-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tool-panel { background: var(--surface-2); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.tool-panel textarea { width: 100%; min-height: 180px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 10px 12px; font-size: 15px; color: var(--ink); resize: vertical; }
+.tool-panel .q { flex: 1; min-width: 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 8px 12px; font-size: 16px; color: var(--ink); }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips button { flex: none; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 14px; color: var(--ink); }
+.chips button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.lib-list { display: flex; flex-direction: column; gap: 4px; max-height: 50vh; overflow-y: auto; }
+.lib-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 50px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); text-align: left; font-size: 15px; color: var(--ink); width: 100%; }
+.lib-item .g { display: block; font-size: 12px; color: var(--muted); }
+.lib-item .add { flex: none; font-weight: 700; color: var(--accent); font-size: 14px; }
+.lib-item[aria-pressed="true"] { border-color: var(--done); }
+.lib-item[aria-pressed="true"] .add { color: var(--done); }
 .rm { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 18px; flex: none; }
 .rating { display: flex; gap: 6px; }
 .rating button { flex: 1; min-height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -280,10 +297,150 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     const overdue = s.status === 'planned' && s.date < today();
     return overdue ? '<span class="pill overdue">Chưa cập nhật</span>' : `<span class="pill ${esc(s.status)}">${STATUS[s.status] || ''}</span>`;
   };
+  // ---------- thư viện bài (trùng id với app học viên Nhật Ký Tập) ----------
+  const EX_GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio' };
+  // [id, tên, nhóm, kiểu (weight=kg×lần, reps=lần, time=giây, min=phút), từ khoá không dấu]
+  const EX_LIB = [
+    ['goblet-squat', 'Goblet Squat', 'legs', 'weight', ''],
+    ['back-squat', 'Squat thanh đòn', 'legs', 'weight', 'back squat|squat|barbell squat|squat ta don'],
+    ['leg-press', 'Đạp đùi máy (Leg Press)', 'legs', 'weight', 'dap dui|dap dui may'],
+    ['db-lunge', 'Lunge tạ đơn', 'legs', 'weight', 'lunge|walking lunge|dumbbell lunge'],
+    ['bulgarian-split-squat', 'Bulgarian Split Squat', 'legs', 'weight', 'bulgarian|split squat'],
+    ['leg-curl', 'Gập đùi sau máy (Leg Curl)', 'legs', 'weight', 'gap dui sau|hamstring curl|lying leg curl|seated leg curl'],
+    ['leg-ext', 'Đá đùi trước máy (Leg Extension)', 'legs', 'weight', 'leg extension|da dui truoc|da dui'],
+    ['calf-raise', 'Nhón bắp chân', 'legs', 'weight', 'calf raise|nhon chan|nhon bap chan'],
+    ['bw-squat', 'Squat tay không', 'legs', 'reps', 'bodyweight squat|air squat'],
+    ['reverse-lunge', 'Lunge lùi', 'legs', 'reps', 'reverse lunge'],
+    ['wall-sit', 'Ngồi dựa tường', 'legs', 'time', 'wall sit'],
+    ['rdl-db', 'Romanian Deadlift tạ đơn', 'glutes', 'weight', 'romanian deadlift|rdl|stiff leg deadlift'],
+    ['deadlift', 'Deadlift thanh đòn', 'glutes', 'weight', 'deadlift|conventional deadlift'],
+    ['hip-thrust', 'Hip Thrust', 'glutes', 'weight', 'hip thrust|day hong'],
+    ['glute-bridge', 'Glute Bridge', 'glutes', 'reps', 'glute bridge|cau mong'],
+    ['hip-abduction', 'Banh mông máy (Hip Abduction)', 'glutes', 'weight', 'hip abduction|abduction|banh mong|dang chan may'],
+    ['pushup', 'Chống đẩy', 'chest', 'reps', 'push up|pushup|hit dat'],
+    ['knee-pushup', 'Chống đẩy gối', 'chest', 'reps', 'knee push up|chong day quy goi'],
+    ['db-bench', 'Đẩy ngực tạ đơn', 'chest', 'weight', 'dumbbell bench|dumbbell press|db bench|day nguc ta don'],
+    ['bench', 'Đẩy ngực thanh đòn', 'chest', 'weight', 'bench press|bench|day nguc'],
+    ['chest-press', 'Đẩy ngực máy', 'chest', 'weight', 'chest press|day nguc may'],
+    ['incline-db', 'Đẩy ngực dốc lên tạ đơn', 'chest', 'weight', 'incline dumbbell press|incline press|incline bench|day nguc doc'],
+    ['lat-pulldown', 'Kéo xô (Lat Pulldown)', 'back', 'weight', 'lat pulldown|pulldown|keo xo'],
+    ['cable-row', 'Kéo cáp ngồi (Seated Row)', 'back', 'weight', 'seated row|cable row|keo cap ngoi'],
+    ['db-row', 'Chèo tạ đơn 1 tay', 'back', 'weight', 'dumbbell row|one arm row|cheo ta don|row ta don'],
+    ['assisted-pullup', 'Hít xà có trợ lực', 'back', 'reps', 'pull up|pullup|hit xa|assisted pull up'],
+    ['superman', 'Superman', 'back', 'reps', 'superman'],
+    ['db-press', 'Đẩy vai tạ đơn', 'shoulders', 'weight', 'shoulder press|day vai|overhead press'],
+    ['lateral-raise', 'Dang tạ sang ngang', 'shoulders', 'weight', 'lateral raise|dang ngang|dang ta'],
+    ['face-pull', 'Face Pull', 'shoulders', 'weight', 'face pull'],
+    ['pike-pushup', 'Pike Push-up', 'shoulders', 'reps', 'pike push up|pike'],
+    ['db-curl', 'Cuốn tạ đơn (tay trước)', 'arms', 'weight', 'bicep curl|biceps curl|dumbbell curl|cuon ta|curl tay truoc'],
+    ['triceps-pushdown', 'Ép tay sau với cáp', 'arms', 'weight', 'triceps pushdown|tricep pushdown|pushdown|ep tay sau'],
+    ['plank', 'Plank', 'core', 'time', 'plank'],
+    ['side-plank', 'Plank nghiêng', 'core', 'time', 'side plank'],
+    ['dead-bug', 'Dead Bug', 'core', 'reps', 'dead bug'],
+    ['bird-dog', 'Bird Dog', 'core', 'reps', 'bird dog'],
+    ['crunch', 'Gập bụng (Crunch)', 'core', 'reps', 'crunch|gap bung'],
+    ['mountain-climber', 'Leo núi (Mountain Climber)', 'cardio', 'time', 'mountain climber|leo nui'],
+    ['incline-walk', 'Đi bộ dốc trên máy chạy', 'cardio', 'min', 'di bo doc|incline walk|di bo|treadmill|chay bo|may chay'],
+    ['bike', 'Đạp xe tại chỗ', 'cardio', 'min', 'dap xe|bike|xe dap'],
+    ['stair-climber', 'Leo cầu thang máy (Stair Climber)', 'cardio', 'min', 'leo cau thang|stair climber|stairmaster|cau thang'],
+  ].map(([id, name, group, type, kw]) => {
+    const keys = new Set([fold(name), fold(name.replace(/\(.*?\)/g, '')), ...(/\(([^)]+)\)/.exec(name) ? [fold(/\(([^)]+)\)/.exec(name)[1])] : []), ...kw.split('|').filter(Boolean)]);
+    return { id, name, group, type, keys: [...keys].filter(Boolean) };
+  });
+  const libById = (id) => EX_LIB.find((x) => x.id === id) || null;
+  function fold(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim(); }
+  // Tìm bài trong thư viện: từ khoá xuất hiện sớm nhất trong tên, ưu tiên từ khoá dài
+  function matchLib(name) {
+    const n = ` ${fold(String(name || '').replace(/\(.*?\)/g, ' '))} `;
+    if (n.trim() === '') return null;
+    let best = null;
+    for (const ex of EX_LIB) for (const k of ex.keys) {
+      const i = n.indexOf(` ${k} `);
+      if (i < 0) continue;
+      if (!best || i < best.i || (i === best.i && k.length > best.len)) best = { ex, i, len: k.length };
+    }
+    return best ? best.ex : null;
+  }
+  const exTypeOf = (e) => (e.libId && libById(e.libId) ? libById(e.libId).type : e.type) || 'weight';
+  // "2-3'" → 120 · "45s-1'" → 45 · "1'30s" → 90 (lấy cận dưới)
+  function restSeconds(txt) {
+    const parts = String(txt || '').toLowerCase().split(/\s*(?:-|–|~|đến|den)\s*/).filter(Boolean);
+    if (!parts.length) return null;
+    const lastMin = /['’]|ph|min|p\b/.test(parts[parts.length - 1]);
+    const p = parts[0].trim(); let m, v = null;
+    if ((m = /^(\d+(?:[.,]\d+)?)\s*(?:['’]|phút|phut|p\b|min)\s*(?:(\d+)\s*(?:s|giây|giay)?)?/.exec(p))) v = Math.round(parseFloat(m[1].replace(',', '.')) * 60) + (m[2] ? Number(m[2]) : 0);
+    else if ((m = /^(\d+)\s*(?:s|giây|giay|sec)/.exec(p))) v = Number(m[1]);
+    else if ((m = /^(\d+(?:[.,]\d+)?)$/.exec(p))) v = lastMin ? Math.round(parseFloat(m[1].replace(',', '.')) * 60) : Number(m[1]);
+    return v && v >= 10 && v <= 900 ? v : null;
+  }
+  const parseReps = (v) => { const m = /^\s*(\d+)\s*(?:[-–~]\s*(\d+))?/.exec(String(v || '')); return m ? { reps: Number(m[1]), repsTo: m[2] && Number(m[2]) > Number(m[1]) ? Number(m[2]) : null } : { reps: null, repsTo: null }; };
+  // Tách giáo án dán từ tin nhắn → { title, notes[], exercises[] }
+  function parsePlanText(text) {
+    const out = { title: '', notes: [], exercises: [] };
+    let cardio = false;
+    const lines = String(text || '').replace(/\r/g, '').split('\n');
+    for (const raw of lines) {
+      let line = raw.replace(/^[\s•●▪◦*+\->]+/, '').trim();
+      if (!line) continue;
+      const numbered = /^\d+\s*[.)\/]\s*\S/.test(line);
+      if (numbered) line = line.replace(/^\d+\s*[.)\/]\s*/, '');
+      const fl = fold(line);
+      // nghỉ giữa hiệp
+      let restText = '';
+      const rm = /\(?\s*ngh[ỉiĩ]\s*(?:giữa hiệp|giua hiep)?\s*:?\s*([^)\];]*)\)?/i.exec(line);
+      if (rm && /\d/.test(rm[1])) { restText = rm[1].trim().replace(/[.,;]+$/, ''); line = (line.slice(0, rm.index) + ' ' + line.slice(rm.index + rm[0].length)).trim(); }
+      const rest = restText ? restSeconds(restText) : null;
+      const leftover = line.replace(/[()\[\]\s.,;:–—-]+/g, '');
+      const prev = out.exercises[out.exercises.length - 1];
+      if (restText && !leftover && prev) { prev.restText = restText; prev.rest = rest; continue; }
+      if (!numbered && /^(ngay|buoi|day|thu|tuan|session|workout)\s*\d/.test(fl) && !out.title && !/\d+\s*(set|hiep|x)\b/.test(fl)) { out.title = line.replace(/[:\s]+$/, '').slice(0, 80); continue; }
+      if (/^(khoi dong|warm ?up|gian co|cool ?down|luu y|ghi chu|note|chu y|an uong|uong nuoc)/.test(fl)) { out.notes.push(line); continue; }
+      if (/^cardio\b/.test(fl) && !/\d/.test(fl.replace(/^cardio/, '').replace(/cuoi buoi|dau buoi/, ''))) { cardio = true; continue; }
+      if (/:\s*$/.test(line) && !/\d/.test(line)) { cardio = /cardio/.test(fl); continue; }
+      // tách tên và thông số
+      let name = line, spec = '';
+      const sep = /\s[—–]\s|\s-\s|:\s+(?=\d)|—/.exec(line);
+      if (sep) { name = line.slice(0, sep.index); spec = line.slice(sep.index + sep[0].length); }
+      else {
+        const first = /\d+\s*(?:set|sets|hiệp|hiep|vòng|vong)\b|\d+\s*[x×]\s*\d+|\d+(?:[.,]\d+)?\s*kg\b|\d+\s*(?:['’]|phút|phut|min)(?![a-z])|\d+\s*(?:reps?|lần|lan|cái)\b|\d+\s*(?:s|giây|giay)\b/i.exec(line);
+        if (first) { name = line.slice(0, first.index); spec = line.slice(first.index); }
+      }
+      const extras = [];
+      name = name.replace(/\(([^)]*)\)?/g, (_, x) => { if (x && x.trim()) extras.push(x.trim()); return ' '; }).replace(/\s+/g, ' ').replace(/[\s:,.;–—-]+$/, '').trim();
+      spec = spec.replace(/\(([^)]*)\)?/g, (_, x) => { if (x && x.trim() && !/^\d/.test(x.trim())) extras.push(x.trim()); return ' '; });
+      const lib = matchLib(name);
+      const hasSpec = /\d/.test(spec);
+      if (!name || (!hasSpec && !lib && !numbered && !cardio)) {
+        if (!name && prev && extras.length) prev.note = [prev.note, ...extras].filter(Boolean).join(' · ');
+        else if (/\d/.test(line) || line.split(/\s+/).length > 3) out.notes.push(line);
+        continue;
+      }
+      const e = { name: name.slice(0, 80), libId: lib ? lib.id : null, type: lib ? lib.type : (cardio ? 'min' : 'weight'), sets: null, reps: null, repsTo: null, kg: null, rest, restText, note: '', done: false };
+      let m;
+      if ((m = /(\d+)\s*(?:set|sets|hiệp|hiep|vòng|vong)?\s*[x×]\s*(\d+)(?:\s*[-–~]\s*(\d+))?/i.exec(spec))) { e.sets = Number(m[1]); e.reps = Number(m[2]); if (m[3] && Number(m[3]) > e.reps) e.repsTo = Number(m[3]); }
+      else {
+        if ((m = /(\d+)\s*(?:set|sets|hiệp|hiep|vòng|vong)\b/i.exec(spec))) e.sets = Number(m[1]);
+        if ((m = /(\d+)(?:\s*[-–~]\s*(\d+))?\s*(?:reps?|lần|lan|cái|cai)\b/i.exec(spec))) { e.reps = Number(m[1]); if (m[2] && Number(m[2]) > e.reps) e.repsTo = Number(m[2]); }
+      }
+      if ((m = /(\d+(?:[.,]\d+)?)\s*kg\b/i.exec(spec))) e.kg = Number(m[1].replace(',', '.'));
+      const mins = /(\d+)(?:\s*[-–~]\s*(\d+))?\s*(?:['’]|phút|phut|min)(?![a-z])/i.exec(spec);
+      const secs = /(\d+)(?:\s*[-–~]\s*(\d+))?\s*(?:s|giây|giay|sec)\b/i.exec(spec);
+      if (mins && (e.type === 'min' || (!lib && e.reps == null))) { e.type = lib ? lib.type : 'min'; e.reps = e.reps ?? Number(mins[1]); if (mins[2] && !e.repsTo) e.repsTo = Number(mins[2]); e.sets = e.sets || 1; }
+      else if (secs && (e.type === 'time' || (!lib && e.reps == null))) { e.type = lib ? lib.type : 'time'; e.reps = e.reps ?? Number(secs[1]); if (secs[2] && !e.repsTo) e.repsTo = Number(secs[2]); }
+      if (/m[ỗo]i\s*(chân|chan|bên|ben|tay)/i.test(spec + ' ' + line)) extras.unshift(/m[ỗo]i\s*(chân|chan|bên|ben|tay)/i.exec(spec + ' ' + line)[0].toLowerCase().replace('moi', 'mỗi'));
+      const libName = lib ? fold(lib.name) : '';
+      e.note = [...new Set(extras.filter((x) => !(lib && (libName.includes(fold(x)) || lib.keys.includes(fold(x))))))].join(' · ').slice(0, 200);
+      out.exercises.push(e);
+    }
+    return out;
+  }
+
   const exText = (e) => {
     const parts = [];
-    if (e.sets || e.reps) parts.push(`${e.sets || '?'}×${e.reps || '?'}`);
+    const t = exTypeOf(e);
+    if (e.sets || e.reps) parts.push(`${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}${t === 'min' ? ' phút' : t === 'time' ? 's' : ''}`);
     if (e.kg) parts.push(`@ ${fmtNum(e.kg)} kg`);
+    if (e.restText) parts.push(`· nghỉ ${esc(e.restText)}`);
     return `${esc(e.name)}${parts.length ? ' ' + parts.join(' ') : ''}`;
   };
 
@@ -870,10 +1027,10 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       const prev = sessionsOf(clientId).filter((s) => (s.exercises || []).length).sort((a, b) => b.date.localeCompare(a.date))[0];
       if (prev) {
         base.title = prev.title;
-        base.exercises = prev.exercises.map((e) => ({ name: e.name, sets: e.sets, reps: e.reps, kg: e.kg, done: false }));
+        base.exercises = prev.exercises.map((e) => ({ ...e, done: false }));
       }
     }
-    if (!base.exercises.length) base.exercises = [{ name: '', sets: null, reps: null, kg: null, done: false }];
+    // danh sách trống: HLV chọn từ thư viện, dán giáo án hoặc tự nhập
     return base;
   }
 
@@ -897,11 +1054,25 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         <div class="seg" role="group" aria-label="Trạng thái">
           ${Object.entries(STATUS).map(([k, l]) => `<button type="button" data-status="${k}" aria-pressed="${f.status === k}">${l}</button>`).join('')}
         </div>
-        <section><div class="row between"><h2>Bài tập</h2><span class="muted small">hiệp × lần @ kg</span></div>
+        <section><div class="row between"><h2>Bài tập</h2><span class="muted small" id="exCount"></span></div>
+          <div class="ex-tools">
+            <button class="btn" type="button" id="libOpen" aria-expanded="false">Chọn từ thư viện</button>
+            <button class="btn" type="button" id="pasteOpen" aria-expanded="false">Dán giáo án</button>
+          </div>
+          <div class="tool-panel" id="libPanel" hidden>
+            <div class="row" style="flex-wrap:nowrap"><input class="q" id="libQ" type="search" placeholder="Tìm bài: squat, mông, kéo xô…" aria-label="Tìm bài tập" autocomplete="off"><button class="btn small" type="button" id="libDone">Xong</button></div>
+            <div class="chips" id="libChips" role="group" aria-label="Nhóm cơ"></div>
+            <div class="lib-list" id="libList"></div>
+          </div>
+          <div class="tool-panel" id="pastePanel" hidden>
+            <label class="muted small" for="pasteText">Dán giáo án từ tin nhắn. Mỗi bài một dòng, VD: <i>Hip Thrust — 3 set × 12 reps 10kg (nghỉ 2-3')</i></label>
+            <textarea id="pasteText" placeholder="Ngày 1: Mông + Đùi&#10;Khởi động: 7–10 phút&#10;1. Hip Thrust — 3 set × 12 reps 10kg (nghỉ 2-3')&#10;2. Bulgarian Split Squat — 2 set × 10 reps mỗi chân 4kg&#10;Cardio: đi bộ dốc 10'"></textarea>
+            <div class="row"><button class="btn primary" type="button" id="pasteGo">Tách thành bài tập</button><button class="btn" type="button" id="pasteClose">Đóng</button></div>
+          </div>
           <div class="ex-list" id="exList"></div>
-          <button class="btn block" type="button" id="exAdd">+ Thêm bài</button>
+          <button class="btn block" type="button" id="exAdd">+ Bài tự nhập</button>
         </section>
-        <datalist id="exNames">${names.map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>
+        <datalist id="exNames">${[...new Set([...names, ...EX_LIB.map((x) => x.name)])].map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>
         <section><h2>Đánh giá buổi tập</h2>
           <div class="rating" role="group" aria-label="Đánh giá 1 đến 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-rate="${n}" aria-pressed="${f.rating === n}">${n}</button>`).join('')}</div>
         </section>
@@ -923,21 +1094,106 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       let uploading = false;
       const exList = $('#exList', root);
       const syncEx = () => {
-        f.exercises = $$('.ex-row', exList).map((r) => ({
-          name: $('[data-k=name]', r).value.trim(), sets: num($('[data-k=sets]', r).value), reps: num($('[data-k=reps]', r).value),
-          kg: num($('[data-k=kg]', r).value), done: $('[data-k=done]', r).checked,
-        }));
+        f.exercises = $$('.ex-row', exList).map((r, i) => {
+          const old = f.exercises[i] || {};
+          const name = $('[data-k=name]', r).value.trim();
+          const lib = matchLib(name);
+          const rp = parseReps($('[data-k=reps]', r).value);
+          const restText = $('[data-k=rest]', r).value.trim();
+          return {
+            name, libId: lib ? lib.id : null, type: lib ? lib.type : (old.type || 'weight'),
+            sets: num($('[data-k=sets]', r).value), reps: rp.reps, repsTo: rp.repsTo, kg: num($('[data-k=kg]', r).value),
+            restText, rest: restSeconds(restText), note: $('[data-k=note]', r).value.trim(), done: $('[data-k=done]', r).checked,
+          };
+        });
       };
       const drawEx = () => {
-        exList.innerHTML = f.exercises.map((e, i) => `
+        const n = f.exercises.filter((x) => x.name).length;
+        $('#exCount', root).textContent = n ? n + ' bài' : '';
+        exList.innerHTML = f.exercises.map((e, i) => {
+          const t = exTypeOf(e), lib = e.libId ? libById(e.libId) : matchLib(e.name);
+          return `
           <div class="ex-row">
             <div class="name"><input id="exName${i}" data-k="name" list="exNames" placeholder="Tên bài (VD: Squat)" value="${esc(e.name)}" aria-label="Tên bài ${i + 1}">
               <button class="rm" type="button" data-rm="${i}" aria-label="Xoá bài ${i + 1}">×</button></div>
+            ${e.name ? `<div class="ex-tag">${lib ? `<b>✓</b> ${esc(EX_GROUPS[lib.group])}${fold(lib.name) !== fold(e.name) ? ' · app học viên: ' + esc(lib.name) : ''}` : 'Bài riêng (app học viên sẽ thêm bài mới)'}</div>` : ''}
             <label class="mini">Hiệp<input id="exSets${i}" data-k="sets" inputmode="numeric" value="${e.sets ?? ''}"></label>
-            <label class="mini">Lần<input id="exReps${i}" data-k="reps" inputmode="numeric" value="${e.reps ?? ''}"></label>
+            <label class="mini">${t === 'min' ? 'Phút' : t === 'time' ? 'Giây' : 'Lần'}<input id="exReps${i}" data-k="reps" value="${e.reps ?? ''}${e.repsTo ? '-' + e.repsTo : ''}" placeholder="12 / 15-20"></label>
             <label class="mini">Kg<input id="exKg${i}" data-k="kg" inputmode="decimal" value="${e.kg ?? ''}"></label>
+            <div class="ex-more">
+              <label class="mini">Nghỉ<input id="exRest${i}" data-k="rest" value="${esc(e.restText || '')}" placeholder="VD 90s"></label>
+              <label class="mini note">Lưu ý bài<input id="exNote${i}" data-k="note" maxlength="200" value="${esc(e.note || '')}" placeholder="VD: mỗi chân, ngồi thẳng"></label>
+            </div>
             <label class="tick"><input id="exDone${i}" data-k="done" type="checkbox" ${e.done ? 'checked' : ''}> Đã hoàn thành</label>
-          </div>`).join('');
+          </div>`;
+        }).join('');
+      };
+      // --- chọn từ thư viện ---
+      const client = () => clientById(($('#sClient', root) && $('#sClient', root).value) || f.clientId);
+      const lastKgFor = (lib) => {
+        const c = client(); if (!c) return null;
+        const hit = sessionsOf(c.id).slice().sort((a, b) => b.date.localeCompare(a.date))
+          .flatMap((x) => x.exercises || []).find((x) => x.kg && (x.libId === lib.id || fold(x.name) === fold(lib.name)));
+        return hit ? hit.kg : null;
+      };
+      let libGroup = 'all';
+      const usedLib = () => new Set(f.exercises.map((x) => x.libId || (matchLib(x.name) || {}).id).filter(Boolean));
+      const recentIds = () => {
+        const c = client(); if (!c) return [];
+        const cnt = new Map();
+        for (const x of sessionsOf(c.id)) for (const e of x.exercises || []) { const l = e.libId || (matchLib(e.name) || {}).id; if (l) cnt.set(l, (cnt.get(l) || 0) + 1); }
+        return [...cnt.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+      };
+      const drawLib = () => {
+        const rec = recentIds();
+        const groups = [['all', 'Tất cả'], ...(rec.length ? [['recent', 'Đã tập']] : []), ...Object.entries(EX_GROUPS)];
+        $('#libChips', root).innerHTML = groups.map(([k, l]) => `<button type="button" data-g="${k}" aria-pressed="${libGroup === k}">${esc(l)}</button>`).join('');
+        const q = fold($('#libQ', root).value);
+        let list = libGroup === 'recent' ? rec.map(libById).filter(Boolean) : EX_LIB.filter((x) => libGroup === 'all' || x.group === libGroup);
+        if (q) list = EX_LIB.filter((x) => fold(x.name).includes(q) || x.keys.some((k) => k.includes(q)) || fold(EX_GROUPS[x.group]).includes(q));
+        const used = usedLib();
+        $('#libList', root).innerHTML = list.length ? list.map((x) => {
+          const on = used.has(x.id);
+          return `<button type="button" class="lib-item" data-lib="${x.id}" aria-pressed="${on}"><span>${esc(x.name)}<span class="g">${esc(EX_GROUPS[x.group])}${x.type === 'min' ? ' · tính phút' : x.type === 'time' ? ' · tính giây' : x.type === 'reps' ? ' · không tạ' : ''}</span></span><span class="add">${on ? '✓ Đã thêm' : '+ Thêm'}</span></button>`;
+        }).join('') : '<p class="muted small" style="margin:0">Không thấy bài này. Bấm "+ Bài tự nhập" để gõ tên bài riêng.</p>';
+      };
+      const togglePanel = (which, open) => {
+        const lib = which === 'lib';
+        const panel = $(lib ? '#libPanel' : '#pastePanel', root), btn = $(lib ? '#libOpen' : '#pasteOpen', root);
+        panel.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+        if (open) { togglePanel(lib ? 'paste' : 'lib', false); if (lib) drawLib(); }
+      };
+      $('#libOpen', root).onclick = () => togglePanel('lib', $('#libPanel', root).hidden);
+      $('#libDone', root).onclick = () => togglePanel('lib', false);
+      $('#libQ', root).addEventListener('input', drawLib);
+      $('#libChips', root).onclick = (e) => { const b = e.target.closest('[data-g]'); if (!b) return; libGroup = b.dataset.g; $('#libQ', root).value = ''; drawLib(); };
+      $('#libList', root).onclick = (e) => {
+        const b = e.target.closest('[data-lib]'); if (!b) return;
+        const lib = libById(b.dataset.lib);
+        syncEx();
+        const at = f.exercises.findIndex((x) => (x.libId || (matchLib(x.name) || {}).id) === lib.id);
+        if (at >= 0) f.exercises.splice(at, 1);
+        else {
+          f.exercises = f.exercises.filter((x) => x.name);
+          f.exercises.push({ name: lib.name, libId: lib.id, type: lib.type, sets: lib.type === 'min' ? 1 : 3, reps: lib.type === 'min' ? 10 : lib.type === 'time' ? 30 : 12, repsTo: null,
+            kg: lib.type === 'weight' ? lastKgFor(lib) : null, rest: null, restText: '', note: '', done: false });
+        }
+        drawEx(); drawLib();
+      };
+      // --- dán giáo án ---
+      $('#pasteOpen', root).onclick = () => { const open = $('#pastePanel', root).hidden; togglePanel('paste', open); if (open) $('#pasteText', root).focus(); };
+      $('#pasteClose', root).onclick = () => togglePanel('paste', false);
+      $('#pasteGo', root).onclick = () => {
+        const r = parsePlanText($('#pasteText', root).value);
+        if (!r.exercises.length) { toast('Không tách được bài nào. Mỗi bài nên nằm một dòng, kèm số hiệp × số lần.'); return; }
+        syncEx();
+        f.exercises = [...f.exercises.filter((x) => x.name), ...r.exercises];
+        const title = $('#sTitle', root);
+        if (r.title && !title.value.trim()) title.value = r.title;
+        if (r.notes.length) { const n = $('#sNote', root); n.value = [n.value.trim(), ...r.notes].filter(Boolean).join('\n'); }
+        drawEx(); togglePanel('paste', false); $('#pasteText', root).value = '';
+        const unknown = r.exercises.filter((x) => !x.libId).length;
+        toast(`Đã thêm ${r.exercises.length} bài${unknown ? ` (${unknown} bài riêng)` : ''}. Kiểm tra lại số liệu.`);
       };
       const drawMedia = () => {
         $('#mediaGrid', root).innerHTML = f.media.map((m, i) => `<div style="position:relative">${mediaThumb(m)}${S.assets ? `<button class="x" type="button" data-rm-media="${i}" aria-label="Bỏ tệp" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff">×</button>` : ''}</div>`).join('');
@@ -964,7 +1220,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         if (rmm) { e.stopPropagation(); f.media.splice(Number(rmm.dataset.rmMedia), 1); drawMedia(); }
       });
       $('#exAdd', root).addEventListener('click', () => {
-        syncEx(); f.exercises.push({ name: '', sets: null, reps: null, kg: null, done: false }); drawEx();
+        syncEx(); f.exercises.push({ name: '', libId: null, type: 'weight', sets: null, reps: null, repsTo: null, kg: null, rest: null, restText: '', note: '', done: false }); drawEx();
         const inputs = $$('[data-k=name]', exList); inputs[inputs.length - 1].focus();
       });
       const files = $('#sFiles', root);
@@ -1026,7 +1282,9 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
   function plansFor(clientId) {
     return sessionsOf(clientId).filter((s) => !s.fromTrainee).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
       .map((s) => ({ id: s.id, date: s.date, title: s.title || '', note: s.note || '', status: s.status,
-        exercises: (s.exercises || []).map((e) => ({ name: e.name, sets: e.sets ?? null, reps: e.reps ?? null, kg: e.kg ?? null })) }));
+        exercises: (s.exercises || []).map((e) => { const lib = e.libId ? libById(e.libId) : matchLib(e.name);
+          return { name: e.name, libId: lib ? lib.id : null, type: lib ? lib.type : (e.type || 'weight'), sets: e.sets ?? null, reps: e.reps ?? null, repsTo: e.repsTo ?? null,
+            kg: e.kg ?? null, rest: e.rest ?? null, restText: e.restText || '', note: e.note || '' }; }) }));
   }
   async function pushPlans(clientId) {
     const c = clientById(clientId);

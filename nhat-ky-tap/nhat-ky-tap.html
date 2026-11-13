@@ -433,6 +433,15 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     { id: 'bike', name: 'Đạp xe tại chỗ', group: 'cardio', equip: 'Xe đạp tập', type: 'min', inc: 0,
       steps: ['Chỉnh yên ngang hông.', 'Đạp đều, nhịp vừa phải.', 'Tăng dần thời gian mỗi tuần.'],
       mistakes: ['Yên quá thấp làm đau gối.'] },
+    { id: 'bulgarian-split-squat', name: 'Bulgarian Split Squat', group: 'legs', equip: 'Ghế + tạ đơn', type: 'weight', inc: 1,
+      steps: ['Mu bàn chân sau đặt lên ghế, chân trước bước xa khoảng 2 bàn chân, cầm tạ hai bên.', 'Hạ thẳng người xuống đến khi đùi trước gần song song sàn.', 'Đạp gót chân trước để đứng lên. Tập đủ số lần chân này rồi đổi chân; ghi số lần mỗi chân.'],
+      mistakes: ['Gối trước đổ vào trong.', 'Dồn lực vào chân sau trên ghế.'] },
+    { id: 'hip-abduction', name: 'Banh mông máy (Hip Abduction)', group: 'glutes', equip: 'Máy', type: 'weight', inc: 5,
+      steps: ['Ngồi thẳng lưng sát đệm, đệm máy áp mặt ngoài gối.', 'Đẩy hai gối mở ra hết biên độ, giữ 1 giây.', 'Thả về chậm, không để tạ đập.'],
+      mistakes: ['Đung đưa người lấy đà.', 'Thả tạ rơi tự do.'] },
+    { id: 'stair-climber', name: 'Leo cầu thang máy (Stair Climber)', group: 'cardio', equip: 'Máy leo cầu thang', type: 'min', inc: 0,
+      steps: ['Bắt đầu tốc độ thấp (1–3).', 'Đặt cả bàn chân lên bậc, đứng thẳng.', 'Chỉ chạm nhẹ tay vịn để giữ thăng bằng.'],
+      mistakes: ['Gục người, chống cả thân lên tay vịn.'] },
   ];
 
   const PROGRAMS = [
@@ -498,6 +507,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     'mountain-climber': { b: 'cardio', c: ['Vai nằm trên cổ tay', 'Hông thấp, ngang vai', 'Gồng core, thở theo nhịp'] },
     'incline-walk': { b: 'cardio', c: ['Không vịn tay', 'Đứng thẳng, bước vừa phải', 'Giữ mức thở vẫn nói chuyện được'] },
     'bike': { b: 'cardio', c: ['Yên ngang hông', 'Gối hơi chùng khi bàn đạp ở dưới cùng', 'Vai thả lỏng, đạp đều'] },
+    'bulgarian-split-squat': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân hơi đổ trước để ăn mông nhiều hơn', 'Đạp bằng gót chân trước', 'Đi xuống như thang máy, không lao về trước'] },
+    'hip-abduction': { b: 'lift', c: ['Ngồi thẳng, lưng dính đệm', 'Mở gối ra bằng mông, giữ 1 giây', 'Về chậm 2–3 giây'] },
+    'stair-climber': { b: 'cardio', c: ['Đứng thẳng, không gục vào tay vịn', 'Đặt cả bàn chân lên bậc', 'Giữ mức thở vẫn nói chuyện được'] },
   };
   const tipsFor = (ex) => {
     const t = TIPS[ex.id];
@@ -580,6 +592,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     'plank': ['abs', 'obliques delts'], 'side-plank': ['obliques', 'abs'], 'dead-bug': ['abs', 'obliques'],
     'bird-dog': ['lowerback abs', 'glutes'], 'crunch': ['abs', ''], 'mountain-climber': ['abs', 'quads delts'],
     'incline-walk': ['calves glutes', 'hamstrings quads'], 'bike': ['quads', 'calves hamstrings'],
+    'bulgarian-split-squat': ['quads glutes', 'hamstrings'], 'hip-abduction': ['glutes', ''], 'stair-climber': ['glutes quads', 'calves hamstrings'],
   };
   const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves' };
   const split = (s) => (s || '').split(' ').filter(Boolean);
@@ -630,7 +643,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.3 (13/11/2026)';
+  const APP_VERSION = '1.4 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -664,6 +677,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     'khoe': { l: 'Khoẻ & dẻo dai', tip: 'Tập toàn thân 3 buổi/tuần, thêm 150 phút đi bộ nhanh hoặc đạp xe mỗi tuần. Giãn cơ 5–10 phút sau mỗi buổi.' },
     'giu-dang': { l: 'Giữ dáng', tip: 'Duy trì 2–3 buổi tạ/tuần, ăn cân bằng với nhu cầu. Theo dõi cân nặng mỗi tuần, lệch quá 1–2 kg thì điều chỉnh ăn uống.' },
   };
+  // Chọn tối đa 2 mục tiêu; giữ trường goal cũ = mục tiêu đầu tiên để tương thích
+  const goalsOf = (P) => (Array.isArray(P.goals) && P.goals.length ? P.goals : P.goal ? [P.goal] : []).filter((k) => GOALS[k]).slice(0, 2);
+  const goalText = (P) => goalsOf(P).map((k) => GOALS[k].l).join(' + ');
   const firstName = () => { const n = (D.profile.name || '').trim(); return n ? n.split(/\s+/).pop() : ''; };
   const latestWeight = () => {
     const j = [...D.journal].filter((x) => x.weight).sort((a, b) => a.date.localeCompare(b.date)).pop();
@@ -718,9 +734,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   function buildItem(spec) {
     const ex = exById(spec.ex);
     const sg = suggest(spec.ex, spec.reps);
-    const kg = spec.kg && !sg.kg ? spec.kg : sg.kg;
+    const kg = spec.kg && (spec.fixed || !sg.kg) ? spec.kg : sg.kg;
     return {
-      ex: spec.ex, cue: spec.cue || '', why: sg.why, target: { sets: spec.sets, reps: spec.reps },
+      ex: spec.ex, cue: spec.cue || '', why: sg.why, target: { sets: spec.sets, reps: spec.reps, range: spec.range || null }, rest: spec.rest || null, restText: spec.restText || '',
       sets: Array.from({ length: spec.sets || 3 }, () => ({ kg: ex.type === 'weight' ? kg : null, reps: sg.reps, done: false })),
       note: '',
     };
@@ -814,7 +830,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     header(fmtLong(t), fn ? `Chào ${fn}!` : 'Hôm nay tập gì?',
       `<div class="row" style="flex-wrap:nowrap"><button class="avatar" data-act="profile" aria-label="Hồ sơ của tôi">${fn ? esc(fn.slice(0, 1).toUpperCase()) : '?'}</button>${gear}</div>`, false);
     const w = latestWeight(), h = D.profile.height, bmi = bmiOf(w, h);
-    const goal = GOALS[D.profile.goal];
+    const goal = goalText(D.profile);
     const tgt = D.profile.target, start = D.profile.startWeight || w;
     const pct = tgt && start && w && start !== tgt ? Math.max(0, Math.min(100, ((start - w) / (start - tgt)) * 100)) : null;
     const daysSinceBackup = D.settings.lastBackup ? Math.floor((Date.now() - new Date(D.settings.lastBackup)) / 86400000) : null;
@@ -835,7 +851,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       ${needBackup ? `<div class="banner-backup"><div><b>${daysSinceBackup == null ? 'Bạn chưa sao lưu lần nào.' : `Đã ${daysSinceBackup} ngày chưa sao lưu.`}</b> Dữ liệu chỉ nằm trên điện thoại này, đổi máy hay xoá dữ liệu trình duyệt là mất.</div>
         <div class="row"><button class="btn sm primary" data-act="backup-now">Sao lưu ngay</button><button class="btn sm ghost" data-act="help" data-sec="backup">Cách sao lưu</button></div></div>` : ''}
       ${D.profile.name || w || goal ? `<button class="me-card" data-act="profile">
-          <div class="row between"><span class="card-title">${goal ? 'Mục tiêu: ' + esc(goal.l) : 'Hồ sơ của tôi'}</span>${bmi ? `<span class="chip ${bmi >= 18.5 && bmi < 23 ? 'good' : 'warn'}">BMI ${fmt(bmi)} · ${bmiLabel(bmi)}</span>` : ''}</div>
+          <div class="row between"><span class="card-title">${goal ? 'Mục tiêu: ' + esc(goal) : 'Hồ sơ của tôi'}</span>${bmi ? `<span class="chip ${bmi >= 18.5 && bmi < 23 ? 'good' : 'warn'}">BMI ${fmt(bmi)} · ${bmiLabel(bmi)}</span>` : ''}</div>
           <div class="sub num">${w ? `Hiện tại ${fmt(w)} kg` : 'Chưa có cân nặng'}${tgt ? ` → mục tiêu ${fmt(tgt)} kg${w ? ` · còn ${fmt(Math.abs(w - tgt))} kg` : ''}` : ''}${h ? ` · cao ${fmt(h, 0)} cm` : ''}</div>
           ${pct != null ? `<div class="progress" aria-label="Tiến độ mục tiêu ${Math.round(pct)}%"><i style="width:${pct}%"></i></div>` : ''}
         </button>` : `<button class="me-card" data-act="profile"><span class="card-title">Tạo hồ sơ của bạn</span><span class="sub">Nhập tên, chiều cao, cân nặng và mục tiêu để app theo dõi tiến độ cho bạn.</span></button>`}
@@ -895,7 +911,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
           <div class="ex-head">
             <div class="t">
               <button class="ex-name" data-act="ex-info" data-id="${esc(it.ex)}">${esc(ex.name)}</button>
-              <div class="sub">${GROUPS[ex.group] || ''} · mục tiêu ${targetText(ex.type, it.target.sets, it.target.reps)}</div>
+              <div class="sub">${GROUPS[ex.group] || ''} · mục tiêu ${targetText(ex.type, it.target.sets, it.target.range || it.target.reps)}${it.restText ? ` · nghỉ ${esc(it.restText)}` : it.rest ? ` · nghỉ ${it.rest >= 60 ? fmt(it.rest / 60) + ' phút' : it.rest + ' giây'}` : ''}</div>
             </div>
             <button class="rm" data-act="rm-ex" data-i="${i}" aria-label="Bỏ bài ${esc(ex.name)}">×</button>
           </div>
@@ -1310,7 +1326,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   // ================= PROFILE =================
   function profileSheet(first) {
     const P = D.profile;
-    let goal = P.goal || '';
+    let goals = goalsOf(P);
     const w0 = latestWeight();
     openSheet(`${sheetHead(first ? 'Chào mừng bạn!' : 'Hồ sơ của tôi')}
       ${first ? '<p style="margin:0">Nhập vài thông tin để app gọi đúng tên, tính BMI và theo dõi tiến độ tới mục tiêu. Bạn có thể sửa lại bất cứ lúc nào bằng cách bấm vào ảnh đại diện ở góc trên.</p>' : ''}
@@ -1319,7 +1335,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         <label class="f">Chiều cao (cm)<input id="uHeight" inputmode="decimal" value="${P.height ?? ''}" placeholder="VD: 158"></label>
         <label class="f">Cân nặng hiện tại (kg)<input id="uWeight" inputmode="decimal" value="${w0 ?? ''}" placeholder="VD: 56"></label>
       </div>
-      <section><h3>Mục tiêu</h3><div class="goal-grid" id="uGoal">${Object.entries(GOALS).map(([k, g]) => `<button type="button" data-g="${k}" aria-pressed="${goal === k}">${esc(g.l)}</button>`).join('')}</div></section>
+      <section><h3>Mục tiêu <span class="sub" style="font-weight:400">(chọn tối đa 2)</span></h3><div class="goal-grid" id="uGoal">${Object.entries(GOALS).map(([k, g]) => `<button type="button" data-g="${k}" aria-pressed="${goals.includes(k)}">${esc(g.l)}</button>`).join('')}</div></section>
       <label class="f">Cân nặng mục tiêu (kg, không bắt buộc)<input id="uTarget" inputmode="decimal" value="${P.target ?? ''}" placeholder="VD: 52"></label>
       <div id="uInfo"></div>
       <button class="btn primary block" id="uSave">${first ? 'Bắt đầu' : 'Lưu hồ sơ'}</button>
@@ -1327,26 +1343,27 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       <button class="btn ghost block" data-act="help">Hướng dẫn sử dụng app</button>`, (root) => {
       const info = () => {
         const h = num($('#uHeight', root).value), w = num($('#uWeight', root).value), b = bmiOf(w, h);
-        const g = GOALS[goal];
-        $('#uInfo', root).innerHTML = (b || g || w) ? `<div class="card">
+        const gs = goals.map((k) => GOALS[k]);
+        $('#uInfo', root).innerHTML = (b || gs.length || w) ? `<div class="card">
           ${b ? `<div class="bmi"><div class="stat"><span class="v">${fmt(b)}</span><span class="k">BMI · ${bmiLabel(b)}</span></div>
             <div class="stat"><span class="v">${h ? fmt(18.5 * (h / 100) ** 2, 0) + '–' + fmt(22.9 * (h / 100) ** 2, 0) : '–'}</span><span class="k">Cân nặng khoẻ mạnh (kg)</span></div>
             <div class="stat"><span class="v">${w ? fmt(w * 1.6, 0) : '–'}</span><span class="k">Đạm nên ăn mỗi ngày (g)</span></div></div>` : ''}
-          ${g ? `<div><b>Gợi ý cho mục tiêu ${esc(g.l.toLowerCase())}:</b> ${esc(g.tip)}</div>` : ''}
+          ${gs.map((g) => `<div><b>Gợi ý cho mục tiêu ${esc(g.l.toLowerCase())}:</b> ${esc(g.tip)}</div>`).join('')}
           <div class="sub">BMI theo ngưỡng cho người châu Á; chỉ để tham khảo, không thay cho tư vấn của bác sĩ/PT.</div></div>` : '';
       };
       info();
       ['#uHeight', '#uWeight'].forEach((s) => $(s, root).addEventListener('input', info));
       $('#uGoal', root).onclick = (e) => {
         const b = e.target.closest('[data-g]'); if (!b) return;
-        goal = goal === b.dataset.g ? '' : b.dataset.g;
-        $$('#uGoal button', root).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.g === goal))); info();
+        const k = b.dataset.g;
+        goals = goals.includes(k) ? goals.filter((x) => x !== k) : [...goals, k].slice(-2);
+        $$('#uGoal button', root).forEach((x) => x.setAttribute('aria-pressed', String(goals.includes(x.dataset.g)))); info();
       };
       $('#uSave', root).onclick = () => {
         const w = num($('#uWeight', root).value), h = num($('#uHeight', root).value), tg = num($('#uTarget', root).value);
         if (h != null && (h < 100 || h > 230)) { toast('Chiều cao nên trong khoảng 100–230 cm.'); return; }
         if (w != null && (w < 25 || w > 250)) { toast('Cân nặng nên trong khoảng 25–250 kg.'); return; }
-        D.profile = { ...P, name: $('#uName', root).value.trim(), height: h, weight: w ?? P.weight, target: tg, goal,
+        D.profile = { ...P, name: $('#uName', root).value.trim(), height: h, weight: w ?? P.weight, target: tg, goals, goal: goals[0] || '',
           startWeight: P.startWeight || w || null };
         if (w && w !== latestWeight()) recordWeight(w);
         else if (w && !D.journal.some((x) => x.weight)) recordWeight(w);
@@ -1420,14 +1437,15 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     'leg press': 'leg-press', 'lat pulldown': 'lat-pulldown', 'keo xo': 'lat-pulldown', 'seated row': 'cable-row', 'shoulder press': 'db-press', 'day vai': 'db-press',
     'plank': 'plank', 'chay bo': 'incline-walk', 'di bo': 'incline-walk', 'hip thrust': 'hip-thrust', 'lunge': 'db-lunge', 'push up': 'pushup', 'hit dat': 'pushup', 'chong day': 'pushup',
     'bicep curl': 'db-curl', 'biceps curl': 'db-curl', 'leg curl': 'leg-curl', 'leg extension': 'leg-ext', 'goblet squat': 'goblet-squat', 'face pull': 'face-pull', 'dap xe': 'bike',
+    'bulgarian split squat': 'bulgarian-split-squat', 'hip abduction': 'hip-abduction', 'stair climber': 'stair-climber', 'leo cau thang': 'stair-climber', 'di bo doc': 'incline-walk',
   };
-  function resolveEx(name) {
+  function resolveEx(name, type) {
     const n = norm(name);
     const hit = allEx().find((e) => norm(e.name) === n || norm(e.name).includes(`(${n})`) || norm(e.name).replace(/\(.*\)/, '').trim() === n)
       || (ALIASES[n] && exById(ALIASES[n]))
       || allEx().find((e) => { const m = /\(([^)]+)\)/.exec(e.name); return m && norm(m[1]) === n; });
     if (hit) return hit.id;
-    const ex = { id: 'x' + n.replace(/ /g, '-').slice(0, 40), custom: true, fromCoach: true, name: String(name).trim(), group: 'other', type: 'weight', inc: 2.5, equip: '', steps: [], mistakes: [] };
+    const ex = { id: 'x' + n.replace(/ /g, '-').slice(0, 40), custom: true, fromCoach: true, name: String(name).trim(), group: type === 'min' || type === 'time' ? 'cardio' : 'other', type: ['weight', 'reps', 'time', 'min'].includes(type) ? type : 'weight', inc: type === 'min' ? 0 : 2.5, equip: '', steps: [], mistakes: [] };
     if (!D.custom.some((e) => e.id === ex.id)) { D.custom.push(ex); save(); }
     return ex.id;
   }
@@ -1448,7 +1466,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   function buildProfile() {
     const P = D.profile, w = latestWeight();
     return {
-      name: P.name, height: P.height, goal: GOALS[P.goal] ? GOALS[P.goal].l : '', target: P.target, weight: w, bmi: bmiOf(w, P.height),
+      name: P.name, height: P.height, goal: goalText(P), target: P.target, weight: w, bmi: bmiOf(w, P.height),
       weights: [...D.journal].filter((j) => j.weight).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 180).map((j) => ({ id: j.id, date: j.date, weight: j.weight })),
       updatedAt: new Date().toISOString(),
     };
@@ -1495,7 +1513,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       ${plans.length ? `<div class="list">${plans.map((p) => `
         <div class="card" style="border-left:5px solid var(--accent)">
           <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
-          <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
+          <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${esc(p.note)}</div>` : ''}
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
         </div>`).join('')}</div>`
@@ -1503,10 +1521,16 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     </section>`;
   }
   function startCoachPlan(p) {
-    const specs = (p.exercises || []).filter((e) => e.name).map((e) => ({ ex: resolveEx(e.name), sets: e.sets || 3, reps: e.reps || 10, kg: e.kg || null }));
+    const specs = (p.exercises || []).filter((e) => e.name).map((e) => {
+      const id = e.libId && LIB.some((x) => x.id === e.libId) ? e.libId : resolveEx(e.name, e.type);
+      const type = exById(id).type;
+      return { ex: id, sets: e.sets || (type === 'min' ? 1 : 3), reps: e.reps || (type === 'min' ? 10 : type === 'time' ? 30 : 10), kg: e.kg || null, fixed: true,
+        range: e.repsTo && e.reps ? `${e.reps}–${e.repsTo}` : null, rest: e.rest || null, restText: e.restText || '',
+        cue: [/\s(hoặc|or)\s|\//i.test(e.name) ? e.name : '', e.note || ''].filter(Boolean).join(' · ') };
+    });
     if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
     startWorkout(p.title || `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
-    if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; saveActive(true); render(); }
+    if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; A.coach = (D.link && D.link.coachName) || ''; saveActive(true); render(); }
   }
   function linkSheet() {
     const L = D.link;
@@ -1658,7 +1682,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         if (s.done) {
           const nx = it.sets[Number(el.dataset.s) + 1];
           if (nx && !nx.done) { if (nx.kg == null) nx.kg = s.kg; if (nx.reps == null) nx.reps = s.reps; }
-          startRest(D.settings.rest);
+          startRest(it.rest || D.settings.rest);
         }
         saveActive(); render(); break;
       }
