@@ -13,7 +13,7 @@ const head = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#E8541F">
+<meta name="theme-color" content="#A8203E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nhật ký tập">
@@ -43,13 +43,13 @@ const manifest = {
   lang: 'vi',
   start_url: './#today',
   display: 'standalone',
-  background_color: '#F1F3F6',
-  theme_color: '#E8541F',
+  background_color: '#F5F1F2',
+  theme_color: '#A8203E',
   icons: [{ src: './icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
 };
 
 const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="112" fill="#E8541F"/>
+<rect width="512" height="512" rx="112" fill="#A8203E"/>
 <rect x="96" y="176" width="44" height="160" rx="14" fill="#fff"/>
 <rect x="372" y="176" width="44" height="160" rx="14" fill="#fff"/>
 <rect x="148" y="206" width="30" height="100" rx="10" fill="#fff"/>

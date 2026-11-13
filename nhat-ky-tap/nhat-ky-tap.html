@@ -6,25 +6,32 @@
 <style>
 /* Layout: phone-first single column. Bottom tab bar (Tập · Nhật ký · Tiến bộ · Thư viện); the live workout takes the whole screen
    with a rest-timer dock. Display face is a condensed sports numeral face (scoreboard feel); body face is built for Vietnamese. */
+/* Palette: đỏ mận (chính) · xanh lục (trạng thái tốt) · vàng hoa cúc (điểm nhấn) — phối theo màu ngân hàng nông nghiệp, không dùng logo/tên. */
 :root {
-  --bg: #F1F3F6;
+  --bg: #F5F1F2;
   --surface: #FFFFFF;
-  --surface-2: #E6E9EF;
-  --ink: #121826;
-  --muted: #5D6677;
-  --line: #D7DCE4;
-  --accent: #E8541F;
+  --surface-2: #ECE4E6;
+  --ink: #26161B;
+  --muted: #6E5A60;
+  --line: #E2D6D9;
+  --accent: #A8203E;
   --accent-ink: #FFFFFF;
-  --accent-soft: #FCE6DC;
-  --good: #11806A;
-  --good-bg: #D9F1EA;
-  --info: #2B5BC9;
-  --info-bg: #E1E8F9;
-  --warn: #9A6410;
-  --warn-bg: #F7EBD2;
+  --accent-soft: #F7E1E6;
+  --good: #11704A;
+  --good-bg: #DCEFE5;
+  --info: #1C6B70;
+  --info-bg: #DDEDEE;
+  --warn: #855600;
+  --warn-bg: #FCEFCC;
   --danger: #B42F2A;
   --danger-bg: #FAE1DF;
-  --scrim: rgba(12, 16, 26, .5);
+  --gold: #E9AA1F;
+  --gold-ink: #2B1C00;
+  --hero-bg: #7D1530;
+  --hero-ink: #FFFFFF;
+  --body: #E7DDE0;
+  --muscle-off: #D6C7CC;
+  --scrim: rgba(30, 10, 16, .5);
   --font-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --radius: 16px;
@@ -32,18 +39,20 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0D1119; --surface: #171D29; --surface-2: #222A38; --ink: #E9EDF4; --muted: #97A1B3; --line: #2A3344;
-    --accent: #FF7A45; --accent-ink: #1A0B04; --accent-soft: #3A2116;
-    --good: #4FD1B0; --good-bg: #133129; --info: #82A6FF; --info-bg: #1B2847; --warn: #E6B35A; --warn-bg: #382B14;
-    --danger: #FF8A80; --danger-bg: #3F1D1B; --scrim: rgba(0, 0, 0, .62);
+    --bg: #150D10; --surface: #211519; --surface-2: #2E1F24; --ink: #F4EAED; --muted: #B6A0A7; --line: #3E2B31;
+    --accent: #E35A77; --accent-ink: #2A0710; --accent-soft: #46202A;
+    --good: #4FCB94; --good-bg: #133126; --info: #6CC3C8; --info-bg: #12302F; --warn: #EDBB4E; --warn-bg: #3A2C10;
+    --danger: #FF8A80; --danger-bg: #3F1D1B; --gold: #EDB43A; --gold-ink: #2B1C00; --hero-bg: #5A1023; --hero-ink: #FFFFFF;
+    --body: #33252A; --muscle-off: #4A363C; --scrim: rgba(0, 0, 0, .62);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0D1119; --surface: #171D29; --surface-2: #222A38; --ink: #E9EDF4; --muted: #97A1B3; --line: #2A3344;
-  --accent: #FF7A45; --accent-ink: #1A0B04; --accent-soft: #3A2116;
-  --good: #4FD1B0; --good-bg: #133129; --info: #82A6FF; --info-bg: #1B2847; --warn: #E6B35A; --warn-bg: #382B14;
-  --danger: #FF8A80; --danger-bg: #3F1D1B; --scrim: rgba(0, 0, 0, .62);
+  --bg: #150D10; --surface: #211519; --surface-2: #2E1F24; --ink: #F4EAED; --muted: #B6A0A7; --line: #3E2B31;
+  --accent: #E35A77; --accent-ink: #2A0710; --accent-soft: #46202A;
+  --good: #4FCB94; --good-bg: #133126; --info: #6CC3C8; --info-bg: #12302F; --warn: #EDBB4E; --warn-bg: #3A2C10;
+  --danger: #FF8A80; --danger-bg: #3F1D1B; --gold: #EDB43A; --gold-ink: #2B1C00; --hero-bg: #5A1023; --hero-ink: #FFFFFF;
+  --body: #33252A; --muscle-off: #4A363C; --scrim: rgba(0, 0, 0, .62);
   color-scheme: dark;
 }
 
@@ -96,12 +105,34 @@ button.card { cursor: pointer; }
 .empty p { margin: 0; color: var(--muted); }
 
 /* Hero: next session */
-.hero { background: var(--ink); color: var(--bg); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
-.hero .eyebrow { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.hero { background: var(--hero-bg); color: var(--hero-ink); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; border-bottom: 4px solid var(--gold); }
+.hero .eyebrow { color: rgba(255, 255, 255, .72); }
 .hero .big { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
 .hero ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
-.hero .btn.primary { align-self: stretch; }
-.hero .meta { font-size: 13px; color: color-mix(in srgb, var(--bg) 75%, transparent); }
+.hero .btn.primary { align-self: stretch; background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.hero .btn.ghost { color: var(--hero-ink) !important; border-color: rgba(255, 255, 255, .35) !important; }
+.hero .meta { font-size: 13px; color: rgba(255, 255, 255, .75); }
+.top { border-bottom: 3px solid var(--gold); }
+.avatar { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 700; font-size: 20px; display: grid; place-items: center; flex: none; }
+.me-card { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--good); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left; width: 100%; }
+.progress { height: 8px; border-radius: 8px; background: var(--surface-2); overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--good); }
+.banner-backup { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.banner-backup b { color: var(--ink); }
+.goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.goal-grid button { min-height: 52px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-align: left; padding: 8px 12px; }
+.goal-grid button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.bmi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+svg.body { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 auto; }
+svg.body text { fill: var(--muted); font-size: 11px; font-family: var(--font-body); font-weight: 600; }
+.lib-row { display: flex; gap: 12px; align-items: center; }
+.lib-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lib-row svg.body { width: 76px; flex: none; margin: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; }
+.legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-right: 4px; vertical-align: middle; }
+.legend .dot.s { opacity: .4; }
+.help ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.help h2 { font-size: 18px; }
 
 .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .week .d { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--muted); }
@@ -527,16 +558,88 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   ];
   const ALL_TIPS = GUIDE.flatMap((g) => g.items.map((x) => ({ t: g.t, x })));
 
+  // ================= muscle map: hình cơ tác động =================
+  const MUSCLE_NAMES = {
+    chest: 'Ngực', delts: 'Vai trước/giữa', reardelts: 'Vai sau', biceps: 'Tay trước', triceps: 'Tay sau', forearms: 'Cẳng tay',
+    abs: 'Cơ bụng', obliques: 'Cơ liên sườn', quads: 'Đùi trước', hamstrings: 'Đùi sau', glutes: 'Mông', calves: 'Bắp chân',
+    lats: 'Cơ xô', traps: 'Cơ thang', lowerback: 'Lưng dưới',
+  };
+  const MUSCLES = {
+    'goblet-squat': ['quads glutes', 'hamstrings abs'], 'back-squat': ['quads glutes', 'hamstrings lowerback abs'],
+    'leg-press': ['quads glutes', 'hamstrings'], 'db-lunge': ['quads glutes', 'hamstrings calves'],
+    'rdl-db': ['hamstrings glutes', 'lowerback forearms'], 'deadlift': ['glutes hamstrings lowerback', 'quads traps forearms'],
+    'hip-thrust': ['glutes', 'hamstrings'], 'glute-bridge': ['glutes', 'hamstrings abs'], 'leg-curl': ['hamstrings', 'calves'],
+    'leg-ext': ['quads', ''], 'calf-raise': ['calves', ''], 'bw-squat': ['quads glutes', 'hamstrings'],
+    'reverse-lunge': ['quads glutes', 'hamstrings'], 'wall-sit': ['quads', 'glutes'],
+    'pushup': ['chest', 'delts triceps abs'], 'knee-pushup': ['chest', 'delts triceps'], 'db-bench': ['chest', 'delts triceps'],
+    'bench': ['chest', 'delts triceps'], 'chest-press': ['chest', 'delts triceps'], 'incline-db': ['chest delts', 'triceps'],
+    'lat-pulldown': ['lats', 'biceps reardelts'], 'cable-row': ['lats traps', 'biceps reardelts'], 'db-row': ['lats', 'biceps reardelts traps'],
+    'assisted-pullup': ['lats', 'biceps forearms'], 'superman': ['lowerback', 'glutes'],
+    'db-press': ['delts', 'triceps traps'], 'lateral-raise': ['delts', 'traps'], 'face-pull': ['reardelts', 'traps'],
+    'pike-pushup': ['delts', 'triceps chest'], 'db-curl': ['biceps', 'forearms'], 'triceps-pushdown': ['triceps', ''],
+    'plank': ['abs', 'obliques delts'], 'side-plank': ['obliques', 'abs'], 'dead-bug': ['abs', 'obliques'],
+    'bird-dog': ['lowerback abs', 'glutes'], 'crunch': ['abs', ''], 'mountain-climber': ['abs', 'quads delts'],
+    'incline-walk': ['calves glutes', 'hamstrings quads'], 'bike': ['quads', 'calves hamstrings'],
+  };
+  const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves' };
+  const split = (s) => (s || '').split(' ').filter(Boolean);
+  function musclesFor(ex) {
+    const m = MUSCLES[ex.id];
+    return m ? { p: split(m[0]), s: split(m[1]) } : { p: split(GROUP_MUSCLES[ex.group]), s: [] };
+  }
+  // [key, cx, cy, rx, ry, rotate]
+  const FRONT = [
+    ['delts', 36, 52, 8, 7, 0], ['delts', 84, 52, 8, 7, 0], ['chest', 49, 62, 11, 8, 0], ['chest', 71, 62, 11, 8, 0],
+    ['biceps', 30, 76, 5, 13, 11], ['biceps', 90, 76, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
+    ['abs', 60, 98, 8, 22, 0], ['obliques', 44, 102, 4, 14, 10], ['obliques', 76, 102, 4, 14, -10],
+    ['quads', 49, 176, 8, 22, 3], ['quads', 71, 176, 8, 22, -3], ['calves', 47, 224, 4, 13, 0], ['calves', 73, 224, 4, 13, 0],
+  ];
+  const BACK = [
+    ['reardelts', 36, 53, 8, 7, 0], ['reardelts', 84, 53, 8, 7, 0], ['lats', 46, 86, 8, 19, -12], ['lats', 74, 86, 8, 19, 12],
+    ['triceps', 30, 78, 5, 13, 11], ['triceps', 90, 78, 5, 13, -11], ['forearms', 22, 124, 4, 13, 7], ['forearms', 98, 124, 4, 13, -7],
+    ['lowerback', 60, 116, 9, 11, 0], ['glutes', 51, 143, 10, 9, 0], ['glutes', 69, 143, 10, 9, 0],
+    ['hamstrings', 49, 180, 8, 20, 3], ['hamstrings', 71, 180, 8, 20, -3], ['calves', 47, 222, 6, 15, 0], ['calves', 73, 222, 6, 15, 0],
+  ];
+  const silhouette = `
+    <circle cx="60" cy="20" r="13"/><rect x="54" y="30" width="12" height="14" rx="4"/>
+    <path d="M34 46 Q60 40 86 46 L82 92 Q80 118 76 132 L44 132 Q40 118 38 92 Z"/><path d="M44 128 L76 128 L81 152 L39 152 Z"/>
+    <circle cx="18" cy="156" r="6"/><circle cx="102" cy="156" r="6"/><ellipse cx="45" cy="256" rx="9" ry="4"/><ellipse cx="75" cy="256" rx="9" ry="4"/>
+    <g fill="none" stroke="var(--body)" stroke-linecap="round">
+      <line x1="35" y1="50" x2="25" y2="100" stroke-width="14"/><line x1="25" y1="100" x2="19" y2="148" stroke-width="11"/>
+      <line x1="85" y1="50" x2="95" y2="100" stroke-width="14"/><line x1="95" y1="100" x2="101" y2="148" stroke-width="11"/>
+      <line x1="50" y1="150" x2="47" y2="202" stroke-width="20"/><line x1="47" y1="202" x2="46" y2="248" stroke-width="14"/>
+      <line x1="70" y1="150" x2="73" y2="202" stroke-width="20"/><line x1="73" y1="202" x2="74" y2="248" stroke-width="14"/>
+    </g>`;
+  function bodySvg(ex, opts = {}) {
+    const { p, s } = musclesFor(ex);
+    const fill = (k) => (p.includes(k) ? 'fill="var(--accent)"' : s.includes(k) ? 'fill="var(--accent)" fill-opacity=".4"' : 'fill="var(--muscle-off)"');
+    const shapes = (list) => list.map(([k, cx, cy, rx, ry, r]) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${cx} ${cy})" ${fill(k)}/>`).join('');
+    const traps = `<polygon points="60,40 76,52 60,82 44,52" ${fill('traps')}/>`;
+    const label = `Cơ tác động: ${p.map((k) => MUSCLE_NAMES[k]).join(', ')}${s.length ? '; cơ phụ: ' + s.map((k) => MUSCLE_NAMES[k]).join(', ') : ''}`;
+    return `<svg class="body" viewBox="0 0 250 ${opts.labels === false ? 262 : 276}" role="img" aria-label="${esc(label)}">
+      <g fill="var(--body)">${silhouette}</g><g>${shapes(FRONT)}</g>
+      <g transform="translate(130 0)"><g fill="var(--body)">${silhouette}</g>${traps}<g>${shapes(BACK)}</g></g>
+      ${opts.labels === false ? '' : '<text x="60" y="273" text-anchor="middle">Mặt trước</text><text x="190" y="273" text-anchor="middle">Mặt sau</text>'}
+    </svg>`;
+  }
+  function muscleLegend(ex) {
+    const { p, s } = musclesFor(ex);
+    return `<div class="legend"><span><span class="dot"></span><b>Cơ chính:</b> ${esc(p.map((k) => MUSCLE_NAMES[k]).join(', '))}</span>
+      ${s.length ? `<span><span class="dot s"></span><b>Cơ phụ:</b> ${esc(s.map((k) => MUSCLE_NAMES[k]).join(', '))}</span>` : ''}</div>`;
+  }
+
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.1 (13/11/2026)';
+  const APP_VERSION = '1.2 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
-  const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 }, settings: { rest: 90, ptName: DEFAULT_PT } });
+  const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
+    settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
+    profile: { name: '', height: null, weight: null, startWeight: null, target: null, goal: '' } });
   let storageOk = true;
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) { const d = Object.assign(blank(), JSON.parse(raw)); d.settings = Object.assign(blank().settings, d.settings); return d; }
+      if (raw) { const d = Object.assign(blank(), JSON.parse(raw)); d.settings = Object.assign(blank().settings, d.settings); d.profile = Object.assign(blank().profile, d.profile); return d; }
     } catch { storageOk = false; }
     return blank();
   }
@@ -551,6 +654,28 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     clearTimeout(saveATimer);
     const go = () => { try { A ? localStorage.setItem(AKEY, JSON.stringify(A)) : localStorage.removeItem(AKEY); } catch { /* ignore */ } };
     now ? go() : (saveATimer = setTimeout(go, 400));
+  }
+
+  // ================= profile =================
+  const GOALS = {
+    'giam-mo': { l: 'Giảm mỡ', tip: '3 buổi tạ + 2 buổi cardio nhẹ 20–30 phút mỗi tuần. Ăn ít hơn nhu cầu khoảng 300–500 kcal/ngày, vẫn giữ đủ đạm để không mất cơ. Giảm 0,5–1% cân nặng mỗi tuần là tốt.' },
+    'tang-co': { l: 'Tăng cơ', tip: 'Tập tạ 3–4 buổi/tuần, ưu tiên tăng dần mức tạ. Ăn dư khoảng 200–300 kcal/ngày, đạm 1,6–2 g/kg. Ngủ 7–9 tiếng.' },
+    'khoe': { l: 'Khoẻ & dẻo dai', tip: 'Tập toàn thân 3 buổi/tuần, thêm 150 phút đi bộ nhanh hoặc đạp xe mỗi tuần. Giãn cơ 5–10 phút sau mỗi buổi.' },
+    'giu-dang': { l: 'Giữ dáng', tip: 'Duy trì 2–3 buổi tạ/tuần, ăn cân bằng với nhu cầu. Theo dõi cân nặng mỗi tuần, lệch quá 1–2 kg thì điều chỉnh ăn uống.' },
+  };
+  const firstName = () => { const n = (D.profile.name || '').trim(); return n ? n.split(/\s+/).pop() : ''; };
+  const latestWeight = () => {
+    const j = [...D.journal].filter((x) => x.weight).sort((a, b) => a.date.localeCompare(b.date)).pop();
+    return j ? j.weight : D.profile.weight;
+  };
+  const bmiOf = (w, h) => (w && h ? w / ((h / 100) ** 2) : null);
+  // Ngưỡng BMI cho người châu Á (WHO khu vực Tây Thái Bình Dương)
+  const bmiLabel = (b) => (b < 18.5 ? 'Thiếu cân' : b < 23 ? 'Bình thường' : b < 25 ? 'Thừa cân' : 'Béo phì');
+  function recordWeight(w) {
+    if (!w) return;
+    const t = today();
+    const j = D.journal.find((x) => x.date === t && x.weight != null) || D.journal.find((x) => x.date === t);
+    if (j) j.weight = w; else D.journal.push({ id: uid('j'), date: t, weight: w, sleep: null, energy: null, note: '' });
   }
 
   const allEx = () => LIB.concat(D.custom);
@@ -684,7 +809,15 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   // ================= HOME =================
   function drawHome(v) {
     const t = today();
-    header(fmtLong(t), 'Hôm nay tập gì?', gear, false);
+    const fn = firstName();
+    header(fmtLong(t), fn ? `Chào ${fn}!` : 'Hôm nay tập gì?',
+      `<div class="row" style="flex-wrap:nowrap"><button class="avatar" data-act="profile" aria-label="Hồ sơ của tôi">${fn ? esc(fn.slice(0, 1).toUpperCase()) : '?'}</button>${gear}</div>`, false);
+    const w = latestWeight(), h = D.profile.height, bmi = bmiOf(w, h);
+    const goal = GOALS[D.profile.goal];
+    const tgt = D.profile.target, start = D.profile.startWeight || w;
+    const pct = tgt && start && w && start !== tgt ? Math.max(0, Math.min(100, ((start - w) / (start - tgt)) * 100)) : null;
+    const daysSinceBackup = D.settings.lastBackup ? Math.floor((Date.now() - new Date(D.settings.lastBackup)) / 86400000) : null;
+    const needBackup = D.workouts.length + D.journal.length >= 3 && (daysSinceBackup == null || daysSinceBackup >= 7);
     const prog = PROGRAMS.find((p) => p.id === D.program.id) || PROGRAMS[0];
     const day = prog.days[D.program.next % prog.days.length];
     const progCount = D.workouts.filter((w) => w.source && w.source.type === 'program' && w.source.programId === prog.id).length;
@@ -698,6 +831,13 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       ${A ? `<button class="card" data-act="nav" data-to="workout" style="border-color:var(--accent)">
           <div class="row between"><span class="chip accent">Đang tập</span><span class="muted small num">bắt đầu ${new Date(A.startedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
           <div class="card-title">Tiếp tục: ${esc(A.title)}</div></button>` : ''}
+      ${needBackup ? `<div class="banner-backup"><div><b>${daysSinceBackup == null ? 'Bạn chưa sao lưu lần nào.' : `Đã ${daysSinceBackup} ngày chưa sao lưu.`}</b> Dữ liệu chỉ nằm trên điện thoại này, đổi máy hay xoá dữ liệu trình duyệt là mất.</div>
+        <div class="row"><button class="btn sm primary" data-act="backup-now">Sao lưu ngay</button><button class="btn sm ghost" data-act="help" data-sec="backup">Cách sao lưu</button></div></div>` : ''}
+      ${D.profile.name || w || goal ? `<button class="me-card" data-act="profile">
+          <div class="row between"><span class="card-title">${goal ? 'Mục tiêu: ' + esc(goal.l) : 'Hồ sơ của tôi'}</span>${bmi ? `<span class="chip ${bmi >= 18.5 && bmi < 23 ? 'good' : 'warn'}">BMI ${fmt(bmi)} · ${bmiLabel(bmi)}</span>` : ''}</div>
+          <div class="sub num">${w ? `Hiện tại ${fmt(w)} kg` : 'Chưa có cân nặng'}${tgt ? ` → mục tiêu ${fmt(tgt)} kg${w ? ` · còn ${fmt(Math.abs(w - tgt))} kg` : ''}` : ''}${h ? ` · cao ${fmt(h, 0)} cm` : ''}</div>
+          ${pct != null ? `<div class="progress" aria-label="Tiến độ mục tiêu ${Math.round(pct)}%"><i style="width:${pct}%"></i></div>` : ''}
+        </button>` : `<button class="me-card" data-act="profile"><span class="card-title">Tạo hồ sơ của bạn</span><span class="sub">Nhập tên, chiều cao, cân nặng và mục tiêu để app theo dõi tiến độ cho bạn.</span></button>`}
       <section>
         <div class="row between"><h2>Tuần này</h2><span class="muted small num">${weekCount} buổi</span></div>
         <div class="week">${Array.from({ length: 7 }, (_, i) => { const d = addDays(ws, i); return `<div class="d ${trained.has(d) ? 'on' : ''} ${d === t ? 'today' : ''}">${DOW[parse(d).getDay()]}<b>${parse(d).getDate()}</b></div>`; }).join('')}</div>
@@ -707,7 +847,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         <div class="big">${esc(day.name)}</div>
         <ol>${day.items.map(([id, s, r]) => { const e = exById(id); return `<li>${esc(e.name)} <span class="meta">${targetText(e.type, s, r)}</span></li>`; }).join('')}</ol>
         <button class="btn primary" data-act="start-program">Bắt đầu ${esc(day.name)}</button>
-        <div class="row"><button class="btn sm ghost" style="color:inherit;border-color:color-mix(in srgb, var(--bg) 30%, transparent)" data-act="program-info">Xem giáo án</button></div>
+        <div class="row"><button class="btn sm ghost" data-act="program-info">Xem giáo án</button><button class="btn sm ghost" data-act="help">Hướng dẫn sử dụng</button></div>
       </div>
       <section>
         <div class="row between"><div><h2>Bài PT đã dạy</h2><div class="sub">PT ${esc(D.settings.ptName || DEFAULT_PT)}</div></div><button class="btn sm" data-act="pt-new">+ Ghi buổi PT</button></div>
@@ -758,6 +898,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
           </div>
           ${it.cue ? `<div class="hint pt">PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn: ${esc(it.cue)}</div>` : ''}
           ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
+            <div style="max-width:220px;margin:0 auto;width:100%">${bodySvg(ex)}</div>${muscleLegend(ex)}
             ${tp.cues.length > 1 ? `<ul>${tp.cues.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
             <div><span class="tip-label">Hít thở</span><br>${esc(tp.breath)}</div>
             ${ex.type !== 'min' ? `<div><span class="tip-label">Gồng core</span><br>${esc(BRACE)}</div>` : ''}
@@ -1103,9 +1244,12 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         <span class="card-title">Mẹo tập cho người mới</span>
         <span class="sub" style="color:var(--ink)">Hít thở, gồng core, gối theo mũi chân, cùi chỏ dẫn đường, khởi động, tăng tạ an toàn</span>
       </button>
-      <div class="list" id="libList">${items.map((e) => `<button class="card" data-act="ex-info" data-id="${esc(e.id)}">
-        <div class="row between"><span class="card-title">${esc(e.name)}</span>${e.custom ? '<span class="chip">Bài riêng</span>' : `<span class="chip">${GROUPS[e.group]}</span>`}</div>
-        <div class="sub">${esc(e.equip || '')}${e.steps && e.steps[0] ? ' · ' + esc(e.steps[0]) : ''}</div></button>`).join('') || '<p class="muted">Không tìm thấy bài nào.</p>'}</div>`;
+      <div class="list" id="libList">${items.map((e) => { const m = musclesFor(e); return `<button class="card" data-act="ex-info" data-id="${esc(e.id)}">
+        <div class="lib-row">${bodySvg(e, { labels: false })}<div class="grow">
+          <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><span class="card-title">${esc(e.name)}</span>${e.custom ? '<span class="chip">Bài riêng</span>' : `<span class="chip">${GROUPS[e.group]}</span>`}</div>
+          <div class="sub"><b style="color:var(--accent)">${esc(m.p.map((k) => MUSCLE_NAMES[k]).join(', '))}</b>${m.s.length ? ' · ' + esc(m.s.map((k) => MUSCLE_NAMES[k]).join(', ')) : ''}</div>
+          <div class="sub">${esc(e.equip || '')}</div>
+        </div></div></button>`; }).join('') || '<p class="muted">Không tìm thấy bài nào.</p>'}</div>`;
     const q = $('#libQ');
     q.oninput = () => { S.libQuery = q.value.trim(); const pos = q.selectionStart; render(); const n = $('#libQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* ignore */ } };
   }
@@ -1115,6 +1259,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     const tp = tipsFor(e);
     openSheet(`${sheetHead(e.name)}
       <div class="row"><span class="chip accent">${GROUPS[e.group] || ''}</span>${e.equip ? `<span class="chip">${esc(e.equip)}</span>` : ''}<span class="chip">${e.type === 'weight' ? 'kg × lần' : unit(e.type)}</span></div>
+      <section><h3>Cơ tác động</h3>${bodySvg(e)}${muscleLegend(e)}</section>
       ${tp.cues.length ? `<section><h3>Câu nhắc khi tập</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       <section><h3>Hít thở</h3><p style="margin:0">${esc(tp.breath)}</p></section>
       ${e.type !== 'min' ? `<section><h3>Gồng core</h3><p style="margin:0">${esc(BRACE)}</p></section>` : ''}
@@ -1158,15 +1303,130 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     });
   }
 
+  // ================= PROFILE =================
+  function profileSheet(first) {
+    const P = D.profile;
+    let goal = P.goal || '';
+    const w0 = latestWeight();
+    openSheet(`${sheetHead(first ? 'Chào mừng bạn!' : 'Hồ sơ của tôi')}
+      ${first ? '<p style="margin:0">Nhập vài thông tin để app gọi đúng tên, tính BMI và theo dõi tiến độ tới mục tiêu. Bạn có thể sửa lại bất cứ lúc nào bằng cách bấm vào ảnh đại diện ở góc trên.</p>' : ''}
+      <label class="f">Tên của bạn<input id="uName" maxlength="60" autocomplete="name" value="${esc(P.name)}" placeholder="VD: Nguyễn Văn An"></label>
+      <div class="f2">
+        <label class="f">Chiều cao (cm)<input id="uHeight" inputmode="decimal" value="${P.height ?? ''}" placeholder="VD: 158"></label>
+        <label class="f">Cân nặng hiện tại (kg)<input id="uWeight" inputmode="decimal" value="${w0 ?? ''}" placeholder="VD: 56"></label>
+      </div>
+      <section><h3>Mục tiêu</h3><div class="goal-grid" id="uGoal">${Object.entries(GOALS).map(([k, g]) => `<button type="button" data-g="${k}" aria-pressed="${goal === k}">${esc(g.l)}</button>`).join('')}</div></section>
+      <label class="f">Cân nặng mục tiêu (kg, không bắt buộc)<input id="uTarget" inputmode="decimal" value="${P.target ?? ''}" placeholder="VD: 52"></label>
+      <div id="uInfo"></div>
+      <button class="btn primary block" id="uSave">${first ? 'Bắt đầu' : 'Lưu hồ sơ'}</button>
+      ${first ? '<button class="btn block" id="uSkip">Để sau</button>' : ''}
+      <button class="btn ghost block" data-act="help">Hướng dẫn sử dụng app</button>`, (root) => {
+      const info = () => {
+        const h = num($('#uHeight', root).value), w = num($('#uWeight', root).value), b = bmiOf(w, h);
+        const g = GOALS[goal];
+        $('#uInfo', root).innerHTML = (b || g || w) ? `<div class="card">
+          ${b ? `<div class="bmi"><div class="stat"><span class="v">${fmt(b)}</span><span class="k">BMI · ${bmiLabel(b)}</span></div>
+            <div class="stat"><span class="v">${h ? fmt(18.5 * (h / 100) ** 2, 0) + '–' + fmt(22.9 * (h / 100) ** 2, 0) : '–'}</span><span class="k">Cân nặng khoẻ mạnh (kg)</span></div>
+            <div class="stat"><span class="v">${w ? fmt(w * 1.6, 0) : '–'}</span><span class="k">Đạm nên ăn mỗi ngày (g)</span></div></div>` : ''}
+          ${g ? `<div><b>Gợi ý cho mục tiêu ${esc(g.l.toLowerCase())}:</b> ${esc(g.tip)}</div>` : ''}
+          <div class="sub">BMI theo ngưỡng cho người châu Á; chỉ để tham khảo, không thay cho tư vấn của bác sĩ/PT.</div></div>` : '';
+      };
+      info();
+      ['#uHeight', '#uWeight'].forEach((s) => $(s, root).addEventListener('input', info));
+      $('#uGoal', root).onclick = (e) => {
+        const b = e.target.closest('[data-g]'); if (!b) return;
+        goal = goal === b.dataset.g ? '' : b.dataset.g;
+        $$('#uGoal button', root).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.g === goal))); info();
+      };
+      $('#uSave', root).onclick = () => {
+        const w = num($('#uWeight', root).value), h = num($('#uHeight', root).value), tg = num($('#uTarget', root).value);
+        if (h != null && (h < 100 || h > 230)) { toast('Chiều cao nên trong khoảng 100–230 cm.'); return; }
+        if (w != null && (w < 25 || w > 250)) { toast('Cân nặng nên trong khoảng 25–250 kg.'); return; }
+        D.profile = { ...P, name: $('#uName', root).value.trim(), height: h, weight: w ?? P.weight, target: tg, goal,
+          startWeight: P.startWeight || w || null };
+        if (w && w !== latestWeight()) recordWeight(w);
+        else if (w && !D.journal.some((x) => x.weight)) recordWeight(w);
+        D.settings.onboarded = true;
+        save(); closeSheet(); toast(first ? 'Chào mừng bạn đến với Nhật Ký Tập!' : 'Đã lưu hồ sơ'); render();
+      };
+      const sk = $('#uSkip', root);
+      if (sk) sk.onclick = () => { D.settings.onboarded = true; save(); closeSheet(); };
+    });
+  }
+
+  // ================= HELP =================
+  const HELP = [
+    { id: 'install', t: 'Cài app lên màn hình chính', s: [
+      'iPhone: mở link bằng Safari → nút Chia sẻ (ô vuông có mũi tên) → "Thêm vào MH chính" → Thêm.',
+      'Android: mở bằng Chrome → nút ⋮ → "Thêm vào màn hình chính" (hoặc "Cài đặt ứng dụng").',
+      'Từ đó mở app bằng biểu tượng mới, chạy toàn màn hình và vẫn mở được khi mất mạng.',
+    ] },
+    { id: 'profile', t: 'Hồ sơ của bạn', s: [
+      'Bấm vào ảnh đại diện (chữ cái tên) ở góc trên màn hình Tập.',
+      'Nhập tên, chiều cao, cân nặng, mục tiêu. App tính BMI, cân nặng khoẻ mạnh và lượng đạm nên ăn.',
+      'Mỗi lần cập nhật cân nặng, app lưu vào Nhật ký để vẽ biểu đồ ở tab Tiến bộ.',
+    ] },
+    { id: 'program', t: 'Tập theo giáo án người mới', s: [
+      'Màn hình Tập hiện buổi tiếp theo (A, B, C…). Bấm "Bắt đầu".',
+      'Bấm "Xem giáo án" để xem tất cả các buổi; đổi giáo án (phòng gym / tại nhà) trong ⚙ Cài đặt.',
+      'Kết thúc buổi, app tự chuyển sang buổi kế tiếp.',
+    ] },
+    { id: 'pt', t: 'Ghi buổi tập với PT', s: [
+      'Sau buổi tập với PT: "+ Ghi buổi PT" → chọn các bài PT vừa dạy từ thư viện.',
+      'Ghi số hiệp × lần @ kg và lời PT dặn cho từng bài, rồi Lưu.',
+      'Hôm tự tập: bấm "Tự tập lại buổi này". Lời dặn của PT hiện ngay trên từng bài.',
+    ] },
+    { id: 'workout', t: 'Trong lúc tập', s: [
+      'Nhập kg và số lần, bấm ✓ khi xong hiệp. Đồng hồ nghỉ tự chạy, có âm báo và rung.',
+      'Khung xanh dưới tên bài: hình cơ tác động, câu nhắc tư thế, cách hít thở và gồng core. Bấm "Xem thêm" để mở.',
+      'Khung xanh dương: gợi ý mức tạ dựa trên lần trước.',
+      'Bấm "Kết thúc", chấm cảm giác 1–5 và ghi điều cần cải thiện.',
+    ] },
+    { id: 'log', t: 'Nhật ký & Tiến bộ', s: [
+      'Tab Nhật ký: xem lại từng buổi, sửa ghi chú, tập lại buổi cũ. "+ Ghi chú" để ghi cân nặng, giấc ngủ, năng lượng mỗi ngày.',
+      'Tab Tiến bộ: kỷ lục, biểu đồ sức mạnh từng bài, biểu đồ cân nặng, máy tính 1RM.',
+    ] },
+    { id: 'backup', t: 'Sao lưu dữ liệu (quan trọng)', s: [
+      'Dữ liệu chỉ lưu trong trình duyệt của điện thoại này, không có trên máy chủ nào.',
+      'Mỗi tuần: ⚙ Cài đặt → "Tải tệp sao lưu". Điện thoại sẽ lưu một tệp tên nhat-ky-tap-ngày.json (iPhone: ứng dụng Tệp → Tải về; Android: thư mục Download).',
+      'Gửi tệp đó lên nơi an toàn: Zalo "Cloud của tôi", Google Drive hoặc email cho chính bạn.',
+      'Xoá lịch sử/dữ liệu trang web, gỡ biểu tượng app, hoặc dùng chế độ ẩn danh đều có thể làm mất dữ liệu nếu chưa sao lưu.',
+    ] },
+    { id: 'restore', t: 'Khôi phục / đổi điện thoại', s: [
+      'Trên máy mới: mở app → ⚙ Cài đặt → "Khôi phục từ tệp" → chọn tệp .json đã sao lưu.',
+      'Dữ liệu trong tệp được gộp vào dữ liệu hiện có, không ghi đè mất buổi nào.',
+    ] },
+  ];
+  function helpSheet(sec) {
+    openSheet(`${sheetHead('Hướng dẫn sử dụng')}
+      <div class="seg" id="hNav" role="group" aria-label="Mục" style="grid-auto-flow:row;grid-template-columns:repeat(2,1fr)">${HELP.map((h) => `<button type="button" data-h="${h.id}" aria-pressed="false">${esc(h.t)}</button>`).join('')}</div>
+      ${HELP.map((h, i) => `<section class="help" id="h-${h.id}"><h2>${i + 1}. ${esc(h.t)}</h2><ol>${h.s.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>
+        ${h.id === 'backup' ? '<button class="btn primary" data-act="backup-now">Sao lưu ngay</button>' : ''}</section>`).join('')}`, (root) => {
+      $('#hNav', root).onclick = (e) => { const b = e.target.closest('[data-h]'); if (!b) return; const s = $('#h-' + b.dataset.h, root); s && s.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+      if (sec) { const s = $('#h-' + sec, root); if (s) setTimeout(() => s.scrollIntoView({ block: 'start' }), 50); }
+    });
+  }
+  function doExport() {
+    const blob = new Blob([JSON.stringify({ app: 'nhat-ky-tap', version: 1, exportedAt: new Date().toISOString(), data: D }, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nhat-ky-tap-${today()}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    D.settings.lastBackup = new Date().toISOString(); save();
+    toast('Đã tạo tệp sao lưu. Nhớ gửi tệp lên Zalo/Drive.');
+    if (S.view === 'home') render();
+  }
+
   // ================= SETTINGS / BACKUP =================
   function settingsSheet() {
     openSheet(`${sheetHead('Cài đặt & sao lưu')}
+      <div class="row"><button class="btn sm" data-act="profile">Hồ sơ của tôi</button><button class="btn sm" data-act="help">Hướng dẫn sử dụng</button></div>
       <section><h3>Giáo án đang theo</h3>
         <div class="list">${PROGRAMS.map((p) => `<button class="pick" type="button" data-prog="${p.id}" aria-pressed="${D.program.id === p.id}"><span class="box">${D.program.id === p.id ? '✓' : ''}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="sub">${esc(p.desc)}</span></span></button>`).join('')}</div></section>
       <section><h3>Thời gian nghỉ giữa hiệp</h3>
         <div class="seg" id="restSeg">${[60, 90, 120, 180].map((s) => `<button type="button" data-s="${s}" aria-pressed="${D.settings.rest === s}">${s}s</button>`).join('')}</div></section>
       <section><h3>Sao lưu</h3>
-        <p class="sub" style="margin:0">Dữ liệu nằm trong trình duyệt của điện thoại này. Tải tệp sao lưu mỗi tuần và cất lên Drive/Zalo để không mất khi đổi máy.</p>
+        <p class="sub" style="margin:0">Dữ liệu nằm trong trình duyệt của điện thoại này. Tải tệp sao lưu mỗi tuần và cất lên Drive/Zalo để không mất khi đổi máy.
+          ${D.settings.lastBackup ? `Lần sao lưu gần nhất: ${esc(new Date(D.settings.lastBackup).toLocaleDateString('vi-VN'))}.` : 'Bạn chưa sao lưu lần nào.'}
+          <button class="btn sm ghost" data-act="help" data-sec="backup">Xem cách sao lưu</button></p>
         <div class="row"><button class="btn sm" id="bExport">Tải tệp sao lưu</button><label class="btn sm" style="position:relative;overflow:hidden">Khôi phục từ tệp<input id="bImport" type="file" accept="application/json,.json" style="position:absolute;inset:0;opacity:0"></label></div></section>
       <section><h3>Xoá toàn bộ dữ liệu</h3><button class="btn danger" id="bWipe">Xoá hết nhật ký</button><div id="bConfirm"></div></section>
       <p class="sub" style="margin:0">Phiên bản ${APP_VERSION} · PT ${esc(D.settings.ptName || DEFAULT_PT)}</p>`, (root) => {
@@ -1176,12 +1436,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         const r = e.target.closest('#restSeg [data-s]');
         if (r) { D.settings.rest = Number(r.dataset.s); save(); $$('#restSeg button', root).forEach((x) => x.setAttribute('aria-pressed', String(x === r))); }
       });
-      $('#bExport', root).onclick = () => {
-        const blob = new Blob([JSON.stringify({ app: 'nhat-ky-tap', version: 1, exportedAt: new Date().toISOString(), data: D }, null, 1)], { type: 'application/json' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nhat-ky-tap-${today()}.json`;
-        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-        toast('Đã tạo tệp sao lưu');
-      };
+      $('#bExport', root).onclick = () => doExport();
       $('#bImport', root).onchange = async (e) => {
         const file = e.target.files[0]; if (!file) return;
         try {
@@ -1190,6 +1445,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
           const merge = (a, b) => { const m = new Map(a.map((x) => [x.id, x])); b.forEach((x) => m.set(x.id, x)); return [...m.values()]; };
           D.workouts = merge(D.workouts, j.data.workouts || []); D.pt = merge(D.pt, j.data.pt || []);
           D.journal = merge(D.journal, j.data.journal || []); D.custom = merge(D.custom, j.data.custom || []);
+          if (j.data.profile && !D.profile.name) D.profile = Object.assign(blank().profile, j.data.profile);
+          if (j.data.settings && j.data.settings.ptName) D.settings.ptName = j.data.settings.ptName;
+          D.settings.onboarded = true;
           save(); closeSheet(); toast('Đã khôi phục dữ liệu'); render();
         } catch { toast('Tệp không hợp lệ. Hãy chọn tệp sao lưu của Nhật Ký Tập.'); }
       };
@@ -1232,6 +1490,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       case 'settings': closeSheet(); settingsSheet(); break;
       case 'program-info': programSheet(); break;
       case 'guide': closeSheet(); guideSheet(); break;
+      case 'profile': closeSheet(); profileSheet(false); break;
+      case 'help': closeSheet(); helpSheet(el.dataset.sec); break;
+      case 'backup-now': doExport(); break;
       case 'start-program': startProgramDay(D.program.next % (PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]).days.length); break;
       case 'start-free': startWorkout(`Buổi tự chọn ${fmtShort(today())}`, [], { type: 'free' }); setTimeout(() => A && !A.items.length && $('[data-act=add-ex]') && $('[data-act=add-ex]').click(), 50); break;
       case 'pt-new': ptSheet(null); break;
@@ -1276,5 +1537,6 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$('#picker').hidden) closePicker(); else if (!$('#sheet').hidden) closeSheet(); } });
 
   render();
+  if (!D.settings.onboarded && !D.profile.name && S.view === 'home') profileSheet(true);
 })();
 </script>

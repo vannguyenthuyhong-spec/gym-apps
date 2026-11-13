@@ -5,8 +5,8 @@
   "lang": "vi",
   "start_url": "./#today",
   "display": "standalone",
-  "background_color": "#F1F3F6",
-  "theme_color": "#E8541F",
+  "background_color": "#F5F1F2",
+  "theme_color": "#A8203E",
   "icons": [
     {
       "src": "./icon.svg",

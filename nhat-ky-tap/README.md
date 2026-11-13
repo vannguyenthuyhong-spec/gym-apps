@@ -7,7 +7,10 @@ App web cho người tập, dùng trên điện thoại:
 - **Trong lúc tập:** nhập kg/lần, tick từng hiệp; đồng hồ nghỉ tự chạy, có âm báo và rung. App gợi ý mức tạ dựa trên lần trước: làm đủ số lần ở mọi hiệp thì tăng tạ, chưa đủ thì giữ nguyên. Bấm tên bài để xem cách tập và lỗi hay gặp.
 - **Nhật ký:** khi kết thúc buổi, chấm cảm giác 1–5 và ghi điều cần cải thiện. Có thêm ghi chú ngày: cân nặng, giấc ngủ, năng lượng.
 - **Tiến bộ:** số buổi trong tháng, số tuần liên tiếp có tập, tổng tấn tạ đã nâng; biểu đồ sức mạnh theo từng bài, kỷ lục, 1RM ước tính, biểu đồ cân nặng, máy tính 1RM.
-- **Thư viện:** 39 bài kèm hướng dẫn tiếng Việt, và thêm được bài riêng.
+- **Thư viện:** 39 bài kèm hướng dẫn tiếng Việt và **hình cơ tác động** (mặt trước/sau; cơ chính tô đậm, cơ phụ tô nhạt); thêm được bài riêng.
+- **Hồ sơ:** tên, chiều cao, cân nặng, mục tiêu (giảm mỡ, tăng cơ…). App tính BMI theo ngưỡng người châu Á, cân nặng khoẻ mạnh, lượng đạm gợi ý và tiến độ tới cân nặng mục tiêu.
+- **Hướng dẫn sử dụng** ngay trong app (8 mục), kèm **nhắc sao lưu** khi quá 7 ngày chưa sao lưu.
+- **Giao diện:** tông đỏ mận, xanh lục và vàng (không dùng logo hay tên thương hiệu nào).
 
 ## Tệp
 
