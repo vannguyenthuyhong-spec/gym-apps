@@ -20,5 +20,5 @@ Sửa mã nguồn (`nhat-ky-tap/nhat-ky-tap.html` hoặc `coach-platform/mobile/
 
 Lệnh này build lại bản web, commit và push lên GitHub. Sau khoảng 1 phút:
 
-- **Vercel:** https://camgym.vercel.app (project nối repo này, Root Directory = `nhat-ky-tap`) tự deploy bản mới.
+- **Vercel:** https://camgym.vercel.app tự deploy bản mới (project nối repo này, build theo `vercel.json` ở gốc). Trang `/` chuyển thẳng vào app Nhật Ký Tập; Sổ HLV ở `/coach-platform/mobile/web/`.
 - **GitHub Pages:** https://vannguyenthuyhong-spec.github.io/gym-apps/ cũng tự cập nhật.
