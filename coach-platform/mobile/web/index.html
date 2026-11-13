@@ -418,6 +418,8 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     ['band-triceps-ext', 'Ép tay sau với dây', 'arms', 'reps', 'ep tay sau voi day|band pushdown|band triceps'],
     ['band-lat-pulldown', 'Kéo xô với dây', 'back', 'reps', 'keo xo voi day|band pulldown|band lat pulldown'],
     ['jump-rope', 'Nhảy dây', 'cardio', 'min', 'nhay day|jump rope|skipping'],
+    ['band-overhead-rot', 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', 'shoulders', 'reps', 'overhead shoulder rotation|overhead shoulder rotations|overhead shouder rotations|shoulder dislocate|shoulder dislocates|pass through|xoay vai qua dau'],
+    ['band-alt-rot', 'Xoay vai luân phiên với dây (Band Alternating Shoulder Rotations)', 'shoulders', 'reps', 'alternating shoulder rotation|alternating shoulder rotations|alternating shouder rotations|xoay vai luan phien'],
   ].map(([id, name, group, type, kw]) => {
     const keys = new Set([fold(name), fold(name.replace(/\(.*?\)/g, '')), ...(/\(([^)]+)\)/.exec(name) ? [fold(/\(([^)]+)\)/.exec(name)[1])] : []), ...kw.split('|').filter(Boolean)]);
     return { id, name, group, type, keys: [...keys].filter(Boolean) };
@@ -1408,7 +1410,9 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     'band-triceps-ext': { b: 'lift', c: ['Cùi chỏ ghim sát người', 'Duỗi hết tay, siết tay sau', 'Về chậm'] },
     'band-lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần', 'Ngực mở, vai thả xa tai', 'Đưa tay lên chậm'] },
     'jump-rope': { b: 'cardio', c: ['Bật nhẹ bằng mũi chân', 'Khuỷu tay sát người, quay bằng cổ tay', 'Gối hơi chùng khi tiếp đất'] },
-  };
+    'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
+    'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
+  }
   function coachTips() { try { const t = JSON.parse(lsGet('so-hlv.tips') || '{}'); return t && typeof t === 'object' ? t : {}; } catch { return {}; } }
   function setCoachTips(t) { lsSet('so-hlv.tips', JSON.stringify(t)); S.clients.filter((c) => c.link).forEach((c) => pushSoon(c.id)); }
   const tipsPayload = (c) => ({ global: coachTips(), personal: ((c && c.tips) || []).slice(0, 100) });
