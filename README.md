@@ -30,11 +30,11 @@ Bên app học viên, mỗi bài hiện mục tiêu, thời gian nghỉ (đồng
 
 **Mẹo bài tập:** Sổ HLV → tab **Mẹo** → sửa câu nhắc từng bài; mọi học viên đã kết nối thấy mẹo mới. Mẹo riêng cho một người: học viên → **Hồ sơ** → **Mẹo riêng** (theo bài hoặc chung).
 
-**Ăn uống:** học viên mở tab **Ăn uống** → chụp ảnh bữa ăn → chọn khẩu phần theo bàn tay (app tính kcal, đạm) hoặc bấm **AI ước lượng**. HLV xem ở học viên → **Ăn uống**, có ảnh và ô nhận xét gửi lại học viên.
+**Ăn uống:** học viên mở tab **Ăn uống** → chụp ảnh bữa ăn → chọn khẩu phần theo bàn tay (app tính kcal, đạm). HLV xem ở học viên → **Ăn uống**, có ảnh và ô nhận xét gửi lại học viên.
 
 **Ảnh/video tư thế:** học viên chụp/quay trong lúc tập (cuối trang buổi tập) hoặc trong buổi đã tập. Tệp tự về đúng buổi tập trong Sổ HLV. Máy chủ chỉ giữ tạm (tối đa 21 ngày); HLV tải về máy là máy chủ xoá ngay. Video tối đa 18 MB.
 
-**Bật AI ước lượng bữa ăn (tuỳ chọn, tính phí):** tạo khoá API tại console.anthropic.com → Vercel → project → **Settings → Environment Variables** → thêm `ANTHROPIC_API_KEY` → Redeploy. Model `claude-opus-5-5`, mỗi học viên tối đa 30 lượt/ngày. Kiểm tra: `ping` trả `"ai": true`.
+**AI ước lượng bữa ăn (đang tắt; tuỳ chọn, tính phí):** nút AI chỉ hiện khi máy chủ có khoá. Để bật: tạo khoá API tại console.anthropic.com → Vercel → project → **Settings → Environment Variables** → thêm `ANTHROPIC_API_KEY` → Redeploy. Model `claude-opus-5-5`, mỗi học viên tối đa 30 lượt/ngày. Kiểm tra: `ping` trả `"ai": true`.
 
 Hai app tự đồng bộ khi mở, khi lưu và định kỳ 1,5–2 phút; có nút "Đồng bộ" để chạy ngay. Không có tài khoản: mỗi bên giữ một khoá ngẫu nhiên trên máy, máy chủ chỉ lưu bản băm. Ảnh/video HLV tự chụp trong Sổ HLV chỉ nằm trên máy HLV.
 

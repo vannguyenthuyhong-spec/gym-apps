@@ -1469,7 +1469,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     { id: 'food', t: 'Ăn uống: chụp ảnh bữa ăn', s: [
       'Mở tab Ăn uống → bấm "Chụp bữa ăn" (hoặc chọn ảnh có sẵn).',
       'Chọn khẩu phần theo bàn tay: lòng bàn tay = đạm, nắm tay khum = tinh bột, nắm tay = rau, ngón cái = chất béo. App tự tính calo và đạm.',
-      'Đã kết nối HLV: bấm "AI ước lượng calo từ ảnh" để AI đoán món và calo; bạn vẫn sửa được. Ảnh bữa ăn tự gửi HLV, HLV nhận xét sẽ hiện dưới bữa ăn.',
+      'Đã kết nối HLV: ảnh bữa ăn tự gửi HLV, HLV nhận xét sẽ hiện dưới bữa ăn. Nếu HLV bật AI, sẽ có thêm nút "AI ước lượng calo từ ảnh".',
       'Bấm biểu tượng mục tiêu ở góc trên để nhập kcal và đạm HLV tính riêng cho bạn.',
     ] },
     { id: 'media', t: 'Gửi ảnh/video tư thế cho HLV', s: [
@@ -1700,7 +1700,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
           ${m.ai ? `<div class="seg" id="mSrc"><button type="button" data-src="ai" aria-pressed="${m.src === 'ai'}">Dùng số AI</button><button type="button" data-src="hand" aria-pressed="${m.src !== 'ai'}">Dùng khẩu phần (${fmt(hand.kcal, 0)} kcal)</button></div>` : ''}`;
       };
       const drawAi = () => {
-        const has = photoBlob || m.photo;
+        const has = (photoBlob || m.photo) && D.link && D.aiOn; // nút AI chỉ hiện khi máy chủ đã có khoá API
         $('#mAiBox', root).innerHTML = m.ai ? `<div class="card ai">
             <div class="row between"><b>AI ước lượng</b><span class="chip info">${fmt(m.ai.kcal, 0)} kcal</span></div>
             ${m.ai.isFood === false ? '<div class="sub">AI không thấy đồ ăn trong ảnh.</div>' : `<ul class="ai-items">${m.ai.items.map((i) => `<li><span>${esc(i.name)}${i.amount ? ` <span class="sub">(${esc(i.amount)})</span>` : ''}</span><span class="num">${fmt(i.kcal, 0)} kcal · ${fmt(i.protein, 0)} g đạm</span></li>`).join('')}</ul>`}
@@ -1830,6 +1830,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
       D.feedback = pull.feedback && typeof pull.feedback === 'object' ? pull.feedback : {};
       await uploadPending();
       await api('trainee-push', { ...auth, results: buildResults(), profile: buildProfile(), meals: buildMeals(), media: buildMediaIndex() });
+      try { D.aiOn = Boolean((await api('ping', {})).ai); } catch { /* giữ trạng thái cũ */ }
       D.link.lastSync = new Date().toISOString(); D.link.error = null;
       save();
       if (manual) toast('Đã đồng bộ với HLV');
