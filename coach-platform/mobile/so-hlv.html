@@ -292,7 +292,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     mode: 'cloud', db: null, assets: null, readOnly: false, unavailable: null, slow: false, error: null,
     got: { clients: false, sessions: false, metrics: false },
     clients: [], sessions: [], metrics: [],
-    route: { name: 'today' }, clientTab: 'plan',
+    route: { name: 'today' }, clientTab: 'plan', syncInfo: {}, syncedOnce: false,
   };
   const ready = () => S.got.clients && S.got.sessions && S.got.metrics;
   const clientById = (id) => S.clients.find((c) => c.id === id);
@@ -410,7 +410,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
 
   // ---------- backup (standalone mode only: data lives on this phone) ----------
   function exportBackup() {
-    const payload = { app: 'so-hlv', version: 1, exportedAt: new Date().toISOString(), clients: S.clients, sessions: S.sessions, metrics: S.metrics };
+    const payload = { app: 'so-hlv', version: 1, exportedAt: new Date().toISOString(), clients: S.clients, sessions: S.sessions, metrics: S.metrics,
+      coachKey: lsGet('so-hlv.coachKey'), coachName: lsGet('so-hlv.coachName') };
     const blob = new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -423,6 +424,8 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
     let data;
     try { data = JSON.parse(await file.text()); } catch { toast('Tệp sao lưu không hợp lệ.'); return; }
     if (!data || data.app !== 'so-hlv') { toast('Đây không phải tệp sao lưu của Sổ HLV.'); return; }
+    if (data.coachKey && !lsGet('so-hlv.coachKey')) lsSet('so-hlv.coachKey', data.coachKey);
+    if (data.coachName && !lsGet('so-hlv.coachName')) lsSet('so-hlv.coachName', data.coachName);
     let n = 0;
     for (const col of ['clients', 'sessions', 'metrics']) {
       for (const row of data[col] || []) {
@@ -524,7 +527,11 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
   window.addEventListener('hashchange', () => {
     const prev = S.route;
     S.route = parseHash();
-    if (S.route.name === 'client' && (prev.name !== 'client' || prev.id !== S.route.id)) S.clientTab = 'plan';
+    if (S.route.name === 'client' && (prev.name !== 'client' || prev.id !== S.route.id)) {
+      S.clientTab = 'plan';
+      const c = clientById(S.route.id);
+      if (c && c.link) pullClient(c).catch(() => {});
+    }
     closeSheet(); window.scrollTo(0, 0); render();
   });
 
@@ -584,6 +591,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
             ${statusPill(s)}
           </div>
           <div class="card-sub">${esc(s.title || 'Buổi tập')}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
+          ${s.fromTrainee ? '<div class="row"><span class="pill planned">Học viên tự tập (app)</span></div>' : s.result ? '<div class="row"><span class="pill done">Có kết quả từ app học viên</span></div>' : ''}
           ${lines}${ex.length > 3 ? `<div class="card-sub">+${ex.length - 3} bài nữa</div>` : ''}
         </button>
         ${quick}
@@ -664,7 +672,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       return `<button class="card" data-act="nav" data-to="client-${esc(c.id)}"><div class="client-row">
         <div class="avatar">${esc(initials(c.name))}</div>
         <div class="grow">
-          <div class="row"><span class="card-title">${esc(c.name)}</span>${c.example ? '<span class="example-tag">Ví dụ</span>' : ''}${c.archived ? '<span class="pill skipped">Tạm dừng</span>' : ''}</div>
+          <div class="row"><span class="card-title">${esc(c.name)}</span>${c.example ? '<span class="example-tag">Ví dụ</span>' : ''}${c.archived ? '<span class="pill skipped">Tạm dừng</span>' : ''}${c.link ? (c.link.claimed ? '<span class="pill done">Đã nối app</span>' : '<span class="pill skipped">Chờ nhập mã</span>') : ''}</div>
           ${c.goal ? `<div class="card-sub">${esc(c.goal)}</div>` : ''}
           <div class="card-sub num">${esc(bits.join(' · '))}</div>
         </div></div></button>`;
@@ -768,6 +776,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         ['Ghi chú', c.note], ['Buổi đã tập', String(st.total)],
       ].filter(([, val]) => val);
       body = `
+        ${linkSection(c)}
         <div class="card">${rows.map(([k, val]) => `<div><div class="muted small">${k}</div><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(val)}</div></div>`).join('')}</div>
         ${canWrite() ? `<div class="row"><button class="btn" data-act="edit-client" data-id="${esc(c.id)}">Sửa hồ sơ</button></div>` : ''}`;
     }
@@ -897,6 +906,11 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
           <div class="rating" role="group" aria-label="Đánh giá 1 đến 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-rate="${n}" aria-pressed="${f.rating === n}">${n}</button>`).join('')}</div>
         </section>
         <label class="f">Ghi chú của HLV (kỹ thuật, cảm giác, điều chỉnh buổi sau)<textarea id="sNote" maxlength="3000">${esc(f.note)}</textarea></label>
+        ${f.result ? `<section><h2>Học viên đã ghi trên app</h2><div class="card">
+          ${(f.result.items || []).map((i) => `<div><b>${esc(i.name)}</b><div class="card-sub num">${(i.sets || []).map((s) => (i.type === 'weight' ? `${fmtNum(s.kg)} kg × ${s.reps ?? '?'}` : `${s.reps ?? '?'}${i.type === 'time' ? ' giây' : i.type === 'min' ? ' phút' : ' lần'}`)).join(' · ')}</div>${i.note ? `<div class="card-sub">${esc(i.note)}</div>` : ''}</div>`).join('')}
+          <div class="card-sub">${[f.result.minutes ? f.result.minutes + ' phút' : '', f.result.feeling ? 'cảm giác ' + f.result.feeling + '/5' : ''].filter(Boolean).join(' · ')}</div>
+          ${f.result.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere"><span class="muted small">Nhật ký học viên:</span> ${esc(f.result.note)}</div>` : ''}
+        </div></section>` : ''}
         <section><div class="row between"><h2>Ảnh & video</h2><span class="muted small" id="upState"></span></div>
           <div class="grid" id="mediaGrid"></div>
           ${S.assets ? `<label class="btn block file-btn">+ Thêm ảnh/video<input id="sFiles" type="file" accept="image/*,video/*" multiple></label>
@@ -972,8 +986,14 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
           clientId: f.clientId, date: $('#sDate', root).value || today(), title: $('#sTitle', root).value.trim(),
           exercises: f.exercises.filter((x) => x.name), status: f.status, rating: f.rating, note: $('#sNote', root).value.trim(),
           media: f.media, createdAt: f.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
+          result: f.result || null, fromTrainee: Boolean(f.fromTrainee),
         };
-        if (await write('sessions', f.id, data)) { closeSheet(); toast(isNew ? 'Đã lên buổi tập' : 'Đã lưu buổi tập'); }
+        if (await write('sessions', f.id, data)) {
+          closeSheet();
+          const linked = clientById(data.clientId) && clientById(data.clientId).link;
+          toast(isNew ? (linked ? 'Đã lên buổi tập và gửi tới app học viên' : 'Đã lên buổi tập') : 'Đã lưu buổi tập');
+          pushSoon(data.clientId);
+        }
       });
       const del = $('#sDelete', root);
       if (del) del.addEventListener('click', () => {
@@ -982,11 +1002,135 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         $('#sDelNo', root).onclick = () => { $('#sConfirm', root).innerHTML = ''; };
         $('#sDelYes', root).onclick = async () => {
           if (S.assets) for (const m of sess.media || []) { try { await S.assets.delete(m.id); } catch { /* ignore */ } }
-          if (await remove('sessions', f.id)) { closeSheet(); toast('Đã xoá buổi tập'); }
+          if (await remove('sessions', f.id)) { closeSheet(); toast('Đã xoá buổi tập'); pushSoon(f.clientId); }
         };
       });
     });
   }
+
+  // ---------- sync with trainee app (Nhật Ký Tập) ----------
+  const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
+  const DEFAULT_COACH = 'HongCam CamFit';
+  function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } }
+  const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  function coachKey() { let k = lsGet('so-hlv.coachKey'); if (!k) { k = randKey(); lsSet('so-hlv.coachKey', k); } return k; }
+  const coachName = () => lsGet('so-hlv.coachName') || DEFAULT_COACH;
+  async function api(action, body) {
+    const r = await fetch(SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, ...body }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.message || 'Không kết nối được máy chủ đồng bộ'); e.status = r.status; throw e; }
+    return j;
+  }
+  const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  function plansFor(clientId) {
+    return sessionsOf(clientId).filter((s) => !s.fromTrainee).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
+      .map((s) => ({ id: s.id, date: s.date, title: s.title || '', note: s.note || '', status: s.status,
+        exercises: (s.exercises || []).map((e) => ({ name: e.name, sets: e.sets ?? null, reps: e.reps ?? null, kg: e.kg ?? null })) }));
+  }
+  async function pushPlans(clientId) {
+    const c = clientById(clientId);
+    if (!c || !c.link) return;
+    await api('coach-push', { pairId: c.link.pairId, coachKey: coachKey(), coachName: coachName(), clientName: c.name, plans: plansFor(clientId) });
+  }
+  const pushSoon = (clientId) => { setTimeout(() => pushPlans(clientId).catch(() => {}), 300); };
+  async function pullClient(c) {
+    const j = await api('coach-pull', { pairId: c.link.pairId, coachKey: coachKey() });
+    S.syncInfo[c.id] = { at: new Date(), error: null };
+    const cur = clientById(c.id) || c;
+    const p = j.profile;
+    const app = p ? { name: p.name || '', height: p.height ?? null, goal: p.goal || '', target: p.target ?? null, weight: p.weight ?? null, bmi: p.bmi ?? null, updatedAt: p.updatedAt || p.at || null } : (cur.app || null);
+    const link = { ...cur.link, claimed: Boolean(j.claimed), claimedAt: j.claimedAt || null };
+    if (!same(link, cur.link) || !same(app, cur.app)) await write('clients', cur.id, { ...clean(cur), link, app });
+
+    for (const r of j.results || []) {
+      if (!r || !r.id) continue;
+      const result = { wid: r.id, date: r.date, minutes: r.minutes ?? null, feeling: r.feeling ?? null, note: r.note || '', items: Array.isArray(r.items) ? r.items : [] };
+      const plan = r.planId && S.sessions.find((s) => s.id === r.planId && s.clientId === cur.id);
+      if (plan) {
+        if (plan.status === 'done' && same(plan.result, result)) continue;
+        await write('sessions', plan.id, { ...clean(plan), status: 'done', result, exercises: (plan.exercises || []).map((e) => ({ ...e, done: true })), updatedAt: new Date().toISOString() });
+      } else {
+        const id = 't-' + r.id;
+        const ex = S.sessions.find((s) => s.id === id);
+        if (ex && same(ex.result, result)) continue;
+        await write('sessions', id, {
+          clientId: cur.id, date: r.date, title: r.title || 'Học viên tự tập', status: 'done', fromTrainee: true, result,
+          rating: ex ? ex.rating : null, note: ex ? ex.note : '', media: ex ? ex.media || [] : [],
+          exercises: result.items.map((i) => ({ name: i.name, sets: (i.sets || []).length || null,
+            reps: Math.max(0, ...(i.sets || []).map((s) => s.reps || 0)) || null, kg: Math.max(0, ...(i.sets || []).map((s) => s.kg || 0)) || null, done: true })),
+          createdAt: ex ? ex.createdAt : new Date().toISOString(), updatedAt: new Date().toISOString(),
+        });
+      }
+    }
+    for (const w of (p && p.weights) || []) {
+      if (!w || !w.id || !w.weight) continue;
+      const id = 'a-' + w.id;
+      const m = S.metrics.find((x) => x.id === id);
+      if (m && m.weight === w.weight && m.date === w.date) continue;
+      await write('metrics', id, { clientId: cur.id, date: w.date, weight: w.weight, waist: m ? m.waist : null, bodyFat: m ? m.bodyFat : null, note: 'Học viên tự ghi trên app' });
+    }
+  }
+  let syncingAll = false;
+  async function syncAll(manual) {
+    if (syncingAll || !S.db) return;
+    syncingAll = true;
+    let ok = 0, fail = null;
+    for (const c of S.clients.filter((x) => x.link)) {
+      try { await pushPlans(c.id); await pullClient(c); ok++; }
+      catch (e) { fail = e; S.syncInfo[c.id] = { at: S.syncInfo[c.id] ? S.syncInfo[c.id].at : null, error: e.message }; }
+    }
+    syncingAll = false;
+    if (manual) toast(fail ? `Chưa đồng bộ được: ${fail.message}` : `Đã đồng bộ ${ok} học viên`);
+    if (S.route.name === 'client') render();
+  }
+  async function createLink(c, renew) {
+    try {
+      const now = new Date().toISOString();
+      if (c.link && renew) {
+        const j = await api('pair-newcode', { pairId: c.link.pairId, coachKey: coachKey() });
+        await write('clients', c.id, { ...clean(c), link: { ...c.link, code: j.code, codeAt: now, claimed: false } });
+      } else {
+        const j = await api('pair-create', { coachKey: coachKey(), clientName: c.name, coachName: coachName() });
+        await write('clients', c.id, { ...clean(c), link: { pairId: j.pairId, code: j.code, codeAt: now, claimed: false, claimedAt: null } });
+        await pushPlans(c.id);
+      }
+      toast('Đã tạo mã. Gửi mã này cho học viên.');
+    } catch (e) { toast(e.status === 503 ? 'Máy chủ đồng bộ chưa được bật.' : e.message); }
+  }
+  function linkSection(c) {
+    const L = c.link, info = S.syncInfo[c.id], A2 = c.app;
+    const nameInput = `<label class="f">Tên HLV hiển thị trên app học viên<input id="coachNameIn" maxlength="60" value="${esc(coachName())}"></label>`;
+    if (!L) {
+      return `<section><h2>App học viên</h2><div class="card">
+        <div class="card-sub">Nối với app <b>Nhật Ký Tập</b> trên điện thoại học viên: bài bạn lên lịch tự hiện bên học viên; buổi học viên tập, cân nặng và hồ sơ tự gửi về đây.</div>
+        ${nameInput}
+        ${canWrite() ? `<button class="btn primary" data-act="link-create" data-id="${esc(c.id)}">Tạo mã kết nối</button>` : ''}
+      </div></section>`;
+    }
+    const codeOld = L.codeAt && Date.now() - new Date(L.codeAt) > 7 * 86400000;
+    return `<section><h2>App học viên</h2><div class="card">
+      ${L.claimed ? `<div class="row"><span class="pill done">Đã kết nối</span><span class="card-sub">từ ${esc(new Date(L.claimedAt || L.codeAt).toLocaleDateString('vi-VN'))}${info && info.at ? ' · đồng bộ lúc ' + esc(info.at.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })) : ''}</span></div>`
+        : `<div class="card-sub">Gửi mã này cho học viên (Zalo/tin nhắn). Học viên mở <b>camgym.vercel.app</b> → <b>Kết nối với HLV</b> → nhập mã.${codeOld ? ' <b>Mã đã hết hạn</b>, hãy tạo mã mới.' : ' Mã dùng được trong 7 ngày.'}</div>
+          <div class="row"><span style="font-family:var(--font-display,inherit);font-size:30px;font-weight:700;letter-spacing:.12em" class="num">${esc(L.code)}</span>
+          <button class="btn small" data-act="link-copy" data-code="${esc(L.code)}">Chép mã</button></div>`}
+      ${info && info.error ? `<div class="card-sub" style="color:var(--danger)">${esc(info.error)}</div>` : ''}
+      ${A2 ? `<div class="card-sub">Học viên ghi: ${esc([A2.height ? `cao ${fmtNum(A2.height)} cm` : '', A2.weight ? `nặng ${fmtNum(A2.weight)} kg` : '', A2.bmi ? `BMI ${fmtNum(A2.bmi)}` : '', A2.goal ? `mục tiêu ${A2.goal}` : '', A2.target ? `cân nặng mục tiêu ${fmtNum(A2.target)} kg` : ''].filter(Boolean).join(' · '))}</div>` : ''}
+      ${nameInput}
+      <div class="row">
+        <button class="btn small primary" data-act="link-sync">${L.claimed ? 'Đồng bộ ngay' : 'Kiểm tra học viên đã nhập mã chưa'}</button>
+        ${canWrite() ? `<button class="btn small" data-act="link-create" data-renew="1" data-id="${esc(c.id)}">Tạo mã mới${L.claimed ? ' (học viên đổi máy)' : ''}</button>` : ''}
+      </div>
+    </div></section>`;
+  }
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'coachNameIn') {
+      const v = e.target.value.trim() || DEFAULT_COACH; lsSet('so-hlv.coachName', v);
+      toast('Đã lưu tên HLV'); S.clients.filter((c) => c.link).forEach((c) => pushSoon(c.id));
+    }
+  });
+  setInterval(() => { if (document.visibilityState === 'visible' && S.db && ready()) syncAll(false); }, 90000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.db && ready()) syncAll(false); });
 
   // ---------- events ----------
   document.addEventListener('click', async (e) => {
@@ -1011,7 +1155,14 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
       const s = S.sessions.find((x) => x.id === el.dataset.id); if (!s) return;
       el.disabled = true;
       const data = { ...clean(s), status: 'done', exercises: (s.exercises || []).map((x) => ({ ...x, done: true })), updatedAt: new Date().toISOString() };
-      if (await write('sessions', s.id, data)) toast('Đã đánh dấu đã tập'); else el.disabled = false;
+      if (await write('sessions', s.id, data)) { toast('Đã đánh dấu đã tập'); pushSoon(s.clientId); } else el.disabled = false;
+    }
+    else if (act === 'link-create') { const c = clientById(el.dataset.id); if (c) { el.disabled = true; await createLink(c, el.dataset.renew === '1'); el.disabled = false; } }
+    else if (act === 'link-sync') { el.disabled = true; await syncAll(true); el.disabled = false; render(); }
+    else if (act === 'link-copy') {
+      const code = el.dataset.code;
+      try { await navigator.clipboard.writeText(code); toast('Đã chép mã ' + code); }
+      catch { toast('Không chép tự động được. Mã: ' + code); }
     }
   });
   $('#backBtn').addEventListener('click', () => { if (history.length > 1 && document.referrer !== undefined && location.hash) history.back(); else go('clients'); });
@@ -1059,6 +1210,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
         S[col] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         S.got[col] = true;
         if (ready() && !snap.metadata.fromCache) { clearTimeout(slowTimer); S.slow = false; }
+        if (ready() && !S.syncedOnce) { S.syncedOnce = true; setTimeout(() => syncAll(false), 400); }
         render();
       }, (err) => {
         clearTimeout(slowTimer);

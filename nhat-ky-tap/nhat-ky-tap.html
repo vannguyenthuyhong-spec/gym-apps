@@ -313,7 +313,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
   const weekStart = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
 
   // ================= exercise library =================
-  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio' };
+  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', other: 'Khác' };
   // type: weight = kg × lần · reps = số lần · time = giây · min = phút
   const LIB = [
     { id: 'goblet-squat', name: 'Goblet Squat', group: 'legs', equip: 'Tạ đơn / kettlebell', type: 'weight', inc: 2,
@@ -630,11 +630,12 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.2 (13/11/2026)';
+  const APP_VERSION = '1.3 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
-    profile: { name: '', height: null, weight: null, startWeight: null, target: null, goal: '' } });
+    profile: { name: '', height: null, weight: null, startWeight: null, target: null, goal: '' },
+    link: null, coachPlans: [] });
   let storageOk = true;
   function load() {
     try {
@@ -849,6 +850,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         <button class="btn primary" data-act="start-program">Bắt đầu ${esc(day.name)}</button>
         <div class="row"><button class="btn sm ghost" data-act="program-info">Xem giáo án</button><button class="btn sm ghost" data-act="help">Hướng dẫn sử dụng</button></div>
       </div>
+      ${coachSection()}
       <section>
         <div class="row between"><div><h2>Bài PT đã dạy</h2><div class="sub">PT ${esc(D.settings.ptName || DEFAULT_PT)}</div></div><button class="btn sm" data-act="pt-new">+ Ghi buổi PT</button></div>
         ${pts.length ? `<div class="list">${pts.map((p) => `
@@ -884,6 +886,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
     v.innerHTML = `
       <div class="row between"><span class="muted small num">${doneSets}/${allSets} hiệp đã xong</span><button class="btn sm ghost" data-act="cancel-workout">Huỷ buổi</button></div>
       <div id="cancelBox"></div>
+      ${A.coachNote ? `<div class="hint pt">HLV ${esc((D.link && D.link.coachName) || '')} dặn: ${esc(A.coachNote)}</div>` : ''}
       ${A.items.map((it, i) => {
         const ex = exById(it.ex);
         const one = ex.type !== 'weight';
@@ -966,7 +969,8 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         save();
         A = null; rest = null; saveActive(true);
         try { wakeLock && wakeLock.release(); } catch { /* ignore */ }
-        closeSheet(); toast('Đã lưu buổi tập vào nhật ký');
+        closeSheet(); toast(D.link ? 'Đã lưu buổi tập và gửi cho HLV' : 'Đã lưu buổi tập vào nhật ký');
+        syncNow(false);
         go('log');
       });
     });
@@ -1348,6 +1352,7 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
         else if (w && !D.journal.some((x) => x.weight)) recordWeight(w);
         D.settings.onboarded = true;
         save(); closeSheet(); toast(first ? 'Chào mừng bạn đến với Nhật Ký Tập!' : 'Đã lưu hồ sơ'); render();
+        syncNow(false);
       };
       const sk = $('#uSkip', root);
       if (sk) sk.onclick = () => { D.settings.onboarded = true; save(); closeSheet(); };
@@ -1406,6 +1411,141 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       if (sec) { const s = $('#h-' + sec, root); if (s) setTimeout(() => s.scrollIntoView({ block: 'start' }), 50); }
     });
   }
+  // ================= SYNC WITH COACH (Sổ HLV) =================
+  const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
+  const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim();
+  const ALIASES = {
+    'back squat': 'back-squat', 'squat': 'back-squat', 'bench press': 'bench', 'day nguc': 'bench', 'deadlift': 'deadlift', 'romanian deadlift': 'rdl-db', 'rdl': 'rdl-db',
+    'leg press': 'leg-press', 'lat pulldown': 'lat-pulldown', 'keo xo': 'lat-pulldown', 'seated row': 'cable-row', 'shoulder press': 'db-press', 'day vai': 'db-press',
+    'plank': 'plank', 'chay bo': 'incline-walk', 'di bo': 'incline-walk', 'hip thrust': 'hip-thrust', 'lunge': 'db-lunge', 'push up': 'pushup', 'hit dat': 'pushup', 'chong day': 'pushup',
+    'bicep curl': 'db-curl', 'biceps curl': 'db-curl', 'leg curl': 'leg-curl', 'leg extension': 'leg-ext', 'goblet squat': 'goblet-squat', 'face pull': 'face-pull', 'dap xe': 'bike',
+  };
+  function resolveEx(name) {
+    const n = norm(name);
+    const hit = allEx().find((e) => norm(e.name) === n || norm(e.name).includes(`(${n})`) || norm(e.name).replace(/\(.*\)/, '').trim() === n)
+      || (ALIASES[n] && exById(ALIASES[n]))
+      || allEx().find((e) => { const m = /\(([^)]+)\)/.exec(e.name); return m && norm(m[1]) === n; });
+    if (hit) return hit.id;
+    const ex = { id: 'x' + n.replace(/ /g, '-').slice(0, 40), custom: true, fromCoach: true, name: String(name).trim(), group: 'other', type: 'weight', inc: 2.5, equip: '', steps: [], mistakes: [] };
+    if (!D.custom.some((e) => e.id === ex.id)) { D.custom.push(ex); save(); }
+    return ex.id;
+  }
+  async function api(action, body) {
+    const r = await fetch(SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, ...body }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(j.message || 'Không kết nối được máy chủ'); e.status = r.status; e.code = j.error; throw e; }
+    return j;
+  }
+  function buildResults() {
+    const since = addDays(today(), -120);
+    return workoutsDesc().filter((w) => w.date >= since).slice(0, 120).map((w) => ({
+      id: w.id, planId: w.source && w.source.type === 'coach' ? w.source.planId : null, date: w.date, title: w.title,
+      minutes: w.minutes, feeling: w.feeling, note: w.note,
+      items: w.items.map((it) => { const ex = exById(it.ex); return { name: ex.name, type: ex.type, note: it.note || '', sets: it.sets.map((s) => ({ kg: s.kg, reps: s.reps })) }; }),
+    }));
+  }
+  function buildProfile() {
+    const P = D.profile, w = latestWeight();
+    return {
+      name: P.name, height: P.height, goal: GOALS[P.goal] ? GOALS[P.goal].l : '', target: P.target, weight: w, bmi: bmiOf(w, P.height),
+      weights: [...D.journal].filter((j) => j.weight).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 180).map((j) => ({ id: j.id, date: j.date, weight: j.weight })),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  let syncing = false;
+  async function syncNow(manual) {
+    if (!D.link || syncing) return;
+    syncing = true;
+    try {
+      const auth = { pairId: D.link.pairId, traineeKey: D.link.traineeKey };
+      const pull = await api('trainee-pull', auth);
+      D.coachPlans = Array.isArray(pull.plans) ? pull.plans : [];
+      if (pull.coachName) D.link.coachName = pull.coachName;
+      await api('trainee-push', { ...auth, results: buildResults(), profile: buildProfile() });
+      D.link.lastSync = new Date().toISOString(); D.link.error = null;
+      save();
+      if (manual) toast('Đã đồng bộ với HLV');
+    } catch (e) {
+      D.link.error = e.status === 401 || e.status === 404 ? 'Kết nối với HLV không còn hiệu lực (HLV đã tạo mã mới hoặc bạn đã ngắt). Hãy nhập mã mới.' : e.status === 503 ? 'Máy chủ đồng bộ chưa được bật.' : 'Chưa đồng bộ được (mất mạng?). App sẽ tự thử lại.';
+      save();
+      if (manual) toast(D.link.error);
+    } finally {
+      syncing = false;
+      if (S.view === 'home') render();
+    }
+  }
+  setInterval(() => { if (D.link && document.visibilityState === 'visible' && S.view !== 'workout') syncNow(false); }, 120000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && D.link && S.view !== 'workout') syncNow(false); });
+
+  const planDone = (id) => D.workouts.some((w) => w.source && w.source.type === 'coach' && w.source.planId === id);
+  function coachSection() {
+    if (!D.link) {
+      return `<button class="me-card" data-act="link" style="border-left-color:var(--gold)"><span class="card-title">Kết nối với HLV</span>
+        <span class="sub">Nhập mã HLV gửi để nhận bài tập HLV giao và gửi kết quả tập, cân nặng cho HLV.</span></button>`;
+    }
+    const t = today();
+    const plans = (D.coachPlans || []).filter((p) => p.status !== 'done' && p.status !== 'skipped' && !planDone(p.id) && p.date >= addDays(t, -3))
+      .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
+    const last = D.link.lastSync ? new Date(D.link.lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : null;
+    return `<section>
+      <div class="row between"><div><h2>Bài HLV giao</h2><div class="sub">HLV ${esc(D.link.coachName || '')}${last ? ' · đồng bộ lúc ' + last : ''}</div></div>
+        <button class="btn sm" data-act="sync">Đồng bộ</button></div>
+      ${D.link.error ? `<div class="banner-backup"><div>${esc(D.link.error)}</div><div><button class="btn sm" data-act="link">Kết nối lại</button></div></div>` : ''}
+      ${plans.length ? `<div class="list">${plans.map((p) => `
+        <div class="card" style="border-left:5px solid var(--accent)">
+          <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
+          <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
+          ${p.note ? `<div class="sub">HLV dặn: ${esc(p.note)}</div>` : ''}
+          <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
+        </div>`).join('')}</div>`
+        : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
+    </section>`;
+  }
+  function startCoachPlan(p) {
+    const specs = (p.exercises || []).filter((e) => e.name).map((e) => ({ ex: resolveEx(e.name), sets: e.sets || 3, reps: e.reps || 10, kg: e.kg || null }));
+    if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
+    startWorkout(p.title || `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
+    if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; saveActive(true); render(); }
+  }
+  function linkSheet() {
+    const L = D.link;
+    openSheet(`${sheetHead(L ? 'Kết nối với HLV' : 'Nhập mã HLV')}
+      ${L ? `<div class="card"><div class="card-title">Đã kết nối với HLV ${esc(L.coachName || '')}</div>
+          <div class="sub">Từ ${esc(new Date(L.linkedAt).toLocaleDateString('vi-VN'))}${L.lastSync ? ' · đồng bộ gần nhất ' + esc(new Date(L.lastSync).toLocaleString('vi-VN')) : ''}</div>
+          ${L.error ? `<div class="sub" style="color:var(--danger)">${esc(L.error)}</div>` : ''}
+          <div class="row"><button class="btn sm primary" id="lSync">Đồng bộ ngay</button></div></div>
+        <p class="sub" style="margin:0">HLV đổi mã hoặc bạn đổi điện thoại? Nhập mã mới bên dưới.</p>` : `
+        <ol class="steps"><li>Nhờ HLV mở <b>Sổ HLV</b> → học viên (bạn) → tab <b>Hồ sơ</b> → <b>Tạo mã kết nối</b>.</li><li>Nhập mã 8 ký tự HLV gửi (VD: K7QP-3XMA).</li></ol>`}
+      <label class="f">Mã kết nối<input id="lCode" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VD: K7QP-3XMA" style="text-transform:uppercase;letter-spacing:.12em;font-weight:700"></label>
+      <button class="btn ${L ? '' : 'primary'} block" id="lGo">${L ? 'Kết nối bằng mã mới' : 'Kết nối'}</button>
+      <div class="sub">Khi kết nối, hồ sơ, cân nặng và các buổi tập của bạn được gửi lên máy chủ đồng bộ để HLV xem. HLV gửi bài tập về app của bạn.</div>
+      ${L ? '<button class="btn danger block" id="lOff">Ngắt kết nối với HLV</button><div id="lConfirm"></div>' : ''}`, (root) => {
+      $('#lGo', root).onclick = async (e) => {
+        const code = $('#lCode', root).value.trim();
+        if (code.replace(/[^a-z0-9]/gi, '').length !== 8) { toast('Mã gồm 8 ký tự, ví dụ K7QP-3XMA.'); return; }
+        e.target.disabled = true; e.target.textContent = 'Đang kết nối…';
+        try {
+          const traineeKey = randKey();
+          const j = await api('claim', { code, traineeKey });
+          D.link = { pairId: j.pairId, traineeKey, coachName: j.coachName, clientName: j.clientName, linkedAt: new Date().toISOString(), lastSync: null, error: null };
+          save(); closeSheet(); toast(`Đã kết nối với HLV ${j.coachName || ''}`);
+          await syncNow(false); render();
+        } catch (err) { toast(err.message); e.target.disabled = false; e.target.textContent = L ? 'Kết nối bằng mã mới' : 'Kết nối'; }
+      };
+      const sy = $('#lSync', root); if (sy) sy.onclick = async () => { await syncNow(true); closeSheet(); };
+      const off = $('#lOff', root);
+      if (off) off.onclick = () => {
+        $('#lConfirm', root).innerHTML = `<div class="confirm">Ngắt kết nối? HLV sẽ không nhận được buổi tập mới của bạn và bài HLV giao sẽ ẩn khỏi app. Dữ liệu tập trên máy vẫn giữ nguyên.<div class="row"><button class="btn sm danger solid" id="lOffYes">Ngắt kết nối</button><button class="btn sm" id="lOffNo">Huỷ</button></div></div>`;
+        $('#lOffNo', root).onclick = () => ($('#lConfirm', root).innerHTML = '');
+        $('#lOffYes', root).onclick = async () => {
+          try { await api('unlink', { pairId: D.link.pairId, traineeKey: D.link.traineeKey }); } catch { /* vẫn ngắt trên máy */ }
+          D.link = null; D.coachPlans = []; save(); closeSheet(); toast('Đã ngắt kết nối với HLV'); render();
+        };
+      };
+    });
+  }
+
   function doExport() {
     const blob = new Blob([JSON.stringify({ app: 'nhat-ky-tap', version: 1, exportedAt: new Date().toISOString(), data: D }, null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nhat-ky-tap-${today()}.json`;
@@ -1493,6 +1633,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
       case 'profile': closeSheet(); profileSheet(false); break;
       case 'help': closeSheet(); helpSheet(el.dataset.sec); break;
       case 'backup-now': doExport(); break;
+      case 'link': closeSheet(); linkSheet(); break;
+      case 'sync': syncNow(true); break;
+      case 'plan-start': { const p = (D.coachPlans || []).find((x) => x.id === id); if (p) startCoachPlan(p); break; }
       case 'start-program': startProgramDay(D.program.next % (PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]).days.length); break;
       case 'start-free': startWorkout(`Buổi tự chọn ${fmtShort(today())}`, [], { type: 'free' }); setTimeout(() => A && !A.items.length && $('[data-act=add-ex]') && $('[data-act=add-ex]').click(), 50); break;
       case 'pt-new': ptSheet(null); break;
@@ -1538,5 +1681,6 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 
   render();
   if (!D.settings.onboarded && !D.profile.name && S.view === 'home') profileSheet(true);
+  if (D.link) syncNow(false);
 })();
 </script>

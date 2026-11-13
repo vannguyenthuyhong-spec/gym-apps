@@ -8,7 +8,21 @@ Bộ ứng dụng cho tập gym kèm 1-1 với PT HongCam CamFit.
 | [`coach-platform/mobile/`](coach-platform/mobile/) | **Sổ HLV 1-1**: app cho huấn luyện viên quản lý học viên, buổi tập, ảnh/video tiến bộ. |
 | [`coach-platform/`](coach-platform/) | Thiết kế kiến trúc và backend (Node.js, Fastify, PostgreSQL, S3) cho nền tảng HLV. |
 
-Hai app điện thoại là web tĩnh, không cần server. Thư mục `web/` trong mỗi app là bản để tải lên hosting; dữ liệu lưu trên chính điện thoại người dùng.
+Hai app điện thoại là web tĩnh; dữ liệu lưu trên chính điện thoại người dùng. Thư mục `web/` trong mỗi app là bản để tải lên hosting.
+
+## Kết nối HLV ↔ học viên
+
+[`api/sync.js`](api/sync.js) là hàm Vercel đồng bộ hai app qua kho **Upstash Redis** (gói miễn phí):
+
+1. HLV: Sổ HLV → học viên → tab **Hồ sơ** → **Tạo mã kết nối** (mã 8 ký tự, dùng được 7 ngày).
+2. Học viên: Nhật Ký Tập → **Kết nối với HLV** → nhập mã.
+3. Từ đó:
+   - Bài HLV lên lịch hiện ở mục **Bài HLV giao** trong app học viên.
+   - Buổi học viên tập (kg, số lần, cảm giác, nhật ký), hồ sơ và cân nặng tự về Sổ HLV.
+
+Hai app tự đồng bộ khi mở, khi lưu và định kỳ 1,5–2 phút; có nút "Đồng bộ" để chạy ngay. Không có tài khoản: mỗi bên giữ một khoá ngẫu nhiên trên máy, máy chủ chỉ lưu bản băm. Ảnh/video của Sổ HLV không đồng bộ.
+
+**Bật kho dữ liệu (một lần):** Vercel → project → **Storage** → **Create Database** → **Upstash** → **Upstash for Redis** (Free) → Connect với project → Redeploy. Vercel tự thêm biến `KV_REST_API_URL` và `KV_REST_API_TOKEN`. Kiểm tra: `POST /api/sync {"action":"ping"}` trả `"store": true`.
 
 ## Cập nhật app
 
