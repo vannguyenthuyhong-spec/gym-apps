@@ -1,0 +1,1278 @@
+<title>Nhật Ký Tập Gym</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Saira+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: phone-first single column. Bottom tab bar (Tập · Nhật ký · Tiến bộ · Thư viện); the live workout takes the whole screen
+   with a rest-timer dock. Display face is a condensed sports numeral face (scoreboard feel); body face is built for Vietnamese. */
+:root {
+  --bg: #F1F3F6;
+  --surface: #FFFFFF;
+  --surface-2: #E6E9EF;
+  --ink: #121826;
+  --muted: #5D6677;
+  --line: #D7DCE4;
+  --accent: #E8541F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FCE6DC;
+  --good: #11806A;
+  --good-bg: #D9F1EA;
+  --info: #2B5BC9;
+  --info-bg: #E1E8F9;
+  --warn: #9A6410;
+  --warn-bg: #F7EBD2;
+  --danger: #B42F2A;
+  --danger-bg: #FAE1DF;
+  --scrim: rgba(12, 16, 26, .5);
+  --font-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 16px;
+  --tab-h: 62px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1119; --surface: #171D29; --surface-2: #222A38; --ink: #E9EDF4; --muted: #97A1B3; --line: #2A3344;
+    --accent: #FF7A45; --accent-ink: #1A0B04; --accent-soft: #3A2116;
+    --good: #4FD1B0; --good-bg: #133129; --info: #82A6FF; --info-bg: #1B2847; --warn: #E6B35A; --warn-bg: #382B14;
+    --danger: #FF8A80; --danger-bg: #3F1D1B; --scrim: rgba(0, 0, 0, .62);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1119; --surface: #171D29; --surface-2: #222A38; --ink: #E9EDF4; --muted: #97A1B3; --line: #2A3344;
+  --accent: #FF7A45; --accent-ink: #1A0B04; --accent-soft: #3A2116;
+  --good: #4FD1B0; --good-bg: #133129; --info: #82A6FF; --info-bg: #1B2847; --warn: #E6B35A; --warn-bg: #382B14;
+  --danger: #FF8A80; --danger-bg: #3F1D1B; --scrim: rgba(0, 0, 0, .62);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); }
+.top .wrap { display: flex; align-items: center; gap: 10px; padding-block: 12px 10px; min-height: 62px; }
+.top-text { flex: 1; min-width: 0; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.05; text-wrap: balance; overflow-wrap: anywhere; }
+h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: .02em; text-transform: uppercase; }
+h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.icon-btn { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; flex: none; }
+.icon-btn svg { width: 20px; height: 20px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn.danger.solid { background: var(--danger); color: var(--surface); }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+main { padding-block: 6px calc(var(--tab-h) + 28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 24px; }
+main.workout { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+section { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-variant-numeric: tabular-nums; }
+.list { display: flex; flex-direction: column; gap: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; text-align: left; width: 100%; }
+button.card { cursor: pointer; }
+.card-title { font-weight: 600; font-size: 16px; overflow-wrap: anywhere; }
+.sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.chip { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.chip.good { background: var(--good-bg); color: var(--good); }
+.chip.info { background: var(--info-bg); color: var(--info); }
+.chip.warn { background: var(--warn-bg); color: var(--warn); }
+.empty { border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; background: var(--surface); }
+.empty p { margin: 0; color: var(--muted); }
+
+/* Hero: next session */
+.hero { background: var(--ink); color: var(--bg); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.hero .eyebrow { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.hero .big { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
+.hero ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.hero .btn.primary { align-self: stretch; }
+.hero .meta { font-size: 13px; color: color-mix(in srgb, var(--bg) 75%, transparent); }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.week .d { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; color: var(--muted); }
+.week .d b { font-family: var(--font-display); font-size: 20px; color: var(--ink); line-height: 1.1; }
+.week .d.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.week .d.on b { color: var(--accent-ink); }
+.week .d.today { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 12px; color: var(--muted); line-height: 1.3; }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; border-radius: 9px; min-height: 38px; font-size: 14px; font-weight: 600; color: var(--muted); padding: 0 6px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.chips-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips-scroll button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.chips-scroll button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Workout */
+.ex-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ex-card.complete { border-color: var(--good); }
+.ex-head { display: flex; align-items: flex-start; gap: 10px; }
+.ex-head .t { flex: 1; min-width: 0; }
+.ex-name { background: none; border: 0; padding: 0; text-align: left; font-weight: 700; font-size: 17px; overflow-wrap: anywhere; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.hint { font-size: 13px; border-radius: 10px; padding: 8px 10px; background: var(--info-bg); color: var(--info); }
+.hint.pt { background: var(--warn-bg); color: var(--warn); }
+.sets { display: grid; gap: 6px; }
+.set { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 6px; align-items: center; }
+.set.one { grid-template-columns: 34px minmax(0, 1fr) 48px; }
+.set-head { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.set .idx { font-family: var(--font-display); font-size: 20px; text-align: center; color: var(--muted); }
+.set input { width: 100%; min-width: 0; min-height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); text-align: center; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.set input::placeholder { color: var(--muted); font-weight: 500; opacity: .7; }
+.check { width: 48px; height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); display: grid; place-items: center; }
+.check svg { width: 22px; height: 22px; opacity: .35; }
+.set.done input { background: var(--good-bg); border-color: transparent; }
+.set.done .check { background: var(--good); border-color: var(--good); color: var(--surface); }
+.set.done .check svg { opacity: 1; }
+.ex-foot { display: flex; gap: 8px; flex-wrap: wrap; }
+.note-in { width: 100%; min-height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); padding: 8px 12px; font-size: 14px; }
+
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.dock .wrap { display: flex; align-items: center; gap: 10px; padding-block: 10px; }
+.rest { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.rest .time { font-family: var(--font-display); font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.rest .bar { height: 6px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.rest .bar i { display: block; height: 100%; background: var(--accent); width: 0; }
+.rest.idle .time { color: var(--muted); font-size: 18px; font-family: var(--font-body); font-weight: 600; }
+
+/* Tab bar */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); height: var(--tab-h); }
+.tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.tabbar svg { width: 22px; height: 22px; }
+.tabbar button[aria-current="page"] { color: var(--accent); }
+
+/* Sheets */
+.sheet { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end; }
+.sheet.top-layer { z-index: 25; }
+.sheet-scrim { position: absolute; inset: 0; background: var(--scrim); }
+.sheet-panel { position: relative; background: var(--bg); border-radius: 20px 20px 0 0; max-height: calc(100% - 20px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 100%; max-width: 640px; margin: 0 auto; }
+.sheet-panel .wrap { padding-block: 6px; display: flex; flex-direction: column; gap: 14px; }
+.grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 8px auto 0; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; position: sticky; top: 0; background: var(--bg); padding-block: 6px; z-index: 1; }
+.sheet-head h2 { text-transform: none; font-size: 24px; letter-spacing: .01em; overflow-wrap: anywhere; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; color: var(--muted); min-width: 0; }
+.f input, .f select, .f textarea, .search { width: 100%; min-width: 0; min-height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 8px 12px; font-size: 16px; color: var(--ink); }
+.f textarea { min-height: 96px; resize: vertical; }
+.f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.scale button { min-height: 52px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; padding: 4px 2px; }
+.scale button b { font-family: var(--font-display); font-size: 20px; }
+.scale button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.pick { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; text-align: left; width: 100%; }
+.pick .box { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--line); flex: none; display: grid; place-items: center; }
+.pick[aria-pressed="true"] { border-color: var(--accent); }
+.pick[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pick .grow { flex: 1; min-width: 0; }
+.plan-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.plan-item .mini { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); }
+.plan-item .mini input, .plan-item .cue { width: 100%; min-height: 40px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); padding: 6px 10px; font-size: 16px; }
+.plan-item .mini input { text-align: center; font-variant-numeric: tabular-nums; }
+.rm { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 18px; flex: none; }
+.confirm { background: var(--danger-bg); color: var(--danger); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 12px 6px; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: var(--font-body); }
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.t th, table.t td { padding: 8px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+table.t th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+table.t .r { text-align: right; font-variant-numeric: tabular-nums; }
+.day-label { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; }
+details.tips { border-radius: 10px; background: var(--good-bg); color: var(--good); font-size: 13.5px; }
+details.tips summary { list-style: none; cursor: pointer; padding: 8px 10px; display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+details.tips summary::-webkit-details-marker { display: none; }
+details.tips summary::after { content: "Xem thêm"; margin-left: auto; flex: none; font-weight: 600; font-size: 12px; opacity: .8; text-decoration: underline; }
+details.tips[open] summary::after { content: "Thu gọn"; }
+details.tips .in { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 6px; color: var(--ink); }
+details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+.tip-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--good); }
+.tip-day { background: var(--good-bg); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.tip-day .tip-label { color: var(--good); }
+.tip-day p { margin: 0; font-size: 15px; }
+.cue-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.cue-list li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-weight: 600; }
+.guide-sec { display: flex; flex-direction: column; gap: 8px; }
+.guide-sec ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <button class="icon-btn" id="backBtn" aria-label="Quay lại" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="top-text"><div class="eyebrow" id="hEyebrow">Nhật ký tập</div><h1 id="hTitle">Hôm nay tập gì?</h1></div>
+    <div id="hAction"></div>
+  </div>
+</header>
+
+<main class="wrap" id="view">
+  <div class="empty"><h3>Đang mở nhật ký…</h3><p>Giáo án cho người mới, bài PT đã dạy và nhật ký từng buổi sẽ hiện ở đây.</p></div>
+</main>
+
+<nav class="tabbar" id="tabbar" aria-label="Điều hướng">
+  <div class="in">
+    <button data-act="nav" data-to="home" id="t-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Tập</button>
+    <button data-act="nav" data-to="log" id="t-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h11l3 3v14H5z"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>Nhật ký</button>
+    <button data-act="nav" data-to="progress" id="t-progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="M5 15l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7h4v4"/></svg>Tiến bộ</button>
+    <button data-act="nav" data-to="library" id="t-library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2 2 0 0 1 6 3.5h13v14H6a2 2 0 0 0-2 2z"/><path d="M4 19.5a2 2 0 0 0 2 2h13v-4"/></svg>Thư viện</button>
+  </div>
+</nav>
+
+<div class="dock" id="dock" hidden>
+  <div class="wrap">
+    <div class="rest idle" id="rest">
+      <div class="time" id="restTime">Nghỉ giữa hiệp</div>
+      <div class="bar"><i id="restBar"></i></div>
+    </div>
+    <div class="row" id="restBtns" hidden>
+      <button class="btn sm" data-act="rest-add" data-s="-15">−15</button>
+      <button class="btn sm" data-act="rest-add" data-s="15">+15</button>
+      <button class="btn sm" data-act="rest-skip">Bỏ qua</button>
+    </div>
+    <button class="btn primary" id="finishBtn" data-act="finish">Kết thúc</button>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-scrim" data-act="close-sheet"></div><div class="sheet-panel" role="dialog" aria-modal="true"><div class="grab"></div><div class="wrap" id="sheetBody"></div></div></div>
+<div class="sheet top-layer" id="picker" hidden><div class="sheet-scrim" data-act="close-picker"></div><div class="sheet-panel" role="dialog" aria-modal="true"><div class="grab"></div><div class="wrap" id="pickerBody"></div></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+  // ================= helpers =================
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const today = () => iso(new Date());
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  const DOW_LONG = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const fmtShort = (s) => { const d = parse(s); return `${DOW[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`; };
+  const fmtLong = (s) => { const d = parse(s); return `${DOW_LONG[d.getDay()]}, ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; };
+  const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const num = (v) => { if (v === '' || v == null) return null; const n = Number(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
+  const fmt = (n, d = 1) => (n == null ? '' : (Math.round(n * 10 ** d) / 10 ** d).toLocaleString('vi-VN'));
+  const mmss = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`;
+  const e1rm = (kg, reps) => (kg && reps ? kg * (1 + Math.min(reps, 12) / 30) : 0);
+  const weekStart = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
+
+  // ================= exercise library =================
+  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio' };
+  // type: weight = kg × lần · reps = số lần · time = giây · min = phút
+  const LIB = [
+    { id: 'goblet-squat', name: 'Goblet Squat', group: 'legs', equip: 'Tạ đơn / kettlebell', type: 'weight', inc: 2,
+      steps: ['Ôm tạ sát ngực, chân rộng bằng vai, mũi chân hơi mở.', 'Đẩy hông ra sau và ngồi xuống đến khi đùi song song sàn, lưng thẳng.', 'Đạp cả bàn chân xuống sàn để đứng lên, thở ra khi đứng.'],
+      mistakes: ['Gối đổ vào trong — hãy đẩy gối theo hướng mũi chân.', 'Nhón gót — dồn lực ở giữa bàn chân.'] },
+    { id: 'back-squat', name: 'Squat thanh đòn', group: 'legs', equip: 'Thanh đòn + khung squat', type: 'weight', inc: 2.5,
+      steps: ['Đặt thanh đòn trên cơ thang (không đặt lên cổ), siết lưng trên.', 'Hít sâu giữ bụng, ngồi xuống chậm có kiểm soát.', 'Đứng lên mạnh, giữ ngực mở.'],
+      mistakes: ['Cong lưng dưới ở cuối động tác.', 'Ngồi quá nhanh, bật nảy ở đáy.'] },
+    { id: 'leg-press', name: 'Đạp đùi máy (Leg Press)', group: 'legs', equip: 'Máy', type: 'weight', inc: 5,
+      steps: ['Lưng và hông áp sát ghế, chân đặt giữa bàn đạp rộng bằng vai.', 'Hạ bàn đạp đến khi gối gập khoảng 90°.', 'Đạp lên nhưng không khoá thẳng gối.'],
+      mistakes: ['Hông nhấc khỏi ghế khi hạ quá sâu.', 'Khoá gối ở trên cùng.'] },
+    { id: 'db-lunge', name: 'Lunge tạ đơn', group: 'legs', equip: 'Tạ đơn', type: 'weight', inc: 1,
+      steps: ['Hai tay cầm tạ, bước một chân lên trước.', 'Hạ thân thẳng xuống đến khi gối sau gần chạm sàn.', 'Đạp chân trước để về vị trí đầu. Ghi số lần cho mỗi chân.'],
+      mistakes: ['Bước quá ngắn làm gối trước vượt xa mũi chân.', 'Đổ người ra trước.'] },
+    { id: 'rdl-db', name: 'Romanian Deadlift tạ đơn', group: 'glutes', equip: 'Tạ đơn', type: 'weight', inc: 2,
+      steps: ['Đứng thẳng, tạ trước đùi, gối hơi chùng.', 'Đẩy hông ra sau, tạ trượt sát chân xuống đến giữa ống chân.', 'Siết mông đẩy hông về trước để đứng lên.'],
+      mistakes: ['Cong lưng để với tạ xuống thấp.', 'Gập gối như squat.'] },
+    { id: 'deadlift', name: 'Deadlift thanh đòn', group: 'glutes', equip: 'Thanh đòn', type: 'weight', inc: 5,
+      steps: ['Thanh đòn trên giữa bàn chân, nắm tay ngay ngoài chân.', 'Hạ hông, lưng thẳng, kéo thanh đòn sát người.', 'Đứng thẳng bằng cách đẩy sàn, không ngả người ra sau.'],
+      mistakes: ['Giật thanh đòn khỏi sàn.', 'Thanh đòn xa người.'] },
+    { id: 'hip-thrust', name: 'Hip Thrust', group: 'glutes', equip: 'Ghế + thanh đòn/tạ', type: 'weight', inc: 5,
+      steps: ['Lưng trên tựa mép ghế, tạ đặt ngang hông (có đệm).', 'Đẩy hông lên đến khi thân và đùi thẳng hàng, siết mông 1 giây.', 'Hạ chậm.'],
+      mistakes: ['Ưỡn lưng thay vì dùng mông.', 'Cằm ngửa lên trần — giữ mắt nhìn trước.'] },
+    { id: 'glute-bridge', name: 'Glute Bridge', group: 'glutes', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, gối co, bàn chân rộng bằng hông.', 'Siết mông đẩy hông lên, giữ 1–2 giây.', 'Hạ chậm, không chạm hẳn sàn.'],
+      mistakes: ['Đẩy bằng lưng dưới.', 'Bàn chân đặt quá xa mông.'] },
+    { id: 'leg-curl', name: 'Gập đùi sau máy (Leg Curl)', group: 'legs', equip: 'Máy', type: 'weight', inc: 2.5,
+      steps: ['Chỉnh đệm nằm ngay trên gót chân.', 'Gập gối kéo đệm về phía mông.', 'Thả về chậm 2–3 giây.'],
+      mistakes: ['Nhấc hông khỏi ghế.', 'Thả rơi tạ.'] },
+    { id: 'leg-ext', name: 'Đá đùi trước máy (Leg Extension)', group: 'legs', equip: 'Máy', type: 'weight', inc: 2.5,
+      steps: ['Ngồi sát lưng ghế, đệm ở cổ chân.', 'Duỗi thẳng chân, siết đùi trước 1 giây.', 'Hạ chậm.'],
+      mistakes: ['Đá vung quán tính.', 'Ghế chỉnh sai làm gối lệch trục máy.'] },
+    { id: 'calf-raise', name: 'Nhón bắp chân', group: 'legs', equip: 'Máy / tạ đơn', type: 'weight', inc: 2.5,
+      steps: ['Mũi chân trên bục, gót thả thấp.', 'Nhón lên cao nhất, giữ 1 giây.', 'Hạ gót chậm xuống dưới mép bục.'],
+      mistakes: ['Nhún nhanh, biên độ ngắn.'] },
+    { id: 'bw-squat', name: 'Squat tay không', group: 'legs', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Chân rộng bằng vai, tay duỗi trước để giữ thăng bằng.', 'Ngồi xuống như ngồi ghế, lưng thẳng.', 'Đứng lên, siết mông.'],
+      mistakes: ['Gối đổ vào trong.', 'Nhón gót.'] },
+    { id: 'reverse-lunge', name: 'Lunge lùi', group: 'legs', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Bước một chân ra sau.', 'Hạ gối sau gần chạm sàn, thân thẳng.', 'Đạp chân trước về vị trí đầu. Ghi số lần mỗi chân.'],
+      mistakes: ['Mất thăng bằng do bước theo một đường thẳng — mở hai chân như hai đường ray.'] },
+    { id: 'wall-sit', name: 'Ngồi dựa tường', group: 'legs', equip: 'Tường', type: 'time', inc: 0,
+      steps: ['Lưng áp tường, trượt xuống đến khi đùi song song sàn.', 'Gối ngay trên cổ chân.', 'Giữ, thở đều.'],
+      mistakes: ['Đặt tay lên đùi để đỡ.'] },
+    { id: 'pushup', name: 'Chống đẩy', group: 'chest', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Tay rộng hơn vai một chút, người thẳng từ đầu đến gót.', 'Hạ ngực gần sàn, khuỷu tay khoảng 45° so với thân.', 'Đẩy lên, siết bụng.'],
+      mistakes: ['Võng hông.', 'Khuỷu tay bè ngang 90°.'] },
+    { id: 'knee-pushup', name: 'Chống đẩy gối', group: 'chest', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Quỳ gối, tay rộng hơn vai, thân thẳng từ đầu đến gối.', 'Hạ ngực xuống gần sàn.', 'Đẩy lên. Khi làm được 3×15, chuyển sang chống đẩy thường.'],
+      mistakes: ['Chổng mông.'] },
+    { id: 'db-bench', name: 'Đẩy ngực tạ đơn', group: 'chest', equip: 'Tạ đơn + ghế', type: 'weight', inc: 1,
+      steps: ['Nằm ghế, bàn chân chạm sàn, bả vai khép về sau.', 'Hạ tạ ngang ngực, khuỷu khoảng 45°.', 'Đẩy tạ lên trên ngực, thở ra.'],
+      mistakes: ['Nhấc mông khỏi ghế.', 'Hạ tạ quá nhanh.'] },
+    { id: 'bench', name: 'Đẩy ngực thanh đòn', group: 'chest', equip: 'Thanh đòn + ghế', type: 'weight', inc: 2.5,
+      steps: ['Mắt dưới thanh đòn, bả vai khép, chân vững.', 'Hạ thanh đòn chạm nhẹ giữa ngực.', 'Đẩy lên theo đường hơi cong về phía mặt.'],
+      mistakes: ['Nảy thanh đòn trên ngực.', 'Tập nặng không có người hỗ trợ.'] },
+    { id: 'chest-press', name: 'Đẩy ngực máy', group: 'chest', equip: 'Máy', type: 'weight', inc: 2.5,
+      steps: ['Chỉnh ghế để tay cầm ngang giữa ngực.', 'Đẩy ra đến gần thẳng tay.', 'Về chậm, cảm nhận ngực căng.'],
+      mistakes: ['Nhún vai lên tai.'] },
+    { id: 'incline-db', name: 'Đẩy ngực dốc lên tạ đơn', group: 'chest', equip: 'Tạ đơn + ghế dốc', type: 'weight', inc: 1,
+      steps: ['Ghế dốc 30°, bả vai khép.', 'Hạ tạ ngang ngực trên.', 'Đẩy lên, hai tạ gần nhau ở trên.'],
+      mistakes: ['Ghế dốc quá cao thành bài vai.'] },
+    { id: 'lat-pulldown', name: 'Kéo xô (Lat Pulldown)', group: 'back', equip: 'Máy cáp', type: 'weight', inc: 2.5,
+      steps: ['Nắm thanh rộng hơn vai, ngực hướng lên.', 'Kéo thanh xuống ngực trên, khuỷu tay hướng xuống sàn.', 'Thả lên chậm đến khi tay gần thẳng.'],
+      mistakes: ['Ngả người ra sau quá nhiều.', 'Kéo bằng tay thay vì lưng.'] },
+    { id: 'cable-row', name: 'Kéo cáp ngồi (Seated Row)', group: 'back', equip: 'Máy cáp', type: 'weight', inc: 2.5,
+      steps: ['Ngồi thẳng, gối hơi chùng.', 'Kéo tay cầm về bụng, khép hai bả vai.', 'Duỗi tay về trước có kiểm soát.'],
+      mistakes: ['Đung đưa thân để kéo.'] },
+    { id: 'db-row', name: 'Chèo tạ đơn 1 tay', group: 'back', equip: 'Tạ đơn + ghế', type: 'weight', inc: 1,
+      steps: ['Một tay và gối tựa ghế, lưng song song sàn.', 'Kéo tạ về hông, khuỷu sát người.', 'Hạ chậm. Ghi số lần mỗi tay.'],
+      mistakes: ['Xoay thân để kéo.'] },
+    { id: 'assisted-pullup', name: 'Hít xà có trợ lực', group: 'back', equip: 'Máy trợ lực / dây kháng lực', type: 'reps', inc: 0,
+      steps: ['Nắm xà rộng hơn vai, có trợ lực đỡ.', 'Kéo người lên đến cằm qua xà.', 'Hạ chậm đến thẳng tay.'],
+      mistakes: ['Đánh đu lấy đà.'] },
+    { id: 'superman', name: 'Superman', group: 'back', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Nằm sấp, tay duỗi qua đầu.', 'Nhấc tay, ngực và chân lên cùng lúc, giữ 2 giây.', 'Hạ chậm.'],
+      mistakes: ['Ngửa cổ quá mức.'] },
+    { id: 'db-press', name: 'Đẩy vai tạ đơn', group: 'shoulders', equip: 'Tạ đơn', type: 'weight', inc: 1,
+      steps: ['Ngồi lưng thẳng, tạ ngang tai.', 'Đẩy tạ lên trên đầu.', 'Hạ về ngang tai.'],
+      mistakes: ['Ưỡn lưng dưới.'] },
+    { id: 'lateral-raise', name: 'Dang tạ sang ngang', group: 'shoulders', equip: 'Tạ đơn nhẹ', type: 'weight', inc: 1,
+      steps: ['Đứng thẳng, tạ hai bên, khuỷu hơi chùng.', 'Dang tay sang ngang đến ngang vai.', 'Hạ chậm 2–3 giây.'],
+      mistakes: ['Nhún vai, dùng tạ quá nặng.'] },
+    { id: 'face-pull', name: 'Face Pull', group: 'shoulders', equip: 'Máy cáp + dây', type: 'weight', inc: 2.5,
+      steps: ['Ròng rọc ngang mặt, nắm dây hai tay.', 'Kéo dây về mặt, tách hai tay ra hai bên tai.', 'Về chậm.'],
+      mistakes: ['Kéo xuống ngực thay vì ngang mặt.'] },
+    { id: 'pike-pushup', name: 'Pike Push-up', group: 'shoulders', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Chống tay, đẩy hông lên cao tạo hình chữ V ngược.', 'Gập khuỷu hạ đầu về phía sàn.', 'Đẩy lên.'],
+      mistakes: ['Hông hạ thấp thành chống đẩy thường.'] },
+    { id: 'db-curl', name: 'Cuốn tạ đơn (tay trước)', group: 'arms', equip: 'Tạ đơn', type: 'weight', inc: 1,
+      steps: ['Đứng thẳng, khuỷu sát hông.', 'Cuốn tạ lên vai, xoay lòng bàn tay lên.', 'Hạ chậm đến gần thẳng tay.'],
+      mistakes: ['Đung đưa thân lấy đà.'] },
+    { id: 'triceps-pushdown', name: 'Ép tay sau với cáp', group: 'arms', equip: 'Máy cáp', type: 'weight', inc: 2.5,
+      steps: ['Khuỷu sát hông, nắm thanh/dây.', 'Duỗi thẳng tay xuống, siết tay sau.', 'Về chậm đến khuỷu khoảng 90°.'],
+      mistakes: ['Khuỷu tay di chuyển ra trước.'] },
+    { id: 'plank', name: 'Plank', group: 'core', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Chống khuỷu tay ngay dưới vai.', 'Người thẳng từ đầu đến gót, siết bụng và mông.', 'Thở đều, giữ đến hết thời gian.'],
+      mistakes: ['Võng hông hoặc chổng mông.'] },
+    { id: 'side-plank', name: 'Plank nghiêng', group: 'core', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Nằm nghiêng, khuỷu dưới vai.', 'Nâng hông lên thành đường thẳng.', 'Giữ, rồi đổi bên. Ghi thời gian mỗi bên.'],
+      mistakes: ['Hông chùng xuống.'] },
+    { id: 'dead-bug', name: 'Dead Bug', group: 'core', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, tay hướng trần, gối co 90°.', 'Ép lưng dưới xuống sàn, duỗi tay và chân đối diện.', 'Về giữa rồi đổi bên.'],
+      mistakes: ['Lưng dưới nhấc khỏi sàn.'] },
+    { id: 'bird-dog', name: 'Bird Dog', group: 'core', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Quỳ bốn điểm, lưng phẳng.', 'Duỗi tay và chân đối diện thành đường thẳng, giữ 2 giây.', 'Về rồi đổi bên.'],
+      mistakes: ['Xoay hông khi duỗi chân.'] },
+    { id: 'crunch', name: 'Gập bụng (Crunch)', group: 'core', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Nằm ngửa, gối co, tay đặt nhẹ sau đầu.', 'Cuộn vai lên khỏi sàn bằng cơ bụng.', 'Hạ chậm.'],
+      mistakes: ['Kéo cổ bằng tay.'] },
+    { id: 'mountain-climber', name: 'Leo núi (Mountain Climber)', group: 'cardio', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Tư thế chống đẩy cao.', 'Lần lượt kéo gối về ngực thật nhanh.', 'Giữ hông thấp, bụng siết.'],
+      mistakes: ['Chổng mông cao.'] },
+    { id: 'incline-walk', name: 'Đi bộ dốc trên máy chạy', group: 'cardio', equip: 'Máy chạy bộ', type: 'min', inc: 0,
+      steps: ['Độ dốc 6–10%, tốc độ 4,5–5,5 km/h.', 'Không bám tay vịn.', 'Giữ mức thở còn nói chuyện được.'],
+      mistakes: ['Bám tay vịn làm giảm tác dụng.'] },
+    { id: 'bike', name: 'Đạp xe tại chỗ', group: 'cardio', equip: 'Xe đạp tập', type: 'min', inc: 0,
+      steps: ['Chỉnh yên ngang hông.', 'Đạp đều, nhịp vừa phải.', 'Tăng dần thời gian mỗi tuần.'],
+      mistakes: ['Yên quá thấp làm đau gối.'] },
+  ];
+
+  const PROGRAMS = [
+    { id: 'gym3', name: 'Người mới · Toàn thân 3 buổi/tuần', place: 'Phòng gym', weeks: 8,
+      desc: 'Tập 3 buổi cách ngày (VD: T2–T4–T6), luân phiên A → B → C. Mỗi buổi khoảng 45–55 phút, nghỉ 90 giây giữa hiệp.',
+      days: [
+        { name: 'Buổi A', items: [['goblet-squat', 3, 10], ['db-bench', 3, 10], ['lat-pulldown', 3, 10], ['rdl-db', 3, 10], ['plank', 3, 30]] },
+        { name: 'Buổi B', items: [['leg-press', 3, 12], ['db-press', 3, 10], ['cable-row', 3, 10], ['glute-bridge', 3, 12], ['dead-bug', 3, 10]] },
+        { name: 'Buổi C', items: [['db-lunge', 3, 8], ['chest-press', 3, 10], ['db-row', 3, 10], ['leg-curl', 3, 12], ['side-plank', 3, 20], ['incline-walk', 1, 10]] },
+      ] },
+    { id: 'home2', name: 'Người mới · Tại nhà không dụng cụ', place: 'Tại nhà', weeks: 6,
+      desc: 'Tập 3–4 buổi/tuần, luân phiên A → B. Mỗi buổi khoảng 30 phút, nghỉ 60 giây giữa hiệp.',
+      days: [
+        { name: 'Buổi A', items: [['bw-squat', 3, 15], ['knee-pushup', 3, 10], ['glute-bridge', 3, 15], ['superman', 3, 12], ['plank', 3, 30]] },
+        { name: 'Buổi B', items: [['reverse-lunge', 3, 10], ['pike-pushup', 3, 8], ['wall-sit', 3, 30], ['bird-dog', 3, 10], ['mountain-climber', 3, 30]] },
+      ] },
+  ];
+
+  // ================= form cues: câu "đeo theo" khi tập =================
+  const BREATH = {
+    lift: 'Hít vào khi hạ/về, thở ra khi dùng lực (đẩy, kéo, đứng lên).',
+    heavy: 'Hít sâu vào bụng → gồng core → giữ hơi khi xuống và qua điểm khó → thở ra ở trên. Có bệnh tim mạch/huyết áp thì thở ra đều, không nín.',
+    hold: 'Thở ngắn, đều bằng mũi, bụng vẫn gồng. Không nín thở.',
+    cardio: 'Thở đều, giữ mức vừa đủ để vẫn nói chuyện được.',
+  };
+  const TIPS = {
+    'goblet-squat': { b: 'heavy', c: ['Gối đi theo hướng mũi chân', 'Ngực mở, tạ dính sát ngực', 'Cùi chỏ hướng xuống, chạm nhẹ trong gối ở đáy', 'Đạp cả bàn chân: gót, ngón cái, ngón út'] },
+    'back-squat': { b: 'heavy', c: ['Gối đi theo hướng mũi chân', 'Bẻ cong thanh đòn để siết lưng trên', 'Ngồi xuống giữa hai gót chân', 'Mắt nhìn trước, cổ trung lập'] },
+    'leg-press': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Lưng dưới luôn dính đệm', 'Đạp bằng gót và giữa bàn chân', 'Không khoá thẳng gối ở trên'] },
+    'db-lunge': { b: 'lift', c: ['Gối trước đi theo hướng mũi chân', 'Thân thẳng, đi xuống như thang máy', 'Dồn khoảng 70% lực vào chân trước'] },
+    'rdl-db': { b: 'heavy', c: ['Đẩy hông ra sau như đóng cửa bằng mông', 'Tạ trượt sát đùi và ống chân', 'Lưng phẳng, ngực mở, cổ trung lập', 'Thấy căng sau đùi là đúng'] },
+    'deadlift': { b: 'heavy', c: ['Đẩy sàn ra xa thay vì kéo tạ', 'Kẹp nách để thanh đòn sát người', 'Hông và vai lên cùng lúc', 'Siết mông ở trên, không ngả ra sau'] },
+    'hip-thrust': { b: 'lift', c: ['Cằm gập nhẹ, mắt nhìn thẳng trước', 'Cẳng chân thẳng đứng ở đỉnh', 'Siết mông 1 giây như kẹp đồng xu', 'Hạ sườn xuống, không ưỡn lưng'] },
+    'glute-bridge': { b: 'lift', c: ['Ép lưng dưới xuống thảm trước khi đẩy', 'Đẩy bằng gót chân', 'Siết mông 1–2 giây ở trên'] },
+    'leg-curl': { b: 'lift', c: ['Hông dính ghế', 'Kéo mũi chân về phía ống quyển', 'Thả về chậm 3 giây'] },
+    'leg-ext': { b: 'lift', c: ['Lưng dính ghế, tay giữ chặt tay cầm', 'Siết đùi trước 1 giây ở trên', 'Không đá bằng quán tính'] },
+    'calf-raise': { b: 'lift', c: ['Nhón lên bằng ngón cái', 'Giữ 1 giây ở trên và ở dưới', 'Gối thẳng nhưng không khoá'] },
+    'bw-squat': { b: 'lift', c: ['Gối đi theo hướng mũi chân', 'Đưa tay ra trước để giữ thăng bằng', 'Ngồi như ngồi xuống ghế phía sau'] },
+    'reverse-lunge': { b: 'lift', c: ['Bước lùi đủ xa để gối trước nằm trên cổ chân', 'Thân thẳng', 'Đạp gót chân trước để về'] },
+    'wall-sit': { b: 'hold', c: ['Gối 90°, gối nằm trên cổ chân', 'Lưng dưới áp tường', 'Tay để ngoài đùi, không đỡ'] },
+    'pushup': { b: 'lift', c: ['Cùi chỏ dẫn đường, chếch 45° so với thân, không bè ngang', 'Gồng bụng, siết mông: người thẳng như tấm ván', 'Ở trên, đẩy sàn ra xa'] },
+    'knee-pushup': { b: 'lift', c: ['Cùi chỏ dẫn đường, chếch 45°', 'Thân thẳng từ đầu đến gối', 'Ngực xuống trước, không đưa đầu xuống trước'] },
+    'db-bench': { b: 'lift', c: ['Khép bả vai về sau và xuống, như nhét vào túi quần sau', 'Cùi chỏ dẫn đường 45°, cẳng tay thẳng đứng', 'Bàn chân đạp chắc xuống sàn', 'Hai tạ đi theo hình chữ A'] },
+    'bench': { b: 'heavy', c: ['Bả vai khép, ngực mở', 'Cổ tay thẳng, thanh đòn nằm trên gốc bàn tay', 'Cùi chỏ ở ngay dưới thanh đòn', 'Đạp chân xuống sàn'] },
+    'chest-press': { b: 'lift', c: ['Bả vai khép, không nhún vai', 'Cùi chỏ ngang hoặc thấp hơn tay cầm', 'Về chậm'] },
+    'incline-db': { b: 'lift', c: ['Bả vai khép', 'Cùi chỏ dẫn đường, thấp hơn vai', 'Không đập hai tạ vào nhau ở trên'] },
+    'lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường: kéo cùi chỏ xuống túi quần sau', 'Tay chỉ là cái móc, kéo bằng lưng', 'Hạ vai xuống trước rồi mới kéo', 'Ngực hướng lên thanh, ngả nhẹ 10–15°'] },
+    'cable-row': { b: 'lift', c: ['Cùi chỏ dẫn đường, kéo về sau sát người', 'Ép hai bả vai như kẹp quả cam', 'Thân đứng yên, không đánh lưng'] },
+    'db-row': { b: 'lift', c: ['Cùi chỏ dẫn đường về phía hông, không kéo lên vai', 'Lưng phẳng như mặt bàn', 'Không xoay thân'] },
+    'assisted-pullup': { b: 'lift', c: ['Hạ vai xuống, ngực hướng lên xà', 'Cùi chỏ kéo xuống hông', 'Hạ người chậm 3 giây'] },
+    'superman': { b: 'lift', c: ['Mắt nhìn sàn, cổ trung lập', 'Siết mông trước khi nhấc chân', 'Giữ 2 giây ở trên'] },
+    'db-press': { b: 'heavy', c: ['Gồng bụng, siết mông để không ưỡn lưng', 'Cẳng tay thẳng đứng, cùi chỏ hơi đưa ra trước', 'Đẩy tạ thẳng lên trên đầu'] },
+    'lateral-raise': { b: 'lift', c: ['Cùi chỏ dẫn đường, cao hơn cổ tay', 'Đẩy tạ ra xa sang hai bên, đừng nâng lên', 'Không nhún vai, chỉ nâng đến ngang vai'] },
+    'face-pull': { b: 'lift', c: ['Cùi chỏ cao, kéo dây về phía trán', 'Tách hai tay ra hai bên tai', 'Ép bả vai ở cuối'] },
+    'pike-pushup': { b: 'lift', c: ['Hông cao; đầu đi xuống giữa hai tay thành tam giác', 'Cùi chỏ hướng ra sau, không bè', 'Gồng core'] },
+    'db-curl': { b: 'lift', c: ['Cùi chỏ dính hông, chỉ cẳng tay chuyển động', 'Xoay lòng bàn tay lên khi cuốn', 'Hạ chậm 2–3 giây'] },
+    'triceps-pushdown': { b: 'lift', c: ['Cùi chỏ ghim sát hông', 'Duỗi thẳng tay, siết 1 giây', 'Thân hơi nghiêng trước, đứng vững'] },
+    'plank': { b: 'hold', c: ['Khuỷu ngay dưới vai, đẩy sàn ra xa', 'Gồng bụng như sắp bị đấm, siết mông', 'Vai, hông, gót thẳng một hàng'] },
+    'side-plank': { b: 'hold', c: ['Khuỷu nằm dưới vai', 'Đẩy hông lên, người thẳng', 'Đầu thẳng hàng cột sống'] },
+    'dead-bug': { b: 'lift', c: ['Ép lưng dưới xuống sàn suốt bài', 'Duỗi chậm tay và chân đối diện', 'Thở ra hết khi duỗi'] },
+    'bird-dog': { b: 'lift', c: ['Tưởng tượng một cốc nước trên lưng: đừng làm đổ', 'Duỗi dài ra, đừng nâng cao', 'Gồng core'] },
+    'crunch': { b: 'lift', c: ['Cuộn từng đốt sống lên, cằm cách ngực một nắm tay', 'Tay chỉ đỡ đầu, không kéo cổ', 'Thở ra khi cuộn lên'] },
+    'mountain-climber': { b: 'cardio', c: ['Vai nằm trên cổ tay', 'Hông thấp, ngang vai', 'Gồng core, thở theo nhịp'] },
+    'incline-walk': { b: 'cardio', c: ['Không vịn tay', 'Đứng thẳng, bước vừa phải', 'Giữ mức thở vẫn nói chuyện được'] },
+    'bike': { b: 'cardio', c: ['Yên ngang hông', 'Gối hơi chùng khi bàn đạp ở dưới cùng', 'Vai thả lỏng, đạp đều'] },
+  };
+  const tipsFor = (ex) => {
+    const t = TIPS[ex.id];
+    const b = t ? t.b : ex.type === 'min' ? 'cardio' : ex.type === 'time' ? 'hold' : 'lift';
+    return { breath: BREATH[b], cues: t ? t.c : [], heavy: b === 'heavy' };
+  };
+  const BRACE = 'Gồng core: hít vào căng bụng, hai bên hông và lưng như căng một chiếc đai, rồi siết bụng như sắp bị đấm. Giữ suốt mỗi lần lặp.';
+  const GUIDE = [
+    { t: 'Hít thở', items: [
+      'Quy tắc chung: thở ra khi dùng lực (đẩy, kéo, đứng lên), hít vào khi hạ hoặc về.',
+      'Bài nặng (squat, deadlift, đẩy vai): hít sâu vào bụng, gồng, giữ hơi khi xuống và qua điểm khó, thở ra ở trên. Hít lại trước lần kế tiếp.',
+      'Có bệnh tim mạch hoặc huyết áp cao: không nín thở; thở ra đều khi dùng lực.',
+      'Bài giữ tư thế (plank, wall sit): thở ngắn, đều bằng mũi; bụng vẫn gồng.',
+      'Cardio nhẹ: thở bằng mũi; nếu phải há miệng thở dốc là đang quá sức so với mục tiêu đốt mỡ.',
+    ] },
+    { t: 'Gồng core', items: [
+      'Đứng thẳng, hạ xương sườn xuống (đừng ưỡn ngực quá).',
+      'Hít vào bụng, cảm nhận bụng, hai bên hông và lưng dưới cùng căng ra 360° như căng một chiếc đai.',
+      'Siết bụng như sắp bị ai đấm. Vẫn nói được câu ngắn là mức gồng vừa.',
+      'Giữ gồng trong suốt lần lặp; thả và hít lại ở vị trí nghỉ.',
+      'Đai lưng chỉ hỗ trợ khi tập nặng; người mới nên học gồng không đai trước.',
+    ] },
+    { t: 'Câu cửa miệng khi tập', items: [
+      'Gối theo hướng mũi chân: squat, lunge, leg press. Không để gối đổ vào trong.',
+      'Cùi chỏ dẫn đường: các bài kéo (kéo xô, chèo tạ, kéo cáp). Nghĩ kéo cùi chỏ, tay chỉ là cái móc.',
+      'Cùi chỏ 45°: chống đẩy, đẩy ngực. Không bè cùi chỏ ngang vai.',
+      'Ngực mở, vai khép xuống: hầu hết bài thân trên. Đừng nhún vai lên tai.',
+      'Đạp sàn: squat, deadlift, leg press. Lực đi từ cả bàn chân.',
+      'Hông ra sau: RDL, deadlift, hip hinge. Cúi bằng hông chứ không cong lưng.',
+      'Tạ sát người: deadlift, RDL, chèo tạ.',
+      'Cổ trung lập: mắt nhìn trước và hơi xuống, không ngửa cổ.',
+      'Siết mông ở trên: hip thrust, deadlift, plank.',
+    ] },
+    { t: 'Nhịp độ & kiểm soát', items: [
+      'Hạ chậm 2–3 giây, dừng ngắn, lên mạnh nhưng có kiểm soát.',
+      'Biên độ đủ, đúng kỹ thuật quan trọng hơn mức tạ.',
+      'Không dùng quán tính hoặc lắc người để nâng tạ.',
+    ] },
+    { t: 'Khởi động & thả lỏng', items: [
+      '5 phút cardio nhẹ (đi bộ dốc, đạp xe) cho ấm người.',
+      'Xoay khớp: cổ, vai, hông, gối, cổ chân.',
+      'Bài đầu tiên: làm 1–2 hiệp nhẹ (khoảng 50% mức tạ) trước hiệp chính.',
+      'Cuối buổi: giãn cơ nhẹ 5 phút cho nhóm cơ vừa tập.',
+    ] },
+    { t: 'Tăng tiến & phục hồi', items: [
+      'Mỗi hiệp nên còn dư 2–3 lần (chưa phải kiệt sức).',
+      'Làm đủ số lần ở mọi hiệp với kỹ thuật tốt thì buổi sau mới tăng tạ; app sẽ gợi ý.',
+      'Nghỉ 60–90 giây cho bài nhỏ, 2–3 phút cho bài lớn (squat, deadlift).',
+      'Ngủ 7–9 tiếng; ăn đủ đạm (khoảng 1,6 g/kg cân nặng mỗi ngày).',
+      'Mỗi nhóm cơ nên nghỉ ít nhất 48 giờ trước khi tập nặng lại.',
+    ] },
+    { t: 'An toàn', items: [
+      'Mỏi cơ là bình thường; đau nhói hay đau khớp thì dừng ngay và hỏi PT.',
+      'Luôn cài chốt khoá đĩa tạ; tập squat hoặc đẩy ngực nặng thì dùng khung an toàn hoặc có người hỗ trợ.',
+      'Uống nước giữa các hiệp; chóng mặt thì ngồi nghỉ.',
+      'Thử bài mới với mức tạ nhẹ, quay video để so với hướng dẫn.',
+    ] },
+  ];
+  const ALL_TIPS = GUIDE.flatMap((g) => g.items.map((x) => ({ t: g.t, x })));
+
+  // ================= storage =================
+  const KEY = 'nkt.v1', AKEY = 'nkt.active';
+  const DEFAULT_PT = 'HongCam CamFit';
+  const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 }, settings: { rest: 90, ptName: DEFAULT_PT } });
+  let storageOk = true;
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) { const d = Object.assign(blank(), JSON.parse(raw)); d.settings = Object.assign(blank().settings, d.settings); return d; }
+    } catch { storageOk = false; }
+    return blank();
+  }
+  let D = load();
+  let A = (() => { try { return JSON.parse(localStorage.getItem(AKEY) || 'null'); } catch { return null; } })();
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(D)); storageOk = true; }
+    catch { storageOk = false; toast('Không lưu được: bộ nhớ trình duyệt đầy hoặc bị chặn. Hãy tải tệp sao lưu.'); }
+  }
+  let saveATimer;
+  function saveActive(now) {
+    clearTimeout(saveATimer);
+    const go = () => { try { A ? localStorage.setItem(AKEY, JSON.stringify(A)) : localStorage.removeItem(AKEY); } catch { /* ignore */ } };
+    now ? go() : (saveATimer = setTimeout(go, 400));
+  }
+
+  const allEx = () => LIB.concat(D.custom);
+  const exById = (id) => allEx().find((e) => e.id === id) || { id, name: id, group: 'core', type: 'reps', inc: 0, steps: [], mistakes: [], equip: '' };
+  const unit = (t) => ({ weight: 'lần', reps: 'lần', time: 'giây', min: 'phút' }[t]);
+  const targetText = (type, sets, reps, kg) => `${sets}×${reps}${type === 'time' ? 's' : type === 'min' ? ' phút' : ''}${kg ? ` @ ${fmt(kg)} kg` : ''}`;
+  const workoutsDesc = () => [...D.workouts].sort((a, b) => (b.date + b.startedAt).localeCompare(a.date + a.startedAt));
+
+  // ================= coaching logic =================
+  function lastPerf(exId, beforeId) {
+    for (const w of workoutsDesc()) {
+      if (w.id === beforeId) continue;
+      const it = w.items.find((i) => i.ex === exId);
+      const done = it && it.sets.filter((s) => s.done);
+      if (done && done.length) return { date: w.date, sets: done };
+    }
+    return null;
+  }
+  function suggest(exId, target) {
+    const ex = exById(exId);
+    const last = lastPerf(exId);
+    if (!last) {
+      return { kg: null, reps: target, why: ex.type === 'weight'
+        ? `Lần đầu: chọn mức tạ làm được ${target} lần mà vẫn đúng kỹ thuật và còn dư 2–3 lần.`
+        : 'Lần đầu: tập đúng kỹ thuật là chính, chưa cần cố.' };
+    }
+    const lastTxt = 'Lần trước ' + last.sets.map((s) => (ex.type === 'weight' ? `${fmt(s.kg)}×${s.reps}` : `${s.reps}${ex.type === 'time' ? 's' : ''}`)).join(', ');
+    const allHit = last.sets.every((s) => (s.reps || 0) >= target);
+    if (ex.type === 'weight') {
+      const top = Math.max(...last.sets.map((s) => s.kg || 0));
+      if (allHit && top) return { kg: top + ex.inc, reps: target, why: `${lastTxt}. Đủ ${target} lần mọi hiệp → thử ${fmt(top + ex.inc)} kg.` };
+      return { kg: top || null, reps: target, why: `${lastTxt}. Giữ ${fmt(top)} kg, cố đạt đủ ${target} lần mỗi hiệp.` };
+    }
+    const best = Math.max(...last.sets.map((s) => s.reps || 0));
+    const step = ex.type === 'time' ? 5 : ex.type === 'min' ? 2 : 1;
+    if (allHit) return { kg: null, reps: Math.max(target, best) + step, why: `${lastTxt}. Làm tốt → thử ${Math.max(target, best) + step}${ex.type === 'time' ? ' giây' : ex.type === 'min' ? ' phút' : ' lần'}.` };
+    return { kg: null, reps: target, why: `${lastTxt}. Mục tiêu hôm nay: đủ ${target}${ex.type === 'time' ? ' giây' : ' '+unit(ex.type)} mỗi hiệp.` };
+  }
+  function buildItem(spec) {
+    const ex = exById(spec.ex);
+    const sg = suggest(spec.ex, spec.reps);
+    const kg = spec.kg && !sg.kg ? spec.kg : sg.kg;
+    return {
+      ex: spec.ex, cue: spec.cue || '', why: sg.why, target: { sets: spec.sets, reps: spec.reps },
+      sets: Array.from({ length: spec.sets || 3 }, () => ({ kg: ex.type === 'weight' ? kg : null, reps: sg.reps, done: false })),
+      note: '',
+    };
+  }
+  function startWorkout(title, specs, source) {
+    if (A) { toast('Bạn đang có một buổi tập dở. Kết thúc hoặc huỷ buổi đó trước.'); go('workout'); return; }
+    A = { id: uid('w'), title, source, startedAt: new Date().toISOString(), items: specs.map(buildItem) };
+    saveActive(true);
+    requestWake();
+    go('workout');
+  }
+
+  // ================= rest timer & feedback =================
+  let rest = null; // {end, total}
+  let audio;
+  function beep() {
+    try {
+      audio ??= new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.25, 0.5].forEach((t) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        o.frequency.value = 880; g.gain.value = 0.15; o.connect(g); g.connect(audio.destination);
+        o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.15);
+      });
+    } catch { /* sound optional */ }
+    try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch { /* optional */ }
+  }
+  function startRest(sec) { rest = { end: Date.now() + sec * 1000, total: sec }; tick(); }
+  let wakeLock = null;
+  async function requestWake() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch { wakeLock = null; } }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && A) requestWake(); });
+
+  function tick() {
+    if (S.view !== 'workout' || !A) return;
+    const el = $('#elapsed');
+    if (el) el.textContent = mmss((Date.now() - new Date(A.startedAt)) / 1000);
+    const r = $('#rest');
+    if (rest) {
+      const left = Math.max(0, (rest.end - Date.now()) / 1000);
+      r.classList.remove('idle');
+      $('#restTime').textContent = left > 0 ? mmss(Math.ceil(left)) : 'Vào hiệp!';
+      $('#restBar').style.width = `${100 - (left / rest.total) * 100}%`;
+      $('#restBtns').hidden = left <= 0;
+      if (left <= 0 && !rest.fired) { rest.fired = true; beep(); setTimeout(() => { if (rest && rest.fired) { rest = null; tick(); } }, 4000); }
+    } else {
+      r.classList.add('idle');
+      $('#restTime').textContent = `Nghỉ ${D.settings.rest} giây sau mỗi hiệp`;
+      $('#restBar').style.width = '0';
+      $('#restBtns').hidden = true;
+    }
+  }
+  setInterval(tick, 250);
+
+  // ================= UI primitives =================
+  const S = { view: 'home', libGroup: 'all', libQuery: '', progEx: null, logFilter: 'all', openTips: new Set() };
+  document.addEventListener('toggle', (e) => {
+    const d = e.target;
+    if (d && d.matches && d.matches('details[data-tip]')) d.open ? S.openTips.add(d.dataset.tip) : S.openTips.delete(d.dataset.tip);
+  }, true);
+  let toastT;
+  function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 3200); }
+  function openSheet(html, mount) { $('#sheetBody').innerHTML = html; $('#sheet').hidden = false; document.body.style.overflow = 'hidden'; mount && mount($('#sheetBody')); }
+  function closeSheet() { $('#sheet').hidden = true; $('#sheetBody').innerHTML = ''; if ($('#picker').hidden) document.body.style.overflow = ''; }
+  function closePicker() { $('#picker').hidden = true; $('#pickerBody').innerHTML = ''; if ($('#sheet').hidden) document.body.style.overflow = ''; }
+  const sheetHead = (title) => `<div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" type="button" data-act="close-sheet" aria-label="Đóng">×</button></div>`;
+
+  function header(eyebrow, title, action, back) {
+    $('#hEyebrow').textContent = eyebrow; $('#hTitle').textContent = title;
+    $('#hAction').innerHTML = action || ''; $('#backBtn').hidden = !back;
+  }
+  function go(v) { if (location.hash !== '#' + v) location.hash = v; else render(); }
+  window.addEventListener('hashchange', () => { closeSheet(); closePicker(); window.scrollTo(0, 0); render(); });
+
+  function render() {
+    let v = location.hash.slice(1) || 'home';
+    if (!['home', 'log', 'progress', 'library', 'workout'].includes(v)) v = 'home';
+    if (v === 'workout' && !A) v = 'home';
+    S.view = v;
+    const inWorkout = v === 'workout';
+    $('#tabbar').hidden = inWorkout; $('#dock').hidden = !inWorkout;
+    $('#view').classList.toggle('workout', inWorkout);
+    ['home', 'log', 'progress', 'library'].forEach((k) => $('#t-' + k).setAttribute('aria-current', k === v ? 'page' : 'false'));
+    ({ home: drawHome, log: drawLog, progress: drawProgress, library: drawLibrary, workout: drawWorkout })[v]($('#view'));
+    tick();
+  }
+  const gear = `<button class="icon-btn" data-act="settings" aria-label="Cài đặt và sao lưu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>`;
+
+  // ================= HOME =================
+  function drawHome(v) {
+    const t = today();
+    header(fmtLong(t), 'Hôm nay tập gì?', gear, false);
+    const prog = PROGRAMS.find((p) => p.id === D.program.id) || PROGRAMS[0];
+    const day = prog.days[D.program.next % prog.days.length];
+    const progCount = D.workouts.filter((w) => w.source && w.source.type === 'program' && w.source.programId === prog.id).length;
+    const ws = weekStart(t);
+    const trained = new Set(D.workouts.map((w) => w.date));
+    const weekCount = D.workouts.filter((w) => w.date >= ws && w.date <= addDays(ws, 6)).length;
+    const pts = [...D.pt].sort((a, b) => b.date.localeCompare(a.date));
+
+    v.innerHTML = `
+      ${!storageOk ? '<div class="empty"><p>Trình duyệt đang chặn bộ nhớ (chế độ ẩn danh?). Dữ liệu sẽ mất khi đóng trang.</p></div>' : ''}
+      ${A ? `<button class="card" data-act="nav" data-to="workout" style="border-color:var(--accent)">
+          <div class="row between"><span class="chip accent">Đang tập</span><span class="muted small num">bắt đầu ${new Date(A.startedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span></div>
+          <div class="card-title">Tiếp tục: ${esc(A.title)}</div></button>` : ''}
+      <section>
+        <div class="row between"><h2>Tuần này</h2><span class="muted small num">${weekCount} buổi</span></div>
+        <div class="week">${Array.from({ length: 7 }, (_, i) => { const d = addDays(ws, i); return `<div class="d ${trained.has(d) ? 'on' : ''} ${d === t ? 'today' : ''}">${DOW[parse(d).getDay()]}<b>${parse(d).getDate()}</b></div>`; }).join('')}</div>
+      </section>
+      <div class="hero">
+        <div class="eyebrow">${esc(prog.name)} · buổi ${progCount + 1}</div>
+        <div class="big">${esc(day.name)}</div>
+        <ol>${day.items.map(([id, s, r]) => { const e = exById(id); return `<li>${esc(e.name)} <span class="meta">${targetText(e.type, s, r)}</span></li>`; }).join('')}</ol>
+        <button class="btn primary" data-act="start-program">Bắt đầu ${esc(day.name)}</button>
+        <div class="row"><button class="btn sm ghost" style="color:inherit;border-color:color-mix(in srgb, var(--bg) 30%, transparent)" data-act="program-info">Xem giáo án</button></div>
+      </div>
+      <section>
+        <div class="row between"><div><h2>Bài PT đã dạy</h2><div class="sub">PT ${esc(D.settings.ptName || DEFAULT_PT)}</div></div><button class="btn sm" data-act="pt-new">+ Ghi buổi PT</button></div>
+        ${pts.length ? `<div class="list">${pts.map((p) => `
+          <div class="card">
+            <button type="button" data-act="pt-edit" data-id="${esc(p.id)}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:4px">
+              <div class="row between"><span class="card-title">${esc(p.title || 'Buổi với PT')}</span><span class="muted small">${esc(fmtShort(p.date))}</span></div>
+              ${p.coach ? `<div class="sub">với PT ${esc(p.coach)}</div>` : ''}
+              <div class="sub">${esc(p.items.map((i) => exById(i.ex).name).join(' · '))}</div>
+              ${p.note ? `<div class="sub">PT dặn: ${esc(p.note)}</div>` : ''}
+            </button>
+            <button class="btn sm primary" data-act="pt-start" data-id="${esc(p.id)}">Tự tập lại buổi này</button>
+          </div>`).join('')}</div>`
+          : '<div class="empty"><p>Sau mỗi buổi với PT, chọn các bài PT vừa dạy và ghi lời dặn. Lần sau bạn có thể tự tập lại đúng buổi đó, với mức tạ được gợi ý.</p><button class="btn primary" data-act="pt-new">+ Ghi buổi PT đầu tiên</button></div>'}
+      </section>
+      ${(() => { const n = Math.floor(parse(t).getTime() / 86400000); const tip = ALL_TIPS[n % ALL_TIPS.length]; return `
+      <div class="tip-day">
+        <span class="tip-label">Mẹo hôm nay · ${esc(tip.t)}</span>
+        <p>${esc(tip.x)}</p>
+        <div><button class="btn sm" data-act="guide">Cẩm nang mẹo tập</button></div>
+      </div>`; })()}
+      <section>
+        <h2>Buổi tự chọn</h2>
+        <button class="btn block" data-act="start-free">Bắt đầu buổi trống và tự thêm bài</button>
+      </section>`;
+  }
+
+  // ================= WORKOUT =================
+  function drawWorkout(v) {
+    header(A.title, '', `<button class="btn sm" data-act="add-ex">+ Bài</button>`, false);
+    $('#hTitle').innerHTML = `<span id="elapsed" class="num">0:00</span>`;
+    const doneSets = A.items.reduce((n, it) => n + it.sets.filter((s) => s.done).length, 0);
+    const allSets = A.items.reduce((n, it) => n + it.sets.length, 0);
+    v.innerHTML = `
+      <div class="row between"><span class="muted small num">${doneSets}/${allSets} hiệp đã xong</span><button class="btn sm ghost" data-act="cancel-workout">Huỷ buổi</button></div>
+      <div id="cancelBox"></div>
+      ${A.items.map((it, i) => {
+        const ex = exById(it.ex);
+        const one = ex.type !== 'weight';
+        const complete = it.sets.length && it.sets.every((s) => s.done);
+        return `<div class="ex-card ${complete ? 'complete' : ''}">
+          <div class="ex-head">
+            <div class="t">
+              <button class="ex-name" data-act="ex-info" data-id="${esc(it.ex)}">${esc(ex.name)}</button>
+              <div class="sub">${GROUPS[ex.group] || ''} · mục tiêu ${targetText(ex.type, it.target.sets, it.target.reps)}</div>
+            </div>
+            <button class="rm" data-act="rm-ex" data-i="${i}" aria-label="Bỏ bài ${esc(ex.name)}">×</button>
+          </div>
+          ${it.cue ? `<div class="hint pt">PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn: ${esc(it.cue)}</div>` : ''}
+          ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
+            ${tp.cues.length > 1 ? `<ul>${tp.cues.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
+            <div><span class="tip-label">Hít thở</span><br>${esc(tp.breath)}</div>
+            ${ex.type !== 'min' ? `<div><span class="tip-label">Gồng core</span><br>${esc(BRACE)}</div>` : ''}
+          </div></details>`; })()}
+          ${it.why ? `<div class="hint">${esc(it.why)}</div>` : ''}
+          <div class="sets">
+            <div class="set ${one ? 'one' : ''} set-head"><span style="text-align:center">Hiệp</span>${one ? '' : '<span style="text-align:center">kg</span>'}<span style="text-align:center">${unit(ex.type)}</span><span></span></div>
+            ${it.sets.map((s, j) => `
+              <div class="set ${one ? 'one' : ''} ${s.done ? 'done' : ''}">
+                <span class="idx">${j + 1}</span>
+                ${one ? '' : `<input id="kg-${i}-${j}" inputmode="decimal" data-i="${i}" data-s="${j}" data-f="kg" value="${s.kg ?? ''}" placeholder="kg" aria-label="Kg hiệp ${j + 1}">`}
+                <input id="rp-${i}-${j}" inputmode="numeric" data-i="${i}" data-s="${j}" data-f="reps" value="${s.reps ?? ''}" placeholder="${unit(ex.type)}" aria-label="${unit(ex.type)} hiệp ${j + 1}">
+                <button class="check" data-act="toggle-set" data-i="${i}" data-s="${j}" aria-label="Hoàn thành hiệp ${j + 1}" aria-pressed="${s.done}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                </button>
+              </div>`).join('')}
+          </div>
+          <div class="ex-foot">
+            <button class="btn sm" data-act="add-set" data-i="${i}">+ Hiệp</button>
+            ${it.sets.length > 1 ? `<button class="btn sm ghost" data-act="rm-set" data-i="${i}">− Hiệp</button>` : ''}
+          </div>
+          <input class="note-in" id="note-${i}" data-i="${i}" data-f="note" value="${esc(it.note)}" placeholder="Ghi chú bài này (cảm giác, kỹ thuật cần sửa…)" aria-label="Ghi chú ${esc(ex.name)}">
+        </div>`;
+      }).join('')}
+      ${A.items.length ? '' : '<div class="empty"><p>Chưa có bài nào. Bấm "+ Bài" để chọn từ thư viện.</p></div>'}
+      <button class="btn block" data-act="add-ex">+ Thêm bài tập</button>`;
+  }
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!A || S.view !== 'workout' || el.dataset.i == null) return;
+    const it = A.items[Number(el.dataset.i)];
+    if (!it) return;
+    if (el.dataset.f === 'note') it.note = el.value;
+    else it.sets[Number(el.dataset.s)][el.dataset.f] = num(el.value);
+    saveActive();
+  });
+
+  function finishSheet() {
+    const done = A.items.reduce((n, it) => n + it.sets.filter((s) => s.done).length, 0);
+    let feeling = null;
+    const FEEL = ['Rất mệt', 'Mệt', 'Ổn', 'Tốt', 'Rất tốt'];
+    openSheet(`${sheetHead('Kết thúc buổi tập')}
+      <div class="muted">${done} hiệp đã hoàn thành · ${mmss((Date.now() - new Date(A.startedAt)) / 1000)} phút</div>
+      ${done ? '' : '<div class="confirm">Chưa có hiệp nào được tick hoàn thành. Bạn có thể quay lại tick, hoặc huỷ buổi này.</div>'}
+      <section><h3>Hôm nay thấy thế nào?</h3>
+        <div class="scale" id="feel">${FEEL.map((l, i) => `<button type="button" data-v="${i + 1}" aria-pressed="false"><b>${i + 1}</b>${l}</button>`).join('')}</div></section>
+      <label class="f">Nhật ký: điều làm tốt, điều cần cải thiện lần sau<textarea id="fNote" placeholder="VD: Squat hiệp cuối gối hơi đổ vào, lần sau giảm tốc độ xuống. Ngủ ít nên hơi đuối."></textarea></label>
+      <button class="btn primary block" id="fSave" ${done ? '' : 'disabled'}>Lưu vào nhật ký</button>
+      <button class="btn block" data-act="close-sheet">Tập tiếp</button>`, (root) => {
+      $('#feel', root).addEventListener('click', (e) => {
+        const b = e.target.closest('[data-v]'); if (!b) return;
+        feeling = Number(b.dataset.v);
+        $$('#feel button', root).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      });
+      $('#fSave', root).addEventListener('click', () => {
+        const items = A.items.map((it) => ({ ex: it.ex, cue: it.cue, target: it.target, note: it.note.trim(), sets: it.sets.filter((s) => s.done).map((s) => ({ kg: s.kg, reps: s.reps, done: true })) }))
+          .filter((it) => it.sets.length || it.note);
+        const w = { id: A.id, title: A.title, source: A.source, date: iso(new Date(A.startedAt)), startedAt: A.startedAt,
+          minutes: Math.max(1, Math.round((Date.now() - new Date(A.startedAt)) / 60000)), feeling, note: $('#fNote', root).value.trim(), items };
+        D.workouts.push(w);
+        if (A.source && A.source.type === 'program' && A.source.programId === D.program.id) {
+          const p = PROGRAMS.find((x) => x.id === D.program.id);
+          D.program.next = (A.source.day + 1) % p.days.length;
+        }
+        save();
+        A = null; rest = null; saveActive(true);
+        try { wakeLock && wakeLock.release(); } catch { /* ignore */ }
+        closeSheet(); toast('Đã lưu buổi tập vào nhật ký');
+        go('log');
+      });
+    });
+  }
+
+  // ================= PICKER (exercise library multi/single select) =================
+  function openPicker({ title, multi, selected = [], onDone }) {
+    const sel = new Set(selected);
+    let group = 'all', q = '';
+    const body = $('#pickerBody');
+    const drawList = () => {
+      const items = allEx().filter((e) => (group === 'all' || e.group === group) && (!q || e.name.toLowerCase().includes(q.toLowerCase())));
+      $('#pickList', body).innerHTML = items.map((e) => `
+        <button class="pick" type="button" data-id="${esc(e.id)}" aria-pressed="${sel.has(e.id)}">
+          <span class="box">${sel.has(e.id) ? '✓' : ''}</span>
+          <span class="grow"><span class="card-title" style="font-size:15px">${esc(e.name)}</span><br><span class="sub">${GROUPS[e.group]} · ${esc(e.equip || '')}</span></span>
+        </button>`).join('') || '<p class="muted">Không tìm thấy. Thêm bài riêng ở tab Thư viện.</p>';
+      const cnt = $('#pickCount', body); if (cnt) cnt.textContent = sel.size ? `Thêm ${sel.size} bài` : 'Chọn bài';
+    };
+    body.innerHTML = `<div class="sheet-head"><h2>${esc(title)}</h2><button class="icon-btn" type="button" data-act="close-picker" aria-label="Đóng">×</button></div>
+      <input class="search" id="pickQ" type="search" placeholder="Tìm bài (VD: squat, đẩy ngực)" aria-label="Tìm bài tập">
+      <div class="chips-scroll" id="pickG">${[['all', 'Tất cả'], ...Object.entries(GROUPS)].map(([k, l]) => `<button type="button" data-g="${k}" aria-pressed="${k === 'all'}">${l}</button>`).join('')}</div>
+      <div class="list" id="pickList"></div>
+      ${multi ? '<button class="btn primary block" id="pickCount" type="button" style="position:sticky;bottom:0">Chọn bài</button>' : ''}`;
+    $('#picker').hidden = false; document.body.style.overflow = 'hidden';
+    drawList();
+    $('#pickQ', body).addEventListener('input', (e) => { q = e.target.value.trim(); drawList(); });
+    $('#pickG', body).addEventListener('click', (e) => {
+      const b = e.target.closest('[data-g]'); if (!b) return; group = b.dataset.g;
+      $$('#pickG button', body).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); drawList();
+    });
+    $('#pickList', body).addEventListener('click', (e) => {
+      const b = e.target.closest('[data-id]'); if (!b) return;
+      if (!multi) { closePicker(); onDone([b.dataset.id]); return; }
+      sel.has(b.dataset.id) ? sel.delete(b.dataset.id) : sel.add(b.dataset.id); drawList();
+    });
+    if (multi) $('#pickCount', body).addEventListener('click', () => { const ids = [...sel]; closePicker(); onDone(ids); });
+  }
+
+  // ================= PT SESSION =================
+  function ptSheet(p) {
+    const isNew = !p;
+    const f = p ? JSON.parse(JSON.stringify(p)) : { id: uid('p'), date: today(), title: '', coach: D.settings.ptName || DEFAULT_PT, note: '', items: [] };
+    if (!f.coach) f.coach = D.settings.ptName || DEFAULT_PT;
+    openSheet(`${sheetHead(isNew ? 'Ghi buổi tập với PT' : 'Buổi tập với PT')}
+      <div class="f2">
+        <label class="f">Ngày<input id="pDate" type="date" value="${esc(f.date)}"></label>
+        <label class="f">Tên PT<input id="pCoach" maxlength="60" value="${esc(f.coach)}" placeholder="VD: anh Tuấn"></label>
+      </div>
+      <label class="f">Tên buổi<input id="pTitle" maxlength="80" value="${esc(f.title)}" placeholder="VD: Ngực + tay sau"></label>
+      <section><div class="row between"><h3>Các bài PT đã dạy</h3><span class="muted small">hiệp × lần @ kg</span></div>
+        <div class="list" id="pItems"></div>
+        <button class="btn block" type="button" id="pAdd">+ Chọn bài từ thư viện</button></section>
+      <label class="f">PT dặn chung (dinh dưỡng, lịch tập, lưu ý)<textarea id="pNote" maxlength="2000">${esc(f.note)}</textarea></label>
+      <button class="btn primary block" id="pSave">Lưu buổi PT</button>
+      ${isNew ? '' : '<button class="btn block" id="pStart">Tự tập lại buổi này</button><button class="btn danger block" id="pDel">Xoá</button><div id="pConfirm"></div>'}`, (root) => {
+      const sync = () => {
+        f.items = $$('.plan-item', root).map((r, i) => ({ ...f.items[i], sets: num($('[data-k=sets]', r).value) || 3, reps: num($('[data-k=reps]', r).value) || 10, kg: num(($('[data-k=kg]', r) || {}).value), cue: $('[data-k=cue]', r).value.trim() }));
+      };
+      const drawItems = () => {
+        $('#pItems', root).innerHTML = f.items.map((it, i) => {
+          const ex = exById(it.ex);
+          return `<div class="plan-item">
+            <div class="row between" style="flex-wrap:nowrap"><b style="overflow-wrap:anywhere">${esc(ex.name)}</b><button class="rm" type="button" data-rm="${i}" aria-label="Bỏ ${esc(ex.name)}">×</button></div>
+            <div class="f3">
+              <label class="mini">Hiệp<input id="pi-s-${i}" data-k="sets" inputmode="numeric" value="${it.sets ?? 3}"></label>
+              <label class="mini">${ex.type === 'time' ? 'Giây' : ex.type === 'min' ? 'Phút' : 'Lần'}<input id="pi-r-${i}" data-k="reps" inputmode="numeric" value="${it.reps ?? 10}"></label>
+              ${ex.type === 'weight' ? `<label class="mini">Kg<input id="pi-k-${i}" data-k="kg" inputmode="decimal" value="${it.kg ?? ''}"></label>` : '<span></span>'}
+            </div>
+            <input class="cue" id="pi-c-${i}" data-k="cue" maxlength="300" value="${esc(it.cue || '')}" placeholder="PT dặn gì ở bài này? (VD: siết mông ở trên)" aria-label="Lời dặn của PT">
+          </div>`;
+        }).join('') || '<p class="muted small" style="margin:0">Chưa chọn bài nào.</p>';
+      };
+      drawItems();
+      $('#pItems', root).addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (!b) return; sync(); f.items.splice(Number(b.dataset.rm), 1); drawItems(); });
+      $('#pAdd', root).addEventListener('click', () => {
+        sync();
+        openPicker({ title: 'Bài PT đã dạy', multi: true, selected: [], onDone: (ids) => {
+          ids.forEach((id) => { const ex = exById(id); f.items.push({ ex: id, sets: ex.type === 'min' ? 1 : 3, reps: ex.type === 'time' ? 30 : ex.type === 'min' ? 10 : 10, kg: null, cue: '' }); });
+          drawItems();
+        } });
+      });
+      const collect = () => { sync(); return { ...f, date: $('#pDate', root).value || today(), coach: $('#pCoach', root).value.trim(), title: $('#pTitle', root).value.trim(), note: $('#pNote', root).value.trim() }; };
+      $('#pSave', root).addEventListener('click', () => {
+        const data = collect();
+        if (!data.items.length) { toast('Chọn ít nhất một bài PT đã dạy.'); return; }
+        const i = D.pt.findIndex((x) => x.id === data.id);
+        i >= 0 ? (D.pt[i] = data) : D.pt.push(data);
+        if (data.coach) D.settings.ptName = data.coach;
+        save(); closeSheet(); toast('Đã lưu buổi PT'); render();
+      });
+      const st = $('#pStart', root);
+      if (st) st.addEventListener('click', () => { const data = collect(); closeSheet(); startPt(data); });
+      const del = $('#pDel', root);
+      if (del) del.addEventListener('click', () => {
+        $('#pConfirm', root).innerHTML = `<div class="confirm">Xoá buổi PT này? Các buổi bạn đã tập vẫn còn trong nhật ký.<div class="row"><button class="btn sm danger solid" id="pDelYes">Xoá</button><button class="btn sm" id="pDelNo">Huỷ</button></div></div>`;
+        $('#pDelNo', root).onclick = () => ($('#pConfirm', root).innerHTML = '');
+        $('#pDelYes', root).onclick = () => { D.pt = D.pt.filter((x) => x.id !== f.id); save(); closeSheet(); toast('Đã xoá'); render(); };
+      });
+    });
+  }
+  function startPt(p) {
+    startWorkout(p.title || `Bài PT ${fmtShort(p.date)}`, p.items.map((i) => ({ ex: i.ex, sets: i.sets || 3, reps: i.reps || 10, kg: i.kg, cue: i.cue })), { type: 'pt', id: p.id });
+    if (A && A.source && A.source.id === p.id) { A.coach = p.coach || D.settings.ptName || DEFAULT_PT; saveActive(true); render(); }
+  }
+
+  // ================= LOG =================
+  function drawLog(v) {
+    header('Nhật ký', 'Hành trình của bạn', `<button class="btn sm primary" data-act="journal-new">+ Ghi chú</button>`, false);
+    const days = new Map();
+    const add = (d, item) => { if (!days.has(d)) days.set(d, []); days.get(d).push(item); };
+    if (S.logFilter !== 'journal') D.workouts.forEach((w) => add(w.date, { kind: 'w', w }));
+    if (S.logFilter !== 'workout') D.journal.forEach((j) => add(j.date, { kind: 'j', j }));
+    const keys = [...days.keys()].sort().reverse();
+    const FEEL = ['', 'Rất mệt', 'Mệt', 'Ổn', 'Tốt', 'Rất tốt'];
+    v.innerHTML = `
+      <div class="seg" role="group" aria-label="Lọc">${[['all', 'Tất cả'], ['workout', 'Buổi tập'], ['journal', 'Ghi chú ngày']].map(([k, l]) => `<button data-act="log-filter" data-f="${k}" aria-pressed="${S.logFilter === k}">${l}</button>`).join('')}</div>
+      ${keys.length ? keys.map((d) => `<section><div class="day-label">${esc(fmtLong(d))}</div><div class="list">${days.get(d).map((x) => {
+        if (x.kind === 'w') {
+          const w = x.w;
+          const sets = w.items.reduce((n, i) => n + i.sets.length, 0);
+          const vol = w.items.reduce((n, i) => n + i.sets.reduce((m, s) => m + (s.kg || 0) * (s.reps || 0), 0), 0);
+          return `<button class="card" data-act="w-open" data-id="${esc(w.id)}">
+            <div class="row between"><span class="card-title">${esc(w.title)}</span>${w.feeling ? `<span class="chip ${w.feeling >= 4 ? 'good' : w.feeling <= 2 ? 'warn' : 'info'}">${FEEL[w.feeling]}</span>` : ''}</div>
+            <div class="sub num">${w.minutes} phút · ${w.items.length} bài · ${sets} hiệp${vol ? ` · ${fmt(vol / 1000, 2)} tấn` : ''}</div>
+            ${w.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${esc(w.note)}</div>` : ''}
+          </button>`;
+        }
+        const j = x.j;
+        return `<button class="card" data-act="journal-edit" data-id="${esc(j.id)}">
+          <div class="row"><span class="chip">Ghi chú ngày</span>${j.weight ? `<span class="chip info num">${fmt(j.weight)} kg</span>` : ''}${j.sleep ? `<span class="chip num">Ngủ ${fmt(j.sleep)} giờ</span>` : ''}${j.energy ? `<span class="chip num">Năng lượng ${j.energy}/5</span>` : ''}</div>
+          ${j.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${esc(j.note)}</div>` : ''}
+        </button>`;
+      }).join('')}</div></section>`).join('')
+      : '<div class="empty"><h3>Nhật ký còn trống</h3><p>Mỗi buổi tập bạn kết thúc sẽ được lưu ở đây cùng cảm nhận và điều cần cải thiện. Bạn cũng có thể ghi cân nặng, giấc ngủ, năng lượng mỗi ngày.</p></div>'}`;
+  }
+  function workoutSheet(w) {
+    const FEEL = ['', 'Rất mệt', 'Mệt', 'Ổn', 'Tốt', 'Rất tốt'];
+    openSheet(`${sheetHead(w.title)}
+      <div class="muted small">${esc(fmtLong(w.date))} · ${w.minutes} phút${w.feeling ? ' · ' + FEEL[w.feeling] : ''}</div>
+      <div class="list">${w.items.map((it) => {
+        const ex = exById(it.ex);
+        return `<div class="card"><b>${esc(ex.name)}</b>
+          <div class="num" style="font-size:14px">${it.sets.map((s, i) => `Hiệp ${i + 1}: ${ex.type === 'weight' ? `${fmt(s.kg)} kg × ${s.reps}` : `${s.reps} ${unit(ex.type)}`}`).join('<br>')}</div>
+          ${it.note ? `<div class="sub">Ghi chú: ${esc(it.note)}</div>` : ''}</div>`;
+      }).join('')}</div>
+      <label class="f">Nhật ký buổi này<textarea id="wNote">${esc(w.note)}</textarea></label>
+      <button class="btn primary block" id="wSave">Lưu nhật ký</button>
+      <button class="btn block" id="wAgain">Tập lại buổi này</button>
+      <button class="btn danger block" id="wDel">Xoá buổi tập</button><div id="wConfirm"></div>`, (root) => {
+      $('#wSave', root).onclick = () => { w.note = $('#wNote', root).value.trim(); save(); closeSheet(); toast('Đã lưu'); render(); };
+      $('#wAgain', root).onclick = () => { closeSheet(); startWorkout(w.title, w.items.map((i) => ({ ex: i.ex, sets: i.target?.sets || i.sets.length || 3, reps: i.target?.reps || (i.sets[0] || {}).reps || 10, cue: i.cue })), { type: 'repeat', id: w.id }); };
+      $('#wDel', root).onclick = () => {
+        $('#wConfirm', root).innerHTML = `<div class="confirm">Xoá buổi tập này khỏi nhật ký? Không thể hoàn tác.<div class="row"><button class="btn sm danger solid" id="wDelYes">Xoá</button><button class="btn sm" id="wDelNo">Huỷ</button></div></div>`;
+        $('#wDelNo', root).onclick = () => ($('#wConfirm', root).innerHTML = '');
+        $('#wDelYes', root).onclick = () => { D.workouts = D.workouts.filter((x) => x.id !== w.id); save(); closeSheet(); toast('Đã xoá'); render(); };
+      };
+    });
+  }
+  function journalSheet(j) {
+    const isNew = !j;
+    const f = j ? { ...j } : { id: uid('j'), date: today(), weight: null, sleep: null, energy: null, note: '' };
+    openSheet(`${sheetHead(isNew ? 'Ghi chú ngày' : 'Sửa ghi chú')}
+      <label class="f">Ngày<input id="jDate" type="date" value="${esc(f.date)}"></label>
+      <div class="f2"><label class="f">Cân nặng (kg)<input id="jW" inputmode="decimal" value="${f.weight ?? ''}"></label><label class="f">Ngủ (giờ)<input id="jS" inputmode="decimal" value="${f.sleep ?? ''}"></label></div>
+      <section><h3>Năng lượng</h3><div class="scale" id="jE">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-v="${n}" aria-pressed="${f.energy === n}"><b>${n}</b></button>`).join('')}</div></section>
+      <label class="f">Ghi chú (ăn uống, đau mỏi, mục tiêu tuần…)<textarea id="jN">${esc(f.note)}</textarea></label>
+      <button class="btn primary block" id="jSave">Lưu</button>
+      ${isNew ? '' : '<button class="btn danger block" id="jDel">Xoá ghi chú</button>'}`, (root) => {
+      $('#jE', root).onclick = (e) => { const b = e.target.closest('[data-v]'); if (!b) return; f.energy = f.energy === Number(b.dataset.v) ? null : Number(b.dataset.v); $$('#jE button', root).forEach((x) => x.setAttribute('aria-pressed', String(Number(x.dataset.v) === f.energy))); };
+      $('#jSave', root).onclick = () => {
+        const data = { ...f, date: $('#jDate', root).value || today(), weight: num($('#jW', root).value), sleep: num($('#jS', root).value), note: $('#jN', root).value.trim() };
+        if (data.weight == null && data.sleep == null && data.energy == null && !data.note) { toast('Nhập ít nhất một thông tin.'); return; }
+        const i = D.journal.findIndex((x) => x.id === data.id); i >= 0 ? (D.journal[i] = data) : D.journal.push(data);
+        save(); closeSheet(); toast('Đã lưu ghi chú'); render();
+      };
+      const del = $('#jDel', root); if (del) del.onclick = () => { D.journal = D.journal.filter((x) => x.id !== f.id); save(); closeSheet(); toast('Đã xoá'); render(); };
+    });
+  }
+
+  // ================= PROGRESS =================
+  function lineChart(points, label, unitTxt) {
+    if (points.length < 2) return `<div class="empty"><p>Cần ít nhất 2 lần ghi để vẽ biểu đồ ${esc(label)}.</p></div>`;
+    const W = 340, H = 170, L = 38, R = 12, T = 14, B = 26;
+    const ys = points.map((p) => p.v);
+    let lo = Math.min(...ys), hi = Math.max(...ys);
+    if (hi - lo < 1) { lo -= 1; hi += 1; }
+    const pd = (hi - lo) * 0.12; lo -= pd; hi += pd;
+    const x = (i) => L + (points.length === 1 ? 0.5 : i / (points.length - 1)) * (W - L - R);
+    const y = (val) => T + (1 - (val - lo) / (hi - lo)) * (H - T - B);
+    const ticks = [lo + (hi - lo) * 0.15, (lo + hi) / 2, hi - (hi - lo) * 0.15];
+    const d = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join('');
+    const last = points[points.length - 1];
+    return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ ${esc(label)}">
+      ${ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="var(--line)"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${fmt(t)}</text>`).join('')}
+      <path d="${d}L${x(points.length - 1).toFixed(1)},${H - B}L${x(0)},${H - B}Z" fill="var(--accent)" fill-opacity=".1"/>
+      <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+      ${points.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="var(--accent)"/>`).join('')}
+      <circle cx="${x(points.length - 1).toFixed(1)}" cy="${y(last.v).toFixed(1)}" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+      <text x="${L}" y="${H - 6}">${esc(fmtShort(points[0].d))}</text>
+      <text x="${W - R}" y="${H - 6}" text-anchor="end">${esc(fmtShort(last.d))} · ${fmt(last.v)} ${esc(unitTxt)}</text>
+    </svg></div>`;
+  }
+  function drawProgress(v) {
+    header('Tiến bộ', 'Bạn đã mạnh hơn', '', false);
+    const t = today();
+    const month = t.slice(0, 7);
+    const monthCount = D.workouts.filter((w) => w.date.startsWith(month)).length;
+    let streak = 0; let wk = weekStart(t);
+    const weeks = new Set(D.workouts.map((w) => weekStart(w.date)));
+    if (!weeks.has(wk)) wk = addDays(wk, -7);
+    while (weeks.has(wk)) { streak++; wk = addDays(wk, -7); }
+    const vol30 = D.workouts.filter((w) => w.date > addDays(t, -30)).reduce((n, w) => n + w.items.reduce((m, i) => m + i.sets.reduce((k, s) => k + (s.kg || 0) * (s.reps || 0), 0), 0), 0);
+
+    const used = [...new Set(D.workouts.flatMap((w) => w.items.map((i) => i.ex)))].map(exById).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+    if (!S.progEx || !used.some((e) => e.id === S.progEx)) S.progEx = used[0] ? used[0].id : null;
+    let exBlock = '<div class="empty"><p>Tập vài buổi để thấy biểu đồ sức mạnh của từng bài.</p></div>';
+    if (S.progEx) {
+      const ex = exById(S.progEx);
+      const rows = [...D.workouts].sort((a, b) => a.date.localeCompare(b.date)).map((w) => {
+        const it = w.items.find((i) => i.ex === ex.id); if (!it || !it.sets.length) return null;
+        const best = ex.type === 'weight' ? Math.max(...it.sets.map((s) => s.kg || 0)) : Math.max(...it.sets.map((s) => s.reps || 0));
+        const er = ex.type === 'weight' ? Math.max(...it.sets.map((s) => e1rm(s.kg, s.reps))) : 0;
+        const bestSet = ex.type === 'weight' ? it.sets.reduce((a, s) => ((s.kg || 0) > (a.kg || 0) ? s : a), it.sets[0]) : null;
+        return { d: w.date, v: best, er, bestSet };
+      }).filter(Boolean);
+      const pr = rows.reduce((a, r) => (r.v > (a ? a.v : -1) ? r : a), null);
+      const prE = rows.reduce((a, r) => Math.max(a, r.er), 0);
+      exBlock = `
+        <label class="f">Chọn bài<select id="progSel">${used.map((e) => `<option value="${esc(e.id)}" ${e.id === S.progEx ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}</select></label>
+        ${lineChart(rows, ex.type === 'weight' ? 'mức tạ cao nhất' : unit(ex.type), ex.type === 'weight' ? 'kg' : unit(ex.type))}
+        <div class="stats">
+          <div class="stat"><span class="v">${pr ? fmt(pr.v) : '–'}</span><span class="k">Kỷ lục ${ex.type === 'weight' ? '(kg)' : '(' + unit(ex.type) + ')'}${pr ? ' · ' + esc(fmtShort(pr.d)) : ''}</span></div>
+          <div class="stat"><span class="v">${prE ? fmt(prE, 0) : '–'}</span><span class="k">1RM ước tính (kg)</span></div>
+          <div class="stat"><span class="v">${rows.length}</span><span class="k">Lần đã tập</span></div>
+        </div>`;
+    }
+    const bw = [...D.journal].filter((j) => j.weight).sort((a, b) => a.date.localeCompare(b.date)).map((j) => ({ d: j.date, v: j.weight }));
+    v.innerHTML = `
+      <div class="stats">
+        <div class="stat"><span class="v">${monthCount}</span><span class="k">Buổi tháng này</span></div>
+        <div class="stat"><span class="v">${streak}</span><span class="k">Tuần liên tiếp có tập</span></div>
+        <div class="stat"><span class="v">${fmt(vol30 / 1000, 1)}</span><span class="k">Tấn đã nâng 30 ngày</span></div>
+      </div>
+      <section><h2>Sức mạnh theo bài</h2>${exBlock}</section>
+      <section><div class="row between"><h2>Cân nặng</h2><button class="btn sm" data-act="journal-new">+ Ghi cân nặng</button></div>${lineChart(bw, 'cân nặng', 'kg')}</section>
+      <section><h2>Tính 1RM</h2>
+        <div class="card">
+          <div class="f2"><label class="f">Mức tạ (kg)<input id="rmKg" inputmode="decimal" placeholder="VD: 40"></label><label class="f">Số lần làm được<input id="rmReps" inputmode="numeric" placeholder="VD: 8"></label></div>
+          <div id="rmOut" class="sub">Nhập mức tạ và số lần để ước tính mức tạ tối đa làm được 1 lần (công thức Epley). Người mới không nên thử 1RM thật.</div>
+        </div>
+      </section>`;
+    const sel = $('#progSel'); if (sel) sel.onchange = () => { S.progEx = sel.value; render(); };
+    const calc = () => {
+      const kg = num($('#rmKg').value), r = num($('#rmReps').value);
+      if (!kg || !r) return;
+      const one = kg * (1 + r / 30);
+      $('#rmOut').innerHTML = `<div class="num" style="font-size:15px;color:var(--ink)">1RM ước tính: <b>${fmt(one)} kg</b></div>
+        <table class="t"><thead><tr><th>Mục tiêu</th><th class="r">% 1RM</th><th class="r">Mức tạ</th></tr></thead><tbody>
+        ${[['Sức mạnh 3–5 lần', 0.85], ['Tăng cơ 8–12 lần', 0.72], ['Sức bền 15+ lần', 0.6]].map(([l, p]) => `<tr><td>${l}</td><td class="r">${Math.round(p * 100)}%</td><td class="r">${fmt(Math.round(one * p * 2) / 2)} kg</td></tr>`).join('')}
+        </tbody></table>`;
+    };
+    $('#rmKg').oninput = calc; $('#rmReps').oninput = calc;
+  }
+
+  // ================= LIBRARY =================
+  function drawLibrary(v) {
+    header(`${allEx().length} bài tập`, 'Thư viện bài tập', `<button class="btn sm primary" data-act="custom-new">+ Bài riêng</button>`, false);
+    const items = allEx().filter((e) => (S.libGroup === 'all' || e.group === S.libGroup) && (!S.libQuery || e.name.toLowerCase().includes(S.libQuery.toLowerCase())));
+    v.innerHTML = `
+      <input class="search" id="libQ" type="search" value="${esc(S.libQuery)}" placeholder="Tìm bài tập" aria-label="Tìm bài tập">
+      <div class="chips-scroll">${[['all', 'Tất cả'], ...Object.entries(GROUPS)].map(([k, l]) => `<button data-act="lib-group" data-g="${k}" aria-pressed="${S.libGroup === k}">${l}</button>`).join('')}</div>
+      <button class="card" data-act="guide" style="background:var(--good-bg);border-color:transparent">
+        <span class="tip-label">Cẩm nang</span>
+        <span class="card-title">Mẹo tập cho người mới</span>
+        <span class="sub" style="color:var(--ink)">Hít thở, gồng core, gối theo mũi chân, cùi chỏ dẫn đường, khởi động, tăng tạ an toàn</span>
+      </button>
+      <div class="list" id="libList">${items.map((e) => `<button class="card" data-act="ex-info" data-id="${esc(e.id)}">
+        <div class="row between"><span class="card-title">${esc(e.name)}</span>${e.custom ? '<span class="chip">Bài riêng</span>' : `<span class="chip">${GROUPS[e.group]}</span>`}</div>
+        <div class="sub">${esc(e.equip || '')}${e.steps && e.steps[0] ? ' · ' + esc(e.steps[0]) : ''}</div></button>`).join('') || '<p class="muted">Không tìm thấy bài nào.</p>'}</div>`;
+    const q = $('#libQ');
+    q.oninput = () => { S.libQuery = q.value.trim(); const pos = q.selectionStart; render(); const n = $('#libQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch { /* ignore */ } };
+  }
+  function exInfoSheet(id) {
+    const e = exById(id);
+    const last = lastPerf(id);
+    const tp = tipsFor(e);
+    openSheet(`${sheetHead(e.name)}
+      <div class="row"><span class="chip accent">${GROUPS[e.group] || ''}</span>${e.equip ? `<span class="chip">${esc(e.equip)}</span>` : ''}<span class="chip">${e.type === 'weight' ? 'kg × lần' : unit(e.type)}</span></div>
+      ${tp.cues.length ? `<section><h3>Câu nhắc khi tập</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
+      <section><h3>Hít thở</h3><p style="margin:0">${esc(tp.breath)}</p></section>
+      ${e.type !== 'min' ? `<section><h3>Gồng core</h3><p style="margin:0">${esc(BRACE)}</p></section>` : ''}
+      ${e.steps && e.steps.length ? `<section><h3>Cách tập</h3><ol class="steps">${e.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></section>` : ''}
+      ${e.mistakes && e.mistakes.length ? `<section><h3>Lỗi hay gặp</h3><ul class="steps">${e.mistakes.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></section>` : ''}
+      <section><h3>Lần tập gần nhất</h3><div class="sub">${last ? esc(fmtShort(last.date)) + ': ' + last.sets.map((s) => (e.type === 'weight' ? `${fmt(s.kg)} kg × ${s.reps}` : `${s.reps} ${unit(e.type)}`)).join(', ') : 'Chưa tập bài này.'}</div></section>
+      <div class="sub">Đau nhói (không phải mỏi cơ) thì dừng lại và hỏi PT. <button class="btn sm ghost" data-act="guide">Xem cẩm nang mẹo tập</button></div>
+      ${A && S.view === 'workout' ? '' : `<button class="btn primary block" id="exStart">Tập riêng bài này</button>`}
+      ${e.custom ? '<button class="btn danger block" id="exDel">Xoá bài riêng</button>' : ''}`, (root) => {
+      const st = $('#exStart', root);
+      if (st) st.onclick = () => { closeSheet(); startWorkout(e.name, [{ ex: e.id, sets: e.type === 'min' ? 1 : 3, reps: e.type === 'time' ? 30 : e.type === 'min' ? 10 : 10 }], { type: 'free' }); };
+      const del = $('#exDel', root);
+      if (del) del.onclick = () => { D.custom = D.custom.filter((x) => x.id !== e.id); save(); closeSheet(); toast('Đã xoá bài'); render(); };
+    });
+  }
+  function guideSheet() {
+    openSheet(`${sheetHead('Mẹo tập cho người mới')}
+      <div class="seg" id="gNav" role="group" aria-label="Chủ đề" style="grid-auto-flow:row;grid-template-columns:repeat(2,1fr)">${GUIDE.map((g, i) => `<button type="button" data-g="${i}" aria-pressed="false">${esc(g.t)}</button>`).join('')}</div>
+      ${GUIDE.map((g, i) => `<section class="guide-sec" id="g-${i}"><h2>${esc(g.t)}</h2><ul>${g.items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>`).join('')}
+      <p class="sub" style="margin:0">Mẹo cho từng bài: bấm tên bài trong buổi tập hoặc trong Thư viện.</p>`, (root) => {
+      $('#gNav', root).onclick = (e) => { const b = e.target.closest('[data-g]'); if (!b) return; const s = $('#g-' + b.dataset.g, root); s && s.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    });
+  }
+  function customSheet() {
+    openSheet(`${sheetHead('Thêm bài riêng')}
+      <label class="f">Tên bài<input id="cxName" maxlength="80" placeholder="VD: Bulgarian Split Squat"></label>
+      <div class="f2">
+        <label class="f">Nhóm cơ<select id="cxGroup">${Object.entries(GROUPS).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></label>
+        <label class="f">Cách ghi<select id="cxType"><option value="weight">kg × lần</option><option value="reps">Số lần</option><option value="time">Giây</option><option value="min">Phút</option></select></label>
+      </div>
+      <label class="f">Dụng cụ<input id="cxEquip" maxlength="60" placeholder="VD: Tạ đơn + ghế"></label>
+      <label class="f">Cách tập (mỗi dòng một bước)<textarea id="cxSteps"></textarea></label>
+      <button class="btn primary block" id="cxSave">Thêm vào thư viện</button>`, (root) => {
+      $('#cxSave', root).onclick = () => {
+        const name = $('#cxName', root).value.trim();
+        if (!name) { toast('Nhập tên bài.'); return; }
+        const type = $('#cxType', root).value;
+        D.custom.push({ id: uid('x'), custom: true, name, group: $('#cxGroup', root).value, type, inc: type === 'weight' ? 2.5 : 0, equip: $('#cxEquip', root).value.trim(), steps: $('#cxSteps', root).value.split('\n').map((s) => s.trim()).filter(Boolean), mistakes: [] });
+        save(); closeSheet(); toast('Đã thêm bài'); render();
+      };
+    });
+  }
+
+  // ================= SETTINGS / BACKUP =================
+  function settingsSheet() {
+    openSheet(`${sheetHead('Cài đặt & sao lưu')}
+      <section><h3>Giáo án đang theo</h3>
+        <div class="list">${PROGRAMS.map((p) => `<button class="pick" type="button" data-prog="${p.id}" aria-pressed="${D.program.id === p.id}"><span class="box">${D.program.id === p.id ? '✓' : ''}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="sub">${esc(p.desc)}</span></span></button>`).join('')}</div></section>
+      <section><h3>Thời gian nghỉ giữa hiệp</h3>
+        <div class="seg" id="restSeg">${[60, 90, 120, 180].map((s) => `<button type="button" data-s="${s}" aria-pressed="${D.settings.rest === s}">${s}s</button>`).join('')}</div></section>
+      <section><h3>Sao lưu</h3>
+        <p class="sub" style="margin:0">Dữ liệu nằm trong trình duyệt của điện thoại này. Tải tệp sao lưu mỗi tuần và cất lên Drive/Zalo để không mất khi đổi máy.</p>
+        <div class="row"><button class="btn sm" id="bExport">Tải tệp sao lưu</button><label class="btn sm" style="position:relative;overflow:hidden">Khôi phục từ tệp<input id="bImport" type="file" accept="application/json,.json" style="position:absolute;inset:0;opacity:0"></label></div></section>
+      <section><h3>Xoá toàn bộ dữ liệu</h3><button class="btn danger" id="bWipe">Xoá hết nhật ký</button><div id="bConfirm"></div></section>`, (root) => {
+      root.addEventListener('click', (e) => {
+        const p = e.target.closest('[data-prog]');
+        if (p && p.dataset.prog !== D.program.id) { D.program = { id: p.dataset.prog, next: 0 }; save(); settingsSheet(); render(); toast('Đã đổi giáo án'); }
+        const r = e.target.closest('#restSeg [data-s]');
+        if (r) { D.settings.rest = Number(r.dataset.s); save(); $$('#restSeg button', root).forEach((x) => x.setAttribute('aria-pressed', String(x === r))); }
+      });
+      $('#bExport', root).onclick = () => {
+        const blob = new Blob([JSON.stringify({ app: 'nhat-ky-tap', version: 1, exportedAt: new Date().toISOString(), data: D }, null, 1)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `nhat-ky-tap-${today()}.json`;
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        toast('Đã tạo tệp sao lưu');
+      };
+      $('#bImport', root).onchange = async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        try {
+          const j = JSON.parse(await file.text());
+          if (j.app !== 'nhat-ky-tap' || !j.data) throw new Error('bad');
+          const merge = (a, b) => { const m = new Map(a.map((x) => [x.id, x])); b.forEach((x) => m.set(x.id, x)); return [...m.values()]; };
+          D.workouts = merge(D.workouts, j.data.workouts || []); D.pt = merge(D.pt, j.data.pt || []);
+          D.journal = merge(D.journal, j.data.journal || []); D.custom = merge(D.custom, j.data.custom || []);
+          save(); closeSheet(); toast('Đã khôi phục dữ liệu'); render();
+        } catch { toast('Tệp không hợp lệ. Hãy chọn tệp sao lưu của Nhật Ký Tập.'); }
+      };
+      $('#bWipe', root).onclick = () => {
+        $('#bConfirm', root).innerHTML = `<div class="confirm">Xoá toàn bộ buổi tập, bài PT, ghi chú và bài riêng trên máy này? Không thể hoàn tác (trừ khi bạn có tệp sao lưu).<div class="row"><button class="btn sm danger solid" id="bWipeYes">Xoá hết</button><button class="btn sm" id="bWipeNo">Huỷ</button></div></div>`;
+        $('#bWipeNo', root).onclick = () => ($('#bConfirm', root).innerHTML = '');
+        $('#bWipeYes', root).onclick = () => { D = blank(); A = null; save(); saveActive(true); closeSheet(); toast('Đã xoá dữ liệu'); go('home'); };
+      };
+    });
+  }
+  function programSheet() {
+    const p = PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0];
+    openSheet(`${sheetHead(p.name)}
+      <div class="row"><span class="chip accent">${esc(p.place)}</span><span class="chip">${p.weeks} tuần</span></div>
+      <p style="margin:0">${esc(p.desc)}</p>
+      <div class="hint">Tăng dần: khi làm đủ số lần ở mọi hiệp với đúng kỹ thuật, buổi sau app sẽ gợi ý tăng tạ (hoặc tăng lần/giây). Không đủ thì giữ nguyên mức cũ.</div>
+      ${p.days.map((d, i) => `<section><div class="row between"><h3>${esc(d.name)}${i === D.program.next % p.days.length ? ' <span class="chip accent">buổi tới</span>' : ''}</h3>
+        <button class="btn sm" data-day="${i}">Tập buổi này</button></div>
+        <div class="list">${d.items.map(([id, s, r]) => { const e = exById(id); return `<button class="card" data-act="ex-info" data-id="${esc(id)}" style="padding:10px 12px"><div class="row between"><span>${esc(e.name)}</span><span class="muted small num">${targetText(e.type, s, r)}</span></div></button>`; }).join('')}</div></section>`).join('')}
+      <button class="btn block" data-act="settings">Đổi giáo án khác</button>`, (root) => {
+      root.addEventListener('click', (e) => { const b = e.target.closest('[data-day]'); if (!b) return; closeSheet(); startProgramDay(Number(b.dataset.day)); });
+    });
+  }
+  function startProgramDay(i) {
+    const p = PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0];
+    const d = p.days[i];
+    startWorkout(`${d.name} · ${p.place}`, d.items.map(([ex, sets, reps]) => ({ ex, sets, reps })), { type: 'program', programId: p.id, day: i });
+  }
+
+  // ================= events =================
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]');
+    if (!el) return;
+    const a = el.dataset.act;
+    const id = el.dataset.id;
+    switch (a) {
+      case 'nav': go(el.dataset.to); break;
+      case 'close-sheet': closeSheet(); break;
+      case 'close-picker': closePicker(); break;
+      case 'settings': closeSheet(); settingsSheet(); break;
+      case 'program-info': programSheet(); break;
+      case 'guide': closeSheet(); guideSheet(); break;
+      case 'start-program': startProgramDay(D.program.next % (PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]).days.length); break;
+      case 'start-free': startWorkout(`Buổi tự chọn ${fmtShort(today())}`, [], { type: 'free' }); setTimeout(() => A && !A.items.length && $('[data-act=add-ex]') && $('[data-act=add-ex]').click(), 50); break;
+      case 'pt-new': ptSheet(null); break;
+      case 'pt-edit': ptSheet(D.pt.find((p) => p.id === id)); break;
+      case 'pt-start': { const p = D.pt.find((x) => x.id === id); if (p) startPt(p); break; }
+      case 'ex-info': exInfoSheet(id); break;
+      case 'lib-group': S.libGroup = el.dataset.g; render(); break;
+      case 'custom-new': customSheet(); break;
+      case 'log-filter': S.logFilter = el.dataset.f; render(); break;
+      case 'w-open': { const w = D.workouts.find((x) => x.id === id); if (w) workoutSheet(w); break; }
+      case 'journal-new': journalSheet(null); break;
+      case 'journal-edit': journalSheet(D.journal.find((x) => x.id === id)); break;
+      // workout
+      case 'toggle-set': {
+        const it = A.items[Number(el.dataset.i)], s = it.sets[Number(el.dataset.s)];
+        const ex = exById(it.ex);
+        if (!s.done && s.reps == null) { toast('Nhập số ' + unit(ex.type) + ' trước khi tick.'); break; }
+        if (!s.done && ex.type === 'weight' && s.kg == null) { toast('Nhập mức tạ (kg) trước khi tick. Tập không tạ thì ghi 0.'); break; }
+        s.done = !s.done;
+        if (s.done) {
+          const nx = it.sets[Number(el.dataset.s) + 1];
+          if (nx && !nx.done) { if (nx.kg == null) nx.kg = s.kg; if (nx.reps == null) nx.reps = s.reps; }
+          startRest(D.settings.rest);
+        }
+        saveActive(); render(); break;
+      }
+      case 'add-set': { const it = A.items[Number(el.dataset.i)]; const l = it.sets[it.sets.length - 1] || {}; it.sets.push({ kg: l.kg ?? null, reps: l.reps ?? it.target.reps, done: false }); saveActive(); render(); break; }
+      case 'rm-set': { const it = A.items[Number(el.dataset.i)]; if (it.sets.length > 1) it.sets.pop(); saveActive(); render(); break; }
+      case 'rm-ex': A.items.splice(Number(el.dataset.i), 1); saveActive(); render(); break;
+      case 'add-ex': openPicker({ title: 'Thêm bài vào buổi', multi: true, onDone: (ids) => { ids.forEach((x) => { const ex = exById(x); A.items.push(buildItem({ ex: x, sets: ex.type === 'min' ? 1 : 3, reps: ex.type === 'time' ? 30 : ex.type === 'min' ? 10 : 10 })); }); saveActive(); render(); } }); break;
+      case 'rest-add': if (rest) { rest.end += Number(el.dataset.s) * 1000; rest.total = Math.max(rest.total, (rest.end - Date.now()) / 1000); rest.fired = false; } tick(); break;
+      case 'rest-skip': rest = null; tick(); break;
+      case 'finish': finishSheet(); break;
+      case 'cancel-workout':
+        $('#cancelBox').innerHTML = `<div class="confirm">Huỷ buổi này? Các hiệp đã ghi sẽ không được lưu.<div class="row"><button class="btn sm danger solid" id="cYes">Huỷ buổi</button><button class="btn sm" id="cNo">Tập tiếp</button></div></div>`;
+        $('#cNo').onclick = () => ($('#cancelBox').innerHTML = '');
+        $('#cYes').onclick = () => { A = null; rest = null; saveActive(true); toast('Đã huỷ buổi tập'); go('home'); };
+        break;
+    }
+  });
+  $('#backBtn').addEventListener('click', () => history.back());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$('#picker').hidden) closePicker(); else if (!$('#sheet').hidden) closeSheet(); } });
+
+  render();
+})();
+</script>

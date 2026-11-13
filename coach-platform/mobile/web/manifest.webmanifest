@@ -1,0 +1,18 @@
+{
+  "name": "Sổ HLV 1-1",
+  "short_name": "Sổ HLV",
+  "description": "Lịch tập, set/reps/kg, ảnh và video tiến bộ cho học viên kèm 1-1",
+  "lang": "vi",
+  "start_url": "./#today",
+  "display": "standalone",
+  "background_color": "#EDF0EE",
+  "theme_color": "#1F5BD8",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

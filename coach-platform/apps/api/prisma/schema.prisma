@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  COACH
+  TRAINEE
+}
+
+enum TraineeStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum AssignmentStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+}
+
+enum MediaStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+  DELETED
+}
+
+enum AttachmentEntity {
+  ASSIGNMENT
+  ASSIGNMENT_ITEM
+  CHECKIN
+  FEEDBACK
+}
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  timezone  String   @default("Asia/Ho_Chi_Minh")
+  createdAt DateTime @default(now()) @map("created_at")
+  users     User[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  orgId        String   @map("org_id") @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         Role
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  org            Organization     @relation(fields: [orgId], references: [id])
+  traineeProfile TraineeProfile?  @relation("TraineeUser")
+  coachOf        TraineeProfile[] @relation("CoachTrainees")
+  refreshTokens  RefreshToken[]
+
+  @@index([orgId, role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  familyId  String    @map("family_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  userAgent String?   @map("user_agent")
+  ip        String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model TraineeProfile {
+  userId    String        @id @map("user_id") @db.Uuid
+  orgId     String        @map("org_id") @db.Uuid
+  coachId   String        @map("coach_id") @db.Uuid
+  goal      String?
+  startDate DateTime      @map("start_date") @db.Date
+  heightCm  Decimal?      @map("height_cm") @db.Decimal(5, 1)
+  birthYear Int?          @map("birth_year")
+  notes     String?
+  status    TraineeStatus @default(ACTIVE)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user        User            @relation("TraineeUser", fields: [userId], references: [id], onDelete: Cascade)
+  coach       User            @relation("CoachTrainees", fields: [coachId], references: [id])
+  assignments Assignment[]
+  checkins    DailyCheckin[]
+  metrics     BodyMetric[]
+  logs        ExerciseLog[]
+
+  @@index([coachId, status])
+  @@index([orgId])
+  @@map("trainee_profiles")
+}
+
+model Exercise {
+  id             String   @id @default(uuid()) @db.Uuid
+  orgId          String   @map("org_id") @db.Uuid
+  createdById    String   @map("created_by_id") @db.Uuid
+  name           String
+  category       String
+  description    String?
+  /// Các trường cần ghi khi tập: reps, weight_kg, duration_sec, distance_m
+  trackingFields String[] @map("tracking_fields")
+  demoMediaId    String?  @map("demo_media_id") @db.Uuid
+  isArchived     Boolean  @default(false) @map("is_archived")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  items AssignmentItem[]
+
+  @@unique([orgId, name])
+  @@index([orgId, category])
+  @@map("exercises")
+}
+
+model Assignment {
+  id          String           @id @default(uuid()) @db.Uuid
+  orgId       String           @map("org_id") @db.Uuid
+  traineeId   String           @map("trainee_id") @db.Uuid
+  coachId     String           @map("coach_id") @db.Uuid
+  date        DateTime         @db.Date
+  title       String
+  notes       String?
+  status      AssignmentStatus @default(PLANNED)
+  completedAt DateTime?        @map("completed_at")
+  version     Int              @default(1)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  trainee  TraineeProfile   @relation(fields: [traineeId], references: [userId], onDelete: Cascade)
+  items    AssignmentItem[]
+  feedback Feedback[]
+
+  @@index([traineeId, date])
+  @@index([coachId, date, status])
+  @@map("assignments")
+}
+
+model AssignmentItem {
+  id                String   @id @default(uuid()) @db.Uuid
+  assignmentId      String   @map("assignment_id") @db.Uuid
+  exerciseId        String   @map("exercise_id") @db.Uuid
+  position          Int
+  targetSets        Int?     @map("target_sets")
+  targetReps        Int?     @map("target_reps")
+  targetWeightKg    Decimal? @map("target_weight_kg") @db.Decimal(6, 2)
+  targetDurationSec Int?     @map("target_duration_sec")
+  targetDistanceM   Int?     @map("target_distance_m")
+  instructions      String?
+
+  assignment Assignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  exercise   Exercise      @relation(fields: [exerciseId], references: [id])
+  logs       ExerciseLog[]
+
+  @@index([assignmentId, position])
+  @@index([exerciseId])
+  @@map("assignment_items")
+}
+
+model ExerciseLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  assignmentItemId String   @map("assignment_item_id") @db.Uuid
+  traineeId        String   @map("trainee_id") @db.Uuid
+  setIndex         Int      @map("set_index")
+  reps             Int?
+  weightKg         Decimal? @map("weight_kg") @db.Decimal(6, 2)
+  durationSec      Int?     @map("duration_sec")
+  distanceM        Int?     @map("distance_m")
+  rpe              Int?
+  note             String?
+  loggedAt         DateTime @default(now()) @map("logged_at")
+
+  item    AssignmentItem @relation(fields: [assignmentItemId], references: [id], onDelete: Cascade)
+  trainee TraineeProfile @relation(fields: [traineeId], references: [userId], onDelete: Cascade)
+
+  @@unique([assignmentItemId, setIndex])
+  @@index([traineeId, loggedAt])
+  @@map("exercise_logs")
+}
+
+model Feedback {
+  id           String   @id @default(uuid()) @db.Uuid
+  assignmentId String   @map("assignment_id") @db.Uuid
+  authorId     String   @map("author_id") @db.Uuid
+  body         String
+  rating       Int?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId, createdAt])
+  @@map("feedback")
+}
+
+model DailyCheckin {
+  id         String   @id @default(uuid()) @db.Uuid
+  traineeId  String   @map("trainee_id") @db.Uuid
+  date       DateTime @db.Date
+  mood       Int?
+  energy     Int?
+  soreness   Int?
+  sleepHours Decimal? @map("sleep_hours") @db.Decimal(3, 1)
+  note       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  trainee TraineeProfile @relation(fields: [traineeId], references: [userId], onDelete: Cascade)
+
+  @@unique([traineeId, date])
+  @@map("daily_checkins")
+}
+
+model BodyMetric {
+  id         String   @id @default(uuid()) @db.Uuid
+  traineeId  String   @map("trainee_id") @db.Uuid
+  metricKey  String   @map("metric_key")
+  value      Decimal  @db.Decimal(8, 2)
+  unit       String
+  measuredOn DateTime @map("measured_on") @db.Date
+  recordedBy String   @map("recorded_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  trainee TraineeProfile @relation(fields: [traineeId], references: [userId], onDelete: Cascade)
+
+  @@unique([traineeId, metricKey, measuredOn])
+  @@index([traineeId, metricKey, measuredOn])
+  @@map("body_metrics")
+}
+
+model Media {
+  id             String      @id @default(uuid()) @db.Uuid
+  orgId          String      @map("org_id") @db.Uuid
+  uploaderId     String      @map("uploader_id") @db.Uuid
+  /// Học viên mà media thuộc về (chủ thể dữ liệu)
+  traineeId      String?     @map("trainee_id") @db.Uuid
+  kind           MediaKind
+  status         MediaStatus @default(PENDING_UPLOAD)
+  mimeType       String      @map("mime_type")
+  sizeBytes      BigInt      @map("size_bytes")
+  storageKey     String      @unique @map("storage_key")
+  multipartId    String?     @map("multipart_id")
+  width          Int?
+  height         Int?
+  durationSec    Decimal?    @map("duration_sec") @db.Decimal(8, 2)
+  thumbnailKey   String?     @map("thumbnail_key")
+  playbackKey    String?     @map("playback_key")
+  errorMessage   String?     @map("error_message")
+  takenAt        DateTime?   @map("taken_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  attachments MediaAttachment[]
+
+  @@index([traineeId, createdAt])
+  @@index([status, createdAt])
+  @@map("media")
+}
+
+model MediaAttachment {
+  mediaId    String           @map("media_id") @db.Uuid
+  entityType AttachmentEntity @map("entity_type")
+  entityId   String           @map("entity_id") @db.Uuid
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@map("media_attachments")
+}
+
+/// Transactional outbox: sự kiện ghi cùng transaction với dữ liệu nghiệp vụ
+model OutboxEvent {
+  id          BigInt    @id @default(autoincrement())
+  type        String
+  payload     Json
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@index([processedAt, id])
+  @@map("outbox_events")
+}

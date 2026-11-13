@@ -1,0 +1,18 @@
+{
+  "name": "Nhật Ký Tập Gym",
+  "short_name": "Nhật ký tập",
+  "description": "Tập theo giáo án người mới, tự tập lại bài PT đã dạy và ghi nhật ký tiến bộ",
+  "lang": "vi",
+  "start_url": "./#today",
+  "display": "standalone",
+  "background_color": "#F1F3F6",
+  "theme_color": "#E8541F",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

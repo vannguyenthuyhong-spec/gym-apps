@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gym apps · HongCam CamFit</title>
+<style>
+:root { --bg: #F1F3F6; --surface: #fff; --ink: #121826; --muted: #5D6677; --line: #D7DCE4; --accent: #E8541F; --blue: #1F5BD8; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0D1119; --surface: #171D29; --ink: #E9EDF4; --muted: #97A1B3; --line: #2A3344; --accent: #FF7A45; --blue: #78A2FF; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 560px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 14px; }
+h1 { margin: 8px 0 0; font-size: 28px; line-height: 1.15; }
+p { margin: 0; color: var(--muted); }
+a.app { display: flex; flex-direction: column; gap: 4px; padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+a.app b { font-size: 19px; }
+a.app span { color: var(--muted); font-size: 14px; }
+a.app i { font-style: normal; font-weight: 600; font-size: 14px; }
+.t { border-left: 5px solid var(--accent); } .t i { color: var(--accent); }
+.c { border-left: 5px solid var(--blue); } .c i { color: var(--blue); }
+small { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Gym apps</h1>
+  <p>Tập gym kèm 1-1 cùng PT HongCam CamFit. Mở trên điện thoại rồi chọn "Thêm vào màn hình chính" để dùng như app.</p>
+  <a class="app t" href="nhat-ky-tap/web/">
+    <b>Nhật Ký Tập Gym</b>
+    <span>Dành cho người tập: giáo án người mới, tự tập lại bài PT đã dạy, mẹo tư thế, hít thở, gồng core, nhật ký và tiến bộ.</span>
+    <i>Mở app →</i>
+  </a>
+  <a class="app c" href="coach-platform/mobile/web/">
+    <b>Sổ HLV 1-1</b>
+    <span>Dành cho huấn luyện viên: quản lý học viên, lên buổi tập, ghi set/reps/kg, ảnh và video tiến bộ.</span>
+    <i>Mở app →</i>
+  </a>
+  <small>Dữ liệu lưu trên chính điện thoại của bạn. Nhớ sao lưu mỗi tuần trong phần cài đặt của app.</small>
+</main>
+</body>
+</html>

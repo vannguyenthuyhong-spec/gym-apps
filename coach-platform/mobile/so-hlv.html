@@ -1,0 +1,1071 @@
+<title>Sổ HLV 1-1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column phone app — sticky header, scrolling content, fixed bottom tab bar; every form opens as a bottom sheet.
+   Palette borrows bumper-plate colours: blue (20 kg) accent, green/amber for state, on a chalk-grey floor. */
+:root {
+  --bg: #EDF0EE;
+  --surface: #FFFFFF;
+  --surface-2: #E2E8E4;
+  --ink: #14201B;
+  --muted: #5A6A62;
+  --line: #D2DAD5;
+  --accent: #1F5BD8;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E1E9FB;
+  --done: #1D7F47;
+  --done-bg: #DCF1E4;
+  --skip: #9A6512;
+  --skip-bg: #F6EBD3;
+  --danger: #B8312A;
+  --danger-bg: #FBE3E0;
+  --scrim: rgba(10, 16, 13, .45);
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+  --tabbar-h: 64px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1412; --surface: #172019; --surface-2: #212C26; --ink: #E7EEEA; --muted: #95A69D; --line: #2B3832;
+    --accent: #78A2FF; --accent-ink: #0A1530; --accent-soft: #1B2A4C;
+    --done: #59C98A; --done-bg: #15362A; --skip: #E2AE57; --skip-bg: #3A2F17; --danger: #FF8378; --danger-bg: #43201C;
+    --scrim: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1412; --surface: #172019; --surface-2: #212C26; --ink: #E7EEEA; --muted: #95A69D; --line: #2B3832;
+  --accent: #78A2FF; --accent-ink: #0A1530; --accent-soft: #1B2A4C;
+  --done: #59C98A; --done-bg: #15362A; --skip: #E2AE57; --skip-bg: #3A2F17; --danger: #FF8378; --danger-bg: #43201C;
+  --scrim: rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 10px; padding-block: 12px; min-height: 64px; }
+.top-text { flex: 1; min-width: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.05; letter-spacing: .01em; text-wrap: balance; overflow-wrap: anywhere; }
+.icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; flex: none; }
+.icon-btn svg { width: 20px; height: 20px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn.danger.solid { background: var(--danger); color: var(--surface); }
+.btn.small { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+main { padding-block: 16px calc(var(--tabbar-h) + 24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 22px; }
+section { display: flex; flex-direction: column; gap: 10px; }
+h2 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 19px; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Cards & lists */
+.list { display: flex; flex-direction: column; gap: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 6px; text-align: left; width: 100%; min-width: 0; }
+button.card:active { transform: scale(.99); }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.card-title { font-weight: 600; font-size: 16px; min-width: 0; overflow-wrap: anywhere; }
+.card-sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.ex-line { font-size: 14px; color: var(--ink); overflow-wrap: anywhere; }
+.ex-line .done-mark { color: var(--done); font-weight: 600; }
+
+.pill { flex: none; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.planned { background: var(--accent-soft); color: var(--accent); }
+.pill.done { background: var(--done-bg); color: var(--done); }
+.pill.skipped { background: var(--skip-bg); color: var(--skip); }
+.pill.overdue { background: var(--danger-bg); color: var(--danger); }
+
+.client-row { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 18px; flex: none; }
+.client-row .grow { flex: 1; min-width: 0; }
+
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 22px 18px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.empty h3 { margin: 0; font-family: var(--font-display); font-size: 22px; }
+.empty p { margin: 0; color: var(--muted); max-width: 46ch; }
+.banner { border-radius: 12px; padding: 10px 14px; background: var(--skip-bg); color: var(--skip); font-size: 14px; }
+.example-tag { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--skip); background: var(--skip-bg); padding: 2px 7px; border-radius: 6px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.stat .v.up { color: var(--danger); } .stat .v.down { color: var(--done); }
+
+/* Segmented control */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; border-radius: 9px; min-height: 38px; font-size: 14px; font-weight: 600; color: var(--muted); padding: 0 6px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+/* Chart */
+.chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 12px 6px; }
+.chart-card svg { display: block; width: 100%; height: auto; }
+.chart-card text { fill: var(--muted); font-size: 11px; font-family: var(--font-body); }
+
+table.rec { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.rec td, table.rec th { padding: 8px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+table.rec th { font-weight: 500; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+table.rec td.r, table.rec th.r { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Media */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.thumb { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--surface-2); border: 0; padding: 0; }
+.thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .badge { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 6px; }
+.thumb .x { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 16px; line-height: 1; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.compare figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.compare .thumb { aspect-ratio: 3 / 4; }
+.compare figcaption { font-size: 12px; color: var(--muted); }
+
+/* Tab bar */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.tabbar .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; height: var(--tabbar-h); }
+.tabbar button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.tabbar button svg { width: 22px; height: 22px; }
+.tabbar button[aria-current="page"] { color: var(--accent); }
+
+/* Bottom sheet */
+.sheet { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: flex-end; }
+.sheet-scrim { position: absolute; inset: 0; background: var(--scrim); }
+.sheet-panel { position: relative; background: var(--bg); border-radius: 18px 18px 0 0; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 100%; max-width: 640px; margin: 0 auto; }
+.sheet-panel .wrap { padding-block: 8px 8px; display: flex; flex-direction: column; gap: 14px; }
+.grabber { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 8px auto 0; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sheet-head h2 { color: var(--ink); font-size: 22px; text-transform: none; letter-spacing: .01em; }
+
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; color: var(--muted); min-width: 0; }
+.f input, .f select, .f textarea, .ex-row input {
+  width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  padding: 8px 12px; font-size: 16px; color: var(--ink);
+}
+.f textarea { min-height: 84px; resize: vertical; }
+.f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ex-list { display: flex; flex-direction: column; gap: 8px; }
+.ex-row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.ex-row .name { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; }
+.ex-row .name input { flex: 1; font-weight: 600; }
+.ex-row .mini { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); }
+.ex-row .mini input { min-height: 40px; text-align: center; padding: 6px; font-variant-numeric: tabular-nums; }
+.ex-row .tick { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.ex-row .tick input { width: 22px; height: 22px; min-height: 0; accent-color: var(--done); }
+.rm { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 18px; flex: none; }
+.rating { display: flex; gap: 6px; }
+.rating button { flex: 1; min-height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-variant-numeric: tabular-nums; }
+.rating button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.confirm { background: var(--danger-bg); color: var(--danger); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Lightbox & toast */
+.lightbox { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.92); display: flex; align-items: center; justify-content: center; padding: calc(56px + env(safe-area-inset-top, 0px)) 8px calc(16px + env(safe-area-inset-bottom, 0px)); }
+.lightbox img, .lightbox video { max-width: 100%; max-height: 100%; border-radius: 8px; }
+.lightbox .close { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.15); color: #fff; font-size: 22px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <button class="icon-btn" id="backBtn" aria-label="Quay lại" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="top-text">
+      <div class="eyebrow" id="hEyebrow">Sổ HLV 1-1</div>
+      <h1 id="hTitle">Hôm nay</h1>
+    </div>
+    <div id="hAction"></div>
+  </div>
+</header>
+
+<main class="wrap" id="view" aria-live="polite">
+  <div class="empty">
+    <h3>Đang mở sổ…</h3>
+    <p>Lịch tập, học viên và ảnh/video tiến bộ sẽ hiện ở đây.</p>
+  </div>
+</main>
+
+<nav class="tabbar" aria-label="Điều hướng chính">
+  <div class="in">
+    <button id="tabToday" data-act="nav" data-to="today">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+      Hôm nay
+    </button>
+    <button id="tabClients" data-act="nav" data-to="clients">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.7 2.8 2.4 3 5.2"/></svg>
+      Học viên
+    </button>
+  </div>
+</nav>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-scrim" data-act="close-sheet"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true">
+    <div class="grabber"></div>
+    <div class="wrap" id="sheetBody"></div>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+  // ---------- helpers ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const today = () => iso(new Date());
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+  const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+  const DOW_LONG = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const fmtShort = (s) => { const d = parse(s); return `${DOW[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`; };
+  const fmtLong = (s) => { const d = parse(s); return `${DOW_LONG[d.getDay()]}, ${d.getDate()} tháng ${d.getMonth() + 1}`; };
+  const relDay = (s) => {
+    const n = diffDays(s, today());
+    if (n === 0) return 'hôm nay'; if (n === 1) return 'hôm qua'; if (n === -1) return 'ngày mai';
+    return n > 0 ? `${n} ngày trước` : `sau ${-n} ngày`;
+  };
+  const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const num = (v) => { if (v === '' || v == null) return null; const n = Number(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
+  const fmtNum = (n) => (n == null ? '' : (Math.round(n * 10) / 10).toLocaleString('vi-VN'));
+  const initials = (name) => (name || '?').trim().split(/\s+/).slice(-1)[0].slice(0, 1).toUpperCase();
+  // Media URL: claude.ai serves assets at /_blob/<id>; the standalone (Vercel) build keeps blobs in IndexedDB.
+  const urlCache = new Map();
+  const blobUrl = (id) => {
+    if (S.mode === 'cloud') return '/_blob/' + encodeURIComponent(id);
+    const hit = urlCache.get(id);
+    if (hit) return hit;
+    if (!urlCache.has(id)) {
+      urlCache.set(id, '');
+      S.assets && S.assets.get(id).then((rec) => {
+        if (rec) { urlCache.set(id, URL.createObjectURL(rec.blob)); render(); }
+      }, () => {});
+    }
+    return '';
+  };
+
+  const STATUS = { planned: 'Đã lên lịch', done: 'Đã tập', skipped: 'Nghỉ' };
+  const statusPill = (s) => {
+    const overdue = s.status === 'planned' && s.date < today();
+    return overdue ? '<span class="pill overdue">Chưa cập nhật</span>' : `<span class="pill ${esc(s.status)}">${STATUS[s.status] || ''}</span>`;
+  };
+  const exText = (e) => {
+    const parts = [];
+    if (e.sets || e.reps) parts.push(`${e.sets || '?'}×${e.reps || '?'}`);
+    if (e.kg) parts.push(`@ ${fmtNum(e.kg)} kg`);
+    return `${esc(e.name)}${parts.length ? ' ' + parts.join(' ') : ''}`;
+  };
+
+  // ---------- state ----------
+  const S = {
+    mode: 'cloud', db: null, assets: null, readOnly: false, unavailable: null, slow: false, error: null,
+    got: { clients: false, sessions: false, metrics: false },
+    clients: [], sessions: [], metrics: [],
+    route: { name: 'today' }, clientTab: 'plan',
+  };
+  const ready = () => S.got.clients && S.got.sessions && S.got.metrics;
+  const clientById = (id) => S.clients.find((c) => c.id === id);
+  const activeClients = () => S.clients.filter((c) => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  const sessionsOf = (id) => S.sessions.filter((s) => s.clientId === id);
+  const metricsOf = (id) => S.metrics.filter((m) => m.clientId === id).sort((a, b) => a.date.localeCompare(b.date));
+
+  function stats(clientId) {
+    const t = today();
+    const ss = sessionsOf(clientId);
+    const done = ss.filter((s) => s.status === 'done');
+    const recent = ss.filter((s) => s.date <= t && s.date > addDays(t, -30));
+    const due = recent.filter((s) => s.status !== 'planned' || s.date < t);
+    const recentDone = recent.filter((s) => s.status === 'done').length;
+    const lastDone = done.map((s) => s.date).sort().pop() || null;
+    const weights = metricsOf(clientId).filter((m) => m.weight != null);
+    const wChange = weights.length >= 2 ? weights[weights.length - 1].weight - weights[0].weight : null;
+    const records = new Map();
+    for (const s of done) for (const e of s.exercises || []) {
+      if (!e.name || !e.kg) continue;
+      const k = e.name.trim().toLowerCase();
+      const cur = records.get(k);
+      if (!cur || e.kg > cur.kg || (e.kg === cur.kg && s.date < cur.date)) records.set(k, { name: e.name.trim(), kg: e.kg, reps: e.reps, date: s.date });
+    }
+    return {
+      total: done.length,
+      rate: due.length ? Math.round((recentDone / due.length) * 100) : null,
+      lastDone, weights, wChange,
+      records: [...records.values()].sort((a, b) => b.kg - a.kg),
+    };
+  }
+
+  // ---------- data layer ----------
+  function errText(e) {
+    const c = e && e.code;
+    if (c === 'quota_exceeded') return 'Bộ nhớ của sổ đã đầy. Hãy xoá bớt buổi tập hoặc học viên cũ.';
+    if (c === 'invalid_argument') return 'Không lưu được: bạn không có quyền sửa sổ này.';
+    if (c === 'resource_exhausted' || c === 'rate_limited') return 'Thao tác quá nhanh, thử lại sau vài giây.';
+    if (c === 'revoked' || c === 'not_granted') return 'Quyền truy cập sổ đã thay đổi. Hãy tải lại trang.';
+    if (S.mode === 'local') return 'Không lưu được vào bộ nhớ điện thoại. Kiểm tra dung lượng trống rồi thử lại.';
+    return 'Không kết nối được. Kiểm tra mạng rồi thử lại.';
+  }
+  async function write(col, id, data) {
+    if (!S.db) { toast('Sổ chưa sẵn sàng để lưu.'); return false; }
+    const ref = S.db.collection(col).doc(id);
+    try { await ref.set(data); return true; }
+    catch (e) {
+      if (e && e.code === 'unavailable') {
+        await new Promise((r) => setTimeout(r, 600 + Math.random() * 600));
+        try { await ref.set(data); return true; } catch (e2) { toast(errText(e2)); return false; }
+      }
+      if (e && e.code === 'invalid_argument') S.readOnly = true;
+      toast(errText(e)); return false;
+    }
+  }
+  async function remove(col, id) {
+    try { await S.db.collection(col).doc(id).delete(); return true; } catch (e) { toast(errText(e)); return false; }
+  }
+  const clean = (o) => { const r = { ...o }; delete r.id; return r; };
+
+  // ---------- standalone backend (IndexedDB on the phone), same surface as claude.ai db/assets ----------
+  function localBackend() {
+    let dbp;
+    const open = () => (dbp ??= new Promise((res, rej) => {
+      const r = indexedDB.open('so-hlv', 1);
+      r.onupgradeneeded = () => {
+        for (const n of ['clients', 'sessions', 'metrics', 'media']) if (!r.result.objectStoreNames.contains(n)) r.result.createObjectStore(n);
+      };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    }));
+    const run = async (store, mode, fn) => {
+      const d = await open();
+      return new Promise((res, rej) => {
+        const t = d.transaction(store, mode);
+        const req = fn(t.objectStore(store));
+        t.oncomplete = () => res(req ? req.result : undefined);
+        t.onerror = () => rej(t.error);
+        t.onabort = () => rej(t.error);
+      });
+    };
+    const wrapErr = (e) => ({ code: e && e.name === 'QuotaExceededError' ? 'quota_exceeded' : 'unavailable', message: String(e && e.message) });
+    const listeners = new Map();
+    const emit = async (col) => {
+      const rows = await run(col, 'readonly', (st) => st.getAll());
+      const snap = { docs: rows.map((r) => ({ id: r.id, exists: true, data: () => r })), metadata: { fromCache: false, hasPendingWrites: false } };
+      for (const fn of listeners.get(col) || []) fn(snap);
+    };
+    const db = {
+      collection: (col) => ({
+        onSnapshot(next, error) {
+          if (!listeners.has(col)) listeners.set(col, new Set());
+          listeners.get(col).add(next);
+          emit(col).catch((e) => error && error(wrapErr(e)));
+          return () => listeners.get(col).delete(next);
+        },
+        doc: (id) => ({
+          async set(data) { try { await run(col, 'readwrite', (st) => st.put({ ...data, id }, id)); } catch (e) { throw wrapErr(e); } await emit(col); },
+          async delete() { try { await run(col, 'readwrite', (st) => st.delete(id)); } catch (e) { throw wrapErr(e); } await emit(col); },
+        }),
+      }),
+    };
+    const assets = {
+      async upload(blob, opts = {}) {
+        const id = uid('a');
+        try { await run('media', 'readwrite', (st) => st.put({ blob, type: opts.type || blob.type }, id)); }
+        catch (e) { throw { code: e && e.name === 'QuotaExceededError' ? 'quota_or_state' : 'upstream_error' }; }
+        return { id, url: '', sizeBytes: blob.size, contentType: opts.type || blob.type };
+      },
+      get: (id) => run('media', 'readonly', (st) => st.get(id)),
+      async delete(id) { await run('media', 'readwrite', (st) => st.delete(id)); const u = urlCache.get(id); if (u) URL.revokeObjectURL(u); urlCache.delete(id); return { deleted: true }; },
+    };
+    return { db, assets };
+  }
+
+  // ---------- backup (standalone mode only: data lives on this phone) ----------
+  function exportBackup() {
+    const payload = { app: 'so-hlv', version: 1, exportedAt: new Date().toISOString(), clients: S.clients, sessions: S.sessions, metrics: S.metrics };
+    const blob = new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `so-hlv-sao-luu-${today()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('Đã tạo tệp sao lưu (không gồm ảnh/video)');
+  }
+  async function importBackup(file) {
+    let data;
+    try { data = JSON.parse(await file.text()); } catch { toast('Tệp sao lưu không hợp lệ.'); return; }
+    if (!data || data.app !== 'so-hlv') { toast('Đây không phải tệp sao lưu của Sổ HLV.'); return; }
+    let n = 0;
+    for (const col of ['clients', 'sessions', 'metrics']) {
+      for (const row of data[col] || []) {
+        if (!row || !row.id) continue;
+        if (col === 'sessions') row.media = (row.media || []).filter(() => false); // media files are not in the backup
+        if (await write(col, row.id, clean(row))) n += 1;
+      }
+    }
+    toast(`Đã khôi phục ${n} mục`);
+  }
+
+  // ---------- media ----------
+  const MAX_BYTES = 20 * 1024 * 1024;
+  const maxBytes = () => (S.mode === 'local' ? 150 * 1024 * 1024 : MAX_BYTES);
+  async function shrinkImage(file) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('encode'))), 'image/jpeg', 0.85));
+  }
+  function assetErr(e) {
+    const c = e && e.code;
+    if (c === 'too_large') return 'Tệp lớn hơn 20 MB. Hãy quay video ngắn hơn (30–60 giây) hoặc giảm chất lượng quay.';
+    if (c === 'unsupported_type') return 'Định dạng này chưa hỗ trợ. Dùng ảnh JPG/PNG hoặc video MP4.';
+    if (c === 'quota_or_state') return 'Kho ảnh/video của sổ đã đầy. Xoá bớt ảnh/video cũ rồi thử lại.';
+    if (c === 'rate_limited') return 'Tải lên quá nhanh, thử lại sau ít phút.';
+    return 'Tải lên không thành công. Kiểm tra mạng rồi thử lại.';
+  }
+  async function uploadFiles(files, onEach, onProgress) {
+    let i = 0;
+    for (const file of files) {
+      i += 1; onProgress && onProgress(`Đang tải ${i}/${files.length}…`);
+      const isVideo = file.type.startsWith('video/');
+      let blob = file, type = file.type;
+      if (!isVideo) {
+        try { blob = await shrinkImage(file); type = 'image/jpeg'; }
+        catch { if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) { toast('Ảnh này không đọc được (có thể là HEIC). Hãy chọn ảnh JPG.'); continue; } }
+      } else if (type === 'video/quicktime' || !type) {
+        type = 'video/mp4'; // iPhone .mov: same MPEG-4 family; stored and played as mp4
+      }
+      if (blob.size > maxBytes()) { toast(S.mode === 'local' ? 'Video lớn hơn 150 MB. Hãy quay đoạn ngắn hơn.' : assetErr({ code: 'too_large' })); continue; }
+      try {
+        const r = await S.assets.upload(blob, { type });
+        onEach({ id: r.id, kind: isVideo ? 'video' : 'image', at: new Date().toISOString() });
+      } catch (e) { toast(assetErr(e)); }
+    }
+    onProgress && onProgress('');
+  }
+  const mediaThumb = (m, opts = {}) => {
+    const src = blobUrl(m.id);
+    return `
+    <button class="thumb" type="button" data-act="lightbox" data-id="${esc(m.id)}" data-kind="${esc(m.kind)}" aria-label="Xem ${m.kind === 'video' ? 'video' : 'ảnh'}">
+      ${!src ? '' : m.kind === 'video'
+        ? `<video src="${src}#t=0.5" preload="metadata" muted playsinline></video><span class="badge">▶ Video</span>`
+        : `<img src="${src}" alt="" loading="lazy">`}
+      ${opts.caption ? `<span class="badge">${esc(opts.caption)}</span>` : ''}
+    </button>`;
+  };
+
+  // ---------- UI primitives ----------
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+  }
+  let sheetCleanup = null;
+  function openSheet(html, mount) {
+    $('#sheetBody').innerHTML = html;
+    $('#sheet').hidden = false;
+    document.body.style.overflow = 'hidden';
+    sheetCleanup = mount ? mount($('#sheetBody')) : null;
+  }
+  function closeSheet() {
+    $('#sheet').hidden = true; $('#sheetBody').innerHTML = '';
+    document.body.style.overflow = '';
+    if (typeof sheetCleanup === 'function') sheetCleanup();
+    sheetCleanup = null;
+  }
+  function openLightbox(id, kind) {
+    const lb = $('#lightbox');
+    lb.innerHTML = `<button class="close" data-act="close-lightbox" aria-label="Đóng">×</button>` +
+      (kind === 'video' ? `<video src="${blobUrl(id)}" controls autoplay playsinline></video>` : `<img src="${blobUrl(id)}" alt="">`);
+    lb.hidden = false;
+  }
+
+  // ---------- routing ----------
+  function parseHash() {
+    const h = location.hash.slice(1);
+    if (h.startsWith('client-')) return { name: 'client', id: h.slice(7) };
+    if (h === 'clients') return { name: 'clients' };
+    return { name: 'today' };
+  }
+  function go(h) {
+    if (location.hash !== '#' + h) location.hash = h;
+    else { S.route = parseHash(); render(); }
+  }
+  window.addEventListener('hashchange', () => {
+    const prev = S.route;
+    S.route = parseHash();
+    if (S.route.name === 'client' && (prev.name !== 'client' || prev.id !== S.route.id)) S.clientTab = 'plan';
+    closeSheet(); window.scrollTo(0, 0); render();
+  });
+
+  // ---------- views ----------
+  let rafPending = false;
+  function render() {
+    if (rafPending) return; rafPending = true;
+    requestAnimationFrame(() => { rafPending = false; draw(); });
+  }
+  function header(eyebrow, title, actionHtml, back) {
+    $('#hEyebrow').textContent = eyebrow;
+    $('#hTitle').textContent = title;
+    $('#hAction').innerHTML = actionHtml || '';
+    $('#backBtn').hidden = !back;
+  }
+  function notices() {
+    let h = '';
+    if (S.readOnly) h += '<div class="banner">Bạn chỉ xem được sổ này. Chỉ chủ sổ hoặc người được cấp quyền sửa mới thêm và sửa dữ liệu.</div>';
+    if (S.error) h += `<div class="banner">${esc(errText({ code: S.error }))}</div>`;
+    else if (S.slow && !ready()) h += '<div class="banner">Chưa tải được dữ liệu. Kiểm tra kết nối mạng; trang sẽ tự cập nhật khi có mạng.</div>';
+    return h;
+  }
+  const canWrite = () => S.db && !S.readOnly;
+
+  function draw() {
+    $('#tabToday').setAttribute('aria-current', S.route.name === 'today' ? 'page' : 'false');
+    $('#tabClients').setAttribute('aria-current', S.route.name !== 'today' ? 'page' : 'false');
+    const v = $('#view');
+
+    if (S.unavailable) {
+      header('Sổ HLV 1-1', 'Hôm nay', '', false);
+      v.innerHTML = `<div class="empty"><h3>Chưa mở được sổ</h3><p>${esc(S.unavailable)}</p></div>`;
+      return;
+    }
+    if (!ready()) {
+      header('Sổ HLV 1-1', 'Đang tải…', '', S.route.name === 'client');
+      v.innerHTML = notices() + `<div class="empty"><h3>Đang mở sổ…</h3><p>Lịch tập, học viên và ảnh/video tiến bộ sẽ hiện ở đây.</p></div>`;
+      return;
+    }
+    if (S.route.name === 'clients') return drawClients(v);
+    if (S.route.name === 'client') return drawClient(v);
+    return drawToday(v);
+  }
+
+  function sessionCard(s, opts = {}) {
+    const c = clientById(s.clientId);
+    const ex = s.exercises || [];
+    const media = (s.media || []).length;
+    const lines = ex.slice(0, 3).map((e) => `<div class="ex-line">${e.done ? '<span class="done-mark">✓</span> ' : ''}${exText(e)}</div>`).join('');
+    const quick = opts.quick && canWrite() && s.status === 'planned'
+      ? `<div class="row"><button class="btn small" type="button" data-act="quick-done" data-id="${esc(s.id)}">✓ Đánh dấu đã tập</button></div>` : '';
+    return `
+      <div class="card">
+        <button type="button" data-act="open-session" data-id="${esc(s.id)}" style="all:unset;display:flex;flex-direction:column;gap:6px;cursor:pointer">
+          <div class="card-head">
+            <div class="card-title">${opts.showClient ? esc(c ? c.name : 'Học viên đã xoá') : esc(fmtShort(s.date))}</div>
+            ${statusPill(s)}
+          </div>
+          <div class="card-sub">${esc(s.title || 'Buổi tập')}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
+          ${lines}${ex.length > 3 ? `<div class="card-sub">+${ex.length - 3} bài nữa</div>` : ''}
+        </button>
+        ${quick}
+      </div>`;
+  }
+
+  function drawToday(v) {
+    const t = today();
+    header(fmtLong(t), 'Hôm nay', canWrite() && S.clients.length ? `<button class="btn primary small" data-act="new-session">+ Buổi tập</button>` : '', false);
+    const clients = activeClients();
+    if (!clients.length) {
+      v.innerHTML = notices() + `
+        <div class="empty">
+          <h3>Bắt đầu với học viên đầu tiên</h3>
+          <p>Thêm học viên, lên lịch buổi tập, ghi set/reps/kg và lưu ảnh, video để so sánh tiến bộ theo thời gian.</p>
+          ${canWrite() ? '<button class="btn primary" data-act="new-client">+ Thêm học viên</button>' : ''}
+        </div>`;
+      return;
+    }
+    const todays = S.sessions.filter((s) => s.date === t && clientById(s.clientId))
+      .sort((a, b) => (clientById(a.clientId).name).localeCompare(clientById(b.clientId).name, 'vi'));
+    const doneCount = todays.filter((s) => s.status === 'done').length;
+    const withToday = new Set(todays.map((s) => s.clientId));
+    const free = clients.filter((c) => !withToday.has(c.id));
+    const overdue = S.sessions.filter((s) => s.status === 'planned' && s.date < t && s.date >= addDays(t, -7) && clientById(s.clientId))
+      .sort((a, b) => b.date.localeCompare(a.date));
+    const upcoming = S.sessions.filter((s) => s.date > t && s.date <= addDays(t, 7) && clientById(s.clientId))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    v.innerHTML = notices() + `
+      <section>
+        <div class="row between"><h2>Buổi hôm nay</h2><span class="muted small num">${doneCount}/${todays.length} đã tập</span></div>
+        ${todays.length ? `<div class="list">${todays.map((s) => sessionCard(s, { showClient: true, quick: true })).join('')}</div>`
+          : '<div class="empty"><p>Chưa có buổi nào hôm nay. Lên buổi cho học viên ở danh sách bên dưới.</p></div>'}
+      </section>
+      ${overdue.length ? `<section><h2>Cần cập nhật</h2><div class="list">${overdue.map((s) => sessionCard(s, { showClient: true, showDate: true, quick: true })).join('')}</div></section>` : ''}
+      ${free.length ? `<section>
+        <h2>Chưa có lịch hôm nay</h2>
+        <div class="list">${free.map((c) => {
+          const st = stats(c.id);
+          const hasPrev = sessionsOf(c.id).some((s) => (s.exercises || []).length);
+          return `<div class="card"><div class="client-row">
+              <div class="avatar">${esc(initials(c.name))}</div>
+              <div class="grow"><div class="card-title">${esc(c.name)}</div>
+                <div class="card-sub">${st.lastDone ? 'Tập lần cuối ' + relDay(st.lastDone) : 'Chưa có buổi đã tập'}</div></div>
+            </div>
+            ${canWrite() ? `<div class="row">
+              ${hasPrev ? `<button class="btn small" data-act="repeat" data-client="${esc(c.id)}">Lặp buổi trước</button>` : ''}
+              <button class="btn small" data-act="new-session" data-client="${esc(c.id)}">Lên buổi mới</button>
+            </div>` : ''}</div>`;
+        }).join('')}</div>
+      </section>` : ''}
+      ${upcoming.length ? `<section><h2>7 ngày tới</h2><div class="list">${upcoming.map((s) => sessionCard(s, { showClient: true, showDate: true })).join('')}</div></section>` : ''}
+    `;
+  }
+
+  function drawClients(v) {
+    header(`${activeClients().length} học viên`, 'Học viên', canWrite() ? `<button class="btn primary small" data-act="new-client">+ Học viên</button>` : '', false);
+    const all = [...S.clients].sort((a, b) => (a.archived === b.archived ? a.name.localeCompare(b.name, 'vi') : a.archived ? 1 : -1));
+    const backup = S.mode !== 'local' ? '' : `
+      <section><h2>Sao lưu</h2>
+        <div class="card">
+          <div class="card-sub">Dữ liệu đang lưu trên điện thoại này. Hãy sao lưu mỗi tuần và giữ tệp ở Drive/Zalo, để không mất dữ liệu khi đổi máy hoặc xoá dữ liệu trình duyệt. Tệp sao lưu không gồm ảnh/video.</div>
+          <div class="row">
+            <button class="btn small" type="button" data-act="export">Tải tệp sao lưu</button>
+            <label class="btn small file-btn">Khôi phục từ tệp<input id="importFile" type="file" accept="application/json,.json"></label>
+          </div>
+        </div>
+      </section>`;
+    if (!all.length) {
+      v.innerHTML = notices() + `<div class="empty"><h3>Chưa có học viên</h3><p>Mỗi học viên có lịch tập, chỉ số cơ thể và thư viện ảnh/video riêng.</p>${canWrite() ? '<button class="btn primary" data-act="new-client">+ Thêm học viên</button>' : ''}</div>` + backup;
+      return;
+    }
+    v.innerHTML = notices() + `<div class="list">${all.map((c) => {
+      const st = stats(c.id);
+      const bits = [st.lastDone ? 'Tập ' + relDay(st.lastDone) : 'Chưa tập buổi nào'];
+      if (st.rate != null) bits.push(`${st.rate}% hoàn thành 30 ngày`);
+      return `<button class="card" data-act="nav" data-to="client-${esc(c.id)}"><div class="client-row">
+        <div class="avatar">${esc(initials(c.name))}</div>
+        <div class="grow">
+          <div class="row"><span class="card-title">${esc(c.name)}</span>${c.example ? '<span class="example-tag">Ví dụ</span>' : ''}${c.archived ? '<span class="pill skipped">Tạm dừng</span>' : ''}</div>
+          ${c.goal ? `<div class="card-sub">${esc(c.goal)}</div>` : ''}
+          <div class="card-sub num">${esc(bits.join(' · '))}</div>
+        </div></div></button>`;
+    }).join('')}</div>` + backup;
+  }
+
+  function weightChart(points) {
+    if (points.length < 2) return '<div class="empty"><p>Ghi cân nặng ít nhất 2 lần để thấy đường xu hướng.</p></div>';
+    const W = 340, H = 170, L = 34, R = 12, T = 14, B = 26;
+    const ys = points.map((p) => p.weight);
+    let lo = Math.min(...ys), hi = Math.max(...ys);
+    if (hi - lo < 2) { lo -= 1; hi += 1; }
+    const padY = (hi - lo) * 0.12; lo -= padY; hi += padY;
+    const t0 = parse(points[0].date).getTime(), t1 = parse(points[points.length - 1].date).getTime();
+    const x = (d) => L + (t1 === t0 ? 0.5 : (parse(d).getTime() - t0) / (t1 - t0)) * (W - L - R);
+    const y = (w) => T + (1 - (w - lo) / (hi - lo)) * (H - T - B);
+    const ticks = [lo + (hi - lo) * 0.15, (lo + hi) / 2, hi - (hi - lo) * 0.15];
+    const line = points.map((p, i) => `${i ? 'L' : 'M'}${x(p.date).toFixed(1)},${y(p.weight).toFixed(1)}`).join('');
+    const area = `${line}L${x(points[points.length - 1].date).toFixed(1)},${H - B}L${x(points[0].date).toFixed(1)},${H - B}Z`;
+    const last = points[points.length - 1];
+    return `<div class="chart-card"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ cân nặng">
+      ${ticks.map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>
+        <text x="${L - 6}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end">${fmtNum(v)}</text>`).join('')}
+      <path d="${area}" fill="var(--accent)" fill-opacity=".1" stroke="none"/>
+      <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${points.map((p) => `<circle cx="${x(p.date).toFixed(1)}" cy="${y(p.weight).toFixed(1)}" r="2.6" fill="var(--accent)"/>`).join('')}
+      <circle cx="${x(last.date).toFixed(1)}" cy="${y(last.weight).toFixed(1)}" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+      <text x="${L}" y="${H - 6}" text-anchor="start">${esc(fmtShort(points[0].date))}</text>
+      <text x="${W - R}" y="${H - 6}" text-anchor="end">${esc(fmtShort(last.date))}</text>
+    </svg></div>`;
+  }
+
+  function drawClient(v) {
+    const c = clientById(S.route.id);
+    if (!c) {
+      header('Học viên', 'Không tìm thấy', '', true);
+      v.innerHTML = '<div class="empty"><h3>Không tìm thấy học viên</h3><p>Học viên này có thể đã bị xoá.</p><button class="btn" data-act="nav" data-to="clients">Về danh sách</button></div>';
+      return;
+    }
+    header(c.goal || 'Học viên', c.name, canWrite() ? `<button class="btn primary small" data-act="new-session" data-client="${esc(c.id)}">+ Buổi</button>` : '', true);
+    const tabs = [['plan', 'Lịch tập'], ['progress', 'Tiến bộ'], ['media', 'Ảnh/Video'], ['profile', 'Hồ sơ']];
+    const seg = `<div class="seg" role="group" aria-label="Mục">${tabs.map(([k, l]) => `<button data-act="ctab" data-tab="${k}" aria-pressed="${S.clientTab === k}">${l}</button>`).join('')}</div>`;
+    let body = '';
+    const t = today();
+    const ss = sessionsOf(c.id);
+
+    if (S.clientTab === 'plan') {
+      const up = ss.filter((s) => s.date >= t).sort((a, b) => a.date.localeCompare(b.date));
+      const past = ss.filter((s) => s.date < t).sort((a, b) => b.date.localeCompare(a.date));
+      const hasPrev = ss.some((s) => (s.exercises || []).length);
+      body = `
+        ${canWrite() ? `<div class="row">
+          <button class="btn primary" data-act="new-session" data-client="${esc(c.id)}">+ Lên buổi tập</button>
+          ${hasPrev ? `<button class="btn" data-act="repeat" data-client="${esc(c.id)}">Lặp buổi gần nhất</button>` : ''}
+        </div>` : ''}
+        <section><h2>Sắp tới</h2>${up.length ? `<div class="list">${up.map((s) => sessionCard(s, { quick: true })).join('')}</div>` : '<p class="muted small">Chưa có buổi nào được lên lịch.</p>'}</section>
+        <section><h2>Đã qua</h2>${past.length ? `<div class="list">${past.slice(0, 60).map((s) => sessionCard(s, { quick: true })).join('')}</div>` : '<p class="muted small">Chưa có buổi nào.</p>'}</section>`;
+    } else if (S.clientTab === 'progress') {
+      const st = stats(c.id);
+      const ms = metricsOf(c.id).slice().reverse();
+      const wTxt = st.wChange == null ? '–' : `${st.wChange > 0 ? '+' : ''}${fmtNum(st.wChange)}`;
+      const wCls = st.wChange == null || st.wChange === 0 ? '' : st.wChange > 0 ? 'up' : 'down';
+      body = `
+        <div class="stats">
+          <div class="stat"><span class="v">${st.total}</span><span class="k">Buổi đã tập</span></div>
+          <div class="stat"><span class="v">${st.rate == null ? '–' : st.rate + '%'}</span><span class="k">Hoàn thành 30 ngày</span></div>
+          <div class="stat"><span class="v ${wCls}">${wTxt}</span><span class="k">Cân nặng thay đổi (kg)</span></div>
+        </div>
+        <section>
+          <div class="row between"><h2>Cân nặng</h2>${canWrite() ? `<button class="btn small" data-act="new-metric" data-client="${esc(c.id)}">+ Ghi chỉ số</button>` : ''}</div>
+          ${weightChart(st.weights)}
+        </section>
+        <section><h2>Kỷ lục theo bài</h2>
+          ${st.records.length ? `<div style="overflow-x:auto"><table class="rec"><thead><tr><th>Bài</th><th class="r">Tạ</th><th class="r">Reps</th><th class="r">Ngày</th></tr></thead><tbody>
+            ${st.records.map((r) => `<tr><td>${esc(r.name)}</td><td class="r">${fmtNum(r.kg)} kg</td><td class="r">${r.reps ?? ''}</td><td class="r">${esc(fmtShort(r.date))}</td></tr>`).join('')}
+          </tbody></table></div>` : '<p class="muted small">Kỷ lục xuất hiện khi buổi "Đã tập" có ghi kg.</p>'}
+        </section>
+        <section><h2>Lịch sử chỉ số</h2>
+          ${ms.length ? `<div class="list">${ms.map((m) => `<button class="card" data-act="edit-metric" data-id="${esc(m.id)}">
+            <div class="card-head"><span class="card-title num">${esc(fmtShort(m.date))}</span><span class="muted small num">${[m.weight != null ? fmtNum(m.weight) + ' kg' : '', m.waist != null ? 'eo ' + fmtNum(m.waist) + ' cm' : '', m.bodyFat != null ? 'mỡ ' + fmtNum(m.bodyFat) + '%' : ''].filter(Boolean).join(' · ')}</span></div>
+            ${m.note ? `<div class="card-sub">${esc(m.note)}</div>` : ''}</button>`).join('')}</div>` : '<p class="muted small">Chưa có chỉ số nào.</p>'}
+        </section>`;
+    } else if (S.clientTab === 'media') {
+      const items = ss.flatMap((s) => (s.media || []).map((m) => ({ ...m, date: s.date, sessionId: s.id })))
+        .sort((a, b) => (a.date === b.date ? (a.at || '').localeCompare(b.at || '') : a.date.localeCompare(b.date)));
+      const imgs = items.filter((m) => m.kind === 'image');
+      const first = imgs[0], last = imgs[imgs.length - 1];
+      body = items.length ? `
+        ${imgs.length >= 2 ? `<section><h2>Trước & sau</h2><div class="compare">
+          <figure>${mediaThumb(first)}<figcaption>Đầu tiên · ${esc(fmtShort(first.date))}</figcaption></figure>
+          <figure>${mediaThumb(last)}<figcaption>Gần nhất · ${esc(fmtShort(last.date))}</figcaption></figure>
+        </div></section>` : ''}
+        <section><div class="row between"><h2>Tất cả</h2><span class="muted small num">${items.length} tệp</span></div>
+          <div class="grid">${items.slice().reverse().map((m) => mediaThumb(m, { caption: m.kind === 'image' ? fmtShort(m.date) : '' })).join('')}</div>
+        </section>`
+        : `<div class="empty"><h3>Chưa có ảnh hay video</h3><p>Mở một buổi tập và bấm "Thêm ảnh/video" để lưu ảnh dáng người hoặc video kỹ thuật. Ảnh được nén tự động; video tối đa 20 MB.</p></div>`;
+    } else {
+      const st = stats(c.id);
+      const rows = [
+        ['Mục tiêu', c.goal], ['Điện thoại', c.phone], ['Ngày bắt đầu', c.startDate ? fmtShort(c.startDate) + ' · ' + c.startDate.split('-').reverse().join('/') : ''],
+        ['Ghi chú', c.note], ['Buổi đã tập', String(st.total)],
+      ].filter(([, val]) => val);
+      body = `
+        <div class="card">${rows.map(([k, val]) => `<div><div class="muted small">${k}</div><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(val)}</div></div>`).join('')}</div>
+        ${canWrite() ? `<div class="row"><button class="btn" data-act="edit-client" data-id="${esc(c.id)}">Sửa hồ sơ</button></div>` : ''}`;
+    }
+    v.innerHTML = notices() + seg + body;
+  }
+
+  // ---------- sheets ----------
+  function clientSheet(c) {
+    const isNew = !c;
+    c = c || { id: uid('c'), name: '', phone: '', goal: '', note: '', startDate: today(), archived: false };
+    openSheet(`
+      <div class="sheet-head"><h2>${isNew ? 'Thêm học viên' : 'Sửa hồ sơ'}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
+      <form id="clientForm" class="list" novalidate>
+        <label class="f">Họ tên<input id="cName" required maxlength="80" value="${esc(c.name)}" autocomplete="off"></label>
+        <label class="f">Mục tiêu<input id="cGoal" maxlength="160" placeholder="VD: giảm 5 kg, squat 100 kg" value="${esc(c.goal)}"></label>
+        <div class="f2">
+          <label class="f">Điện thoại<input id="cPhone" inputmode="tel" maxlength="20" value="${esc(c.phone)}"></label>
+          <label class="f">Ngày bắt đầu<input id="cStart" type="date" value="${esc(c.startDate)}"></label>
+        </div>
+        ${isNew ? '<label class="f">Cân nặng hiện tại (kg)<input id="cWeight" inputmode="decimal" placeholder="VD: 72,5"></label>' : ''}
+        <label class="f">Ghi chú (chấn thương, lịch rảnh…)<textarea id="cNote" maxlength="2000">${esc(c.note)}</textarea></label>
+        ${!isNew ? `<label class="f" style="flex-direction:row;align-items:center;gap:10px;color:var(--ink)"><input id="cArchived" type="checkbox" style="width:22px;min-height:22px" ${c.archived ? 'checked' : ''}> Tạm dừng kèm (ẩn khỏi Hôm nay)</label>` : ''}
+        <button class="btn primary block" type="submit">${isNew ? 'Thêm học viên' : 'Lưu'}</button>
+        ${!isNew ? '<button class="btn danger block" type="button" id="cDelete">Xoá học viên</button><div id="cConfirm"></div>' : ''}
+      </form>`, (root) => {
+      $('#clientForm', root).addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = $('#cName', root).value.trim();
+        if (!name) { $('#cName', root).focus(); toast('Nhập họ tên học viên.'); return; }
+        const data = {
+          ...clean(c), name, goal: $('#cGoal', root).value.trim(), phone: $('#cPhone', root).value.trim(),
+          startDate: $('#cStart', root).value || today(), note: $('#cNote', root).value.trim(),
+          archived: isNew ? false : $('#cArchived', root).checked, createdAt: c.createdAt || new Date().toISOString(),
+        };
+        if (!(await write('clients', c.id, data))) return;
+        if (isNew) {
+          const w = num($('#cWeight', root).value);
+          if (w) await write('metrics', uid('m'), { clientId: c.id, date: data.startDate, weight: w, waist: null, bodyFat: null, note: 'Chỉ số ban đầu' });
+          closeSheet(); toast('Đã thêm học viên'); go('client-' + c.id);
+        } else { closeSheet(); toast('Đã lưu'); }
+      });
+      const del = $('#cDelete', root);
+      if (del) del.addEventListener('click', () => {
+        const ss = sessionsOf(c.id);
+        $('#cConfirm', root).innerHTML = `<div class="confirm"><div>Xoá <b>${esc(c.name)}</b> cùng ${ss.length} buổi tập, chỉ số và ảnh/video? Không thể hoàn tác.</div>
+          <div class="row"><button class="btn danger solid small" type="button" id="cDelYes">Xoá vĩnh viễn</button><button class="btn small" type="button" id="cDelNo">Huỷ</button></div></div>`;
+        $('#cDelNo', root).onclick = () => { $('#cConfirm', root).innerHTML = ''; };
+        $('#cDelYes', root).onclick = async (ev) => {
+          ev.target.disabled = true; ev.target.textContent = 'Đang xoá…';
+          for (const s of ss) {
+            if (S.assets) for (const m of s.media || []) { try { await S.assets.delete(m.id); } catch { /* keep going */ } }
+            await remove('sessions', s.id);
+          }
+          for (const m of metricsOf(c.id)) await remove('metrics', m.id);
+          if (await remove('clients', c.id)) { closeSheet(); toast('Đã xoá học viên'); go('clients'); }
+        };
+      });
+    });
+  }
+
+  function metricSheet(clientId, m) {
+    const isNew = !m;
+    m = m || { id: uid('m'), clientId, date: today(), weight: null, waist: null, bodyFat: null, note: '' };
+    openSheet(`
+      <div class="sheet-head"><h2>${isNew ? 'Ghi chỉ số' : 'Sửa chỉ số'}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
+      <form id="mForm" class="list" novalidate>
+        <label class="f">Ngày đo<input id="mDate" type="date" value="${esc(m.date)}"></label>
+        <div class="f2">
+          <label class="f">Cân nặng (kg)<input id="mWeight" inputmode="decimal" value="${m.weight ?? ''}"></label>
+          <label class="f">Vòng eo (cm)<input id="mWaist" inputmode="decimal" value="${m.waist ?? ''}"></label>
+        </div>
+        <label class="f">Tỷ lệ mỡ (%)<input id="mFat" inputmode="decimal" value="${m.bodyFat ?? ''}"></label>
+        <label class="f">Ghi chú<input id="mNote" maxlength="300" value="${esc(m.note)}"></label>
+        <button class="btn primary block" type="submit">Lưu</button>
+        ${!isNew ? '<button class="btn danger block" type="button" id="mDel">Xoá lần đo này</button>' : ''}
+      </form>`, (root) => {
+      $('#mForm', root).addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = { clientId: m.clientId, date: $('#mDate', root).value || today(), weight: num($('#mWeight', root).value), waist: num($('#mWaist', root).value), bodyFat: num($('#mFat', root).value), note: $('#mNote', root).value.trim() };
+        if (data.weight == null && data.waist == null && data.bodyFat == null) { toast('Nhập ít nhất một chỉ số.'); return; }
+        if (await write('metrics', m.id, data)) { closeSheet(); toast('Đã lưu chỉ số'); }
+      });
+      const del = $('#mDel', root);
+      if (del) del.addEventListener('click', async () => { if (await remove('metrics', m.id)) { closeSheet(); toast('Đã xoá'); } });
+    });
+  }
+
+  function newSessionFor(clientId, fromPrev) {
+    const base = { id: uid('s'), clientId: clientId || '', date: today(), title: '', exercises: [], status: 'planned', rating: null, note: '', media: [] };
+    if (fromPrev) {
+      const prev = sessionsOf(clientId).filter((s) => (s.exercises || []).length).sort((a, b) => b.date.localeCompare(a.date))[0];
+      if (prev) {
+        base.title = prev.title;
+        base.exercises = prev.exercises.map((e) => ({ name: e.name, sets: e.sets, reps: e.reps, kg: e.kg, done: false }));
+      }
+    }
+    if (!base.exercises.length) base.exercises = [{ name: '', sets: null, reps: null, kg: null, done: false }];
+    return base;
+  }
+
+  function sessionSheet(sess) {
+    const isNew = !S.sessions.some((s) => s.id === sess.id);
+    const f = JSON.parse(JSON.stringify(sess));
+    f.media = f.media || []; f.exercises = f.exercises || [];
+    const names = [...new Set(S.sessions.flatMap((s) => (s.exercises || []).map((e) => e.name)).filter(Boolean))].slice(0, 200);
+    const clients = activeClients();
+    const c = clientById(f.clientId);
+
+    openSheet(`
+      <div class="sheet-head"><h2>${isNew ? 'Buổi tập mới' : 'Buổi tập'}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
+      <form id="sForm" class="list" novalidate>
+        ${!f.clientId || isNew && !c ? `<label class="f">Học viên<select id="sClient"><option value="">Chọn học viên…</option>${clients.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></label>`
+          : `<div class="muted small">Học viên: <b style="color:var(--ink)">${esc(c ? c.name : '')}</b></div>`}
+        <div class="f2">
+          <label class="f">Ngày<input id="sDate" type="date" value="${esc(f.date)}"></label>
+          <label class="f">Tên buổi<input id="sTitle" maxlength="80" placeholder="VD: Chân + core" value="${esc(f.title)}"></label>
+        </div>
+        <div class="seg" role="group" aria-label="Trạng thái">
+          ${Object.entries(STATUS).map(([k, l]) => `<button type="button" data-status="${k}" aria-pressed="${f.status === k}">${l}</button>`).join('')}
+        </div>
+        <section><div class="row between"><h2>Bài tập</h2><span class="muted small">hiệp × lần @ kg</span></div>
+          <div class="ex-list" id="exList"></div>
+          <button class="btn block" type="button" id="exAdd">+ Thêm bài</button>
+        </section>
+        <datalist id="exNames">${names.map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>
+        <section><h2>Đánh giá buổi tập</h2>
+          <div class="rating" role="group" aria-label="Đánh giá 1 đến 5">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-rate="${n}" aria-pressed="${f.rating === n}">${n}</button>`).join('')}</div>
+        </section>
+        <label class="f">Ghi chú của HLV (kỹ thuật, cảm giác, điều chỉnh buổi sau)<textarea id="sNote" maxlength="3000">${esc(f.note)}</textarea></label>
+        <section><div class="row between"><h2>Ảnh & video</h2><span class="muted small" id="upState"></span></div>
+          <div class="grid" id="mediaGrid"></div>
+          ${S.assets ? `<label class="btn block file-btn">+ Thêm ảnh/video<input id="sFiles" type="file" accept="image/*,video/*" multiple></label>
+            <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video tối đa 20 MB (khoảng 30–60 giây).</p>`
+            : '<p class="muted small" style="margin:0">Chỉ chủ sổ hoặc người có quyền sửa mới tải được ảnh/video.</p>'}
+        </section>
+        <button class="btn primary block" type="submit" id="sSave">Lưu buổi tập</button>
+        ${!isNew ? '<button class="btn danger block" type="button" id="sDelete">Xoá buổi tập</button><div id="sConfirm"></div>' : ''}
+      </form>`, (root) => {
+      let uploading = false;
+      const exList = $('#exList', root);
+      const syncEx = () => {
+        f.exercises = $$('.ex-row', exList).map((r) => ({
+          name: $('[data-k=name]', r).value.trim(), sets: num($('[data-k=sets]', r).value), reps: num($('[data-k=reps]', r).value),
+          kg: num($('[data-k=kg]', r).value), done: $('[data-k=done]', r).checked,
+        }));
+      };
+      const drawEx = () => {
+        exList.innerHTML = f.exercises.map((e, i) => `
+          <div class="ex-row">
+            <div class="name"><input id="exName${i}" data-k="name" list="exNames" placeholder="Tên bài (VD: Squat)" value="${esc(e.name)}" aria-label="Tên bài ${i + 1}">
+              <button class="rm" type="button" data-rm="${i}" aria-label="Xoá bài ${i + 1}">×</button></div>
+            <label class="mini">Hiệp<input id="exSets${i}" data-k="sets" inputmode="numeric" value="${e.sets ?? ''}"></label>
+            <label class="mini">Lần<input id="exReps${i}" data-k="reps" inputmode="numeric" value="${e.reps ?? ''}"></label>
+            <label class="mini">Kg<input id="exKg${i}" data-k="kg" inputmode="decimal" value="${e.kg ?? ''}"></label>
+            <label class="tick"><input id="exDone${i}" data-k="done" type="checkbox" ${e.done ? 'checked' : ''}> Đã hoàn thành</label>
+          </div>`).join('');
+      };
+      const drawMedia = () => {
+        $('#mediaGrid', root).innerHTML = f.media.map((m, i) => `<div style="position:relative">${mediaThumb(m)}${S.assets ? `<button class="x" type="button" data-rm-media="${i}" aria-label="Bỏ tệp" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff">×</button>` : ''}</div>`).join('');
+      };
+      drawEx(); drawMedia();
+
+      root.addEventListener('click', (e) => {
+        const st = e.target.closest('[data-status]');
+        if (st) {
+          f.status = st.dataset.status;
+          $$('[data-status]', root).forEach((b) => b.setAttribute('aria-pressed', String(b === st)));
+          if (f.status === 'done') { syncEx(); if (!f.exercises.some((x) => x.done)) { f.exercises.forEach((x) => { if (x.name) x.done = true; }); drawEx(); } }
+          return;
+        }
+        const rt = e.target.closest('[data-rate]');
+        if (rt) {
+          const n = Number(rt.dataset.rate); f.rating = f.rating === n ? null : n;
+          $$('[data-rate]', root).forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.rate) === f.rating)));
+          return;
+        }
+        const rm = e.target.closest('[data-rm]');
+        if (rm) { syncEx(); f.exercises.splice(Number(rm.dataset.rm), 1); drawEx(); return; }
+        const rmm = e.target.closest('[data-rm-media]');
+        if (rmm) { e.stopPropagation(); f.media.splice(Number(rmm.dataset.rmMedia), 1); drawMedia(); }
+      });
+      $('#exAdd', root).addEventListener('click', () => {
+        syncEx(); f.exercises.push({ name: '', sets: null, reps: null, kg: null, done: false }); drawEx();
+        const inputs = $$('[data-k=name]', exList); inputs[inputs.length - 1].focus();
+      });
+      const files = $('#sFiles', root);
+      if (files) files.addEventListener('change', async () => {
+        const list = [...files.files]; files.value = '';
+        if (!list.length) return;
+        uploading = true; $('#sSave', root).disabled = true;
+        await uploadFiles(list, (m) => { f.media.push(m); drawMedia(); }, (txt) => { const u = $('#upState', root); if (u) u.textContent = txt; });
+        uploading = false; const sv = $('#sSave', root); if (sv) sv.disabled = false;
+      });
+      $('#sForm', root).addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (uploading) return;
+        syncEx();
+        const sel = $('#sClient', root);
+        if (sel) f.clientId = sel.value;
+        if (!f.clientId) { toast('Chọn học viên cho buổi tập.'); sel && sel.focus(); return; }
+        const data = {
+          clientId: f.clientId, date: $('#sDate', root).value || today(), title: $('#sTitle', root).value.trim(),
+          exercises: f.exercises.filter((x) => x.name), status: f.status, rating: f.rating, note: $('#sNote', root).value.trim(),
+          media: f.media, createdAt: f.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
+        };
+        if (await write('sessions', f.id, data)) { closeSheet(); toast(isNew ? 'Đã lên buổi tập' : 'Đã lưu buổi tập'); }
+      });
+      const del = $('#sDelete', root);
+      if (del) del.addEventListener('click', () => {
+        $('#sConfirm', root).innerHTML = `<div class="confirm"><div>Xoá buổi tập ${esc(fmtShort(f.date))}${(sess.media || []).length ? ' cùng ' + sess.media.length + ' ảnh/video' : ''}? Không thể hoàn tác.</div>
+          <div class="row"><button class="btn danger solid small" type="button" id="sDelYes">Xoá</button><button class="btn small" type="button" id="sDelNo">Huỷ</button></div></div>`;
+        $('#sDelNo', root).onclick = () => { $('#sConfirm', root).innerHTML = ''; };
+        $('#sDelYes', root).onclick = async () => {
+          if (S.assets) for (const m of sess.media || []) { try { await S.assets.delete(m.id); } catch { /* ignore */ } }
+          if (await remove('sessions', f.id)) { closeSheet(); toast('Đã xoá buổi tập'); }
+        };
+      });
+    });
+  }
+
+  // ---------- events ----------
+  document.addEventListener('click', async (e) => {
+    const el = e.target.closest('[data-act]');
+    if (!el) return;
+    const act = el.dataset.act;
+    if (act === 'nav') { go(el.dataset.to); return; }
+    if (act === 'close-sheet') { closeSheet(); return; }
+    if (act === 'close-lightbox') { const lb = $('#lightbox'); lb.hidden = true; lb.innerHTML = ''; return; }
+    if (act === 'lightbox') { e.preventDefault(); openLightbox(el.dataset.id, el.dataset.kind); return; }
+    if (act === 'ctab') { S.clientTab = el.dataset.tab; render(); return; }
+    if (act === 'open-session') { const s = S.sessions.find((x) => x.id === el.dataset.id); if (s) sessionSheet(s); return; }
+    if (act === 'export') { exportBackup(); return; }
+    if (!canWrite()) return;
+    if (act === 'new-client') clientSheet(null);
+    else if (act === 'edit-client') clientSheet(clientById(el.dataset.id));
+    else if (act === 'new-session') sessionSheet(newSessionFor(el.dataset.client || '', false));
+    else if (act === 'repeat') sessionSheet(newSessionFor(el.dataset.client, true));
+    else if (act === 'new-metric') metricSheet(el.dataset.client, null);
+    else if (act === 'edit-metric') { const m = S.metrics.find((x) => x.id === el.dataset.id); if (m) metricSheet(m.clientId, m); }
+    else if (act === 'quick-done') {
+      const s = S.sessions.find((x) => x.id === el.dataset.id); if (!s) return;
+      el.disabled = true;
+      const data = { ...clean(s), status: 'done', exercises: (s.exercises || []).map((x) => ({ ...x, done: true })), updatedAt: new Date().toISOString() };
+      if (await write('sessions', s.id, data)) toast('Đã đánh dấu đã tập'); else el.disabled = false;
+    }
+  });
+  $('#backBtn').addEventListener('click', () => { if (history.length > 1 && document.referrer !== undefined && location.hash) history.back(); else go('clients'); });
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'importFile' && e.target.files[0]) {
+      const f = e.target.files[0]; e.target.value = '';
+      importBackup(f);
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!$('#lightbox').hidden) { $('#lightbox').hidden = true; $('#lightbox').innerHTML = ''; }
+    else if (!$('#sheet').hidden) closeSheet();
+  });
+
+  // ---------- boot ----------
+  async function boot() {
+    S.route = parseHash();
+    render();
+    const onClaude = window.claude && typeof window.claude.use === 'function';
+    const cloudDb = onClaude ? await window.claude.use('db') : null;
+    let db = cloudDb;
+    if (!db) {
+      // Standalone build (e.g. Vercel) or db not served: keep everything on this phone.
+      if (!('indexedDB' in window)) {
+        S.unavailable = 'Trình duyệt này không lưu được dữ liệu. Hãy mở bằng Safari hoặc Chrome (không ở chế độ ẩn danh).';
+        render(); return;
+      }
+      const local = localBackend();
+      S.mode = 'local'; db = local.db; S.assets = local.assets;
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    }
+    S.db = db;
+    if (S.mode === 'cloud') window.claude.use('assets').then((a) => { S.assets = a; render(); }, () => {});
+    if (S.mode === 'cloud')
+    window.claude.use('user').then(async (u) => {
+      if (!u) return;
+      const can = await u.can('data.write');
+      if (can === false) { S.readOnly = true; render(); }
+    }, () => {});
+
+    const slowTimer = setTimeout(() => { S.slow = true; render(); }, 10000);
+    for (const col of ['clients', 'sessions', 'metrics']) {
+      db.collection(col).onSnapshot((snap) => {
+        S[col] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        S.got[col] = true;
+        if (ready() && !snap.metadata.fromCache) { clearTimeout(slowTimer); S.slow = false; }
+        render();
+      }, (err) => {
+        clearTimeout(slowTimer);
+        S.error = err && err.code; S.got[col] = true; render();
+      });
+    }
+  }
+  boot();
+})();
+</script>
