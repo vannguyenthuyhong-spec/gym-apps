@@ -119,6 +119,9 @@ button.card { cursor: pointer; }
 .progress i { display: block; height: 100%; background: var(--good); }
 .banner-backup { background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .banner-backup b { color: var(--ink); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card.routine { gap: 4px; border-left: 5px solid var(--gold); }
+.card.routine.cooldown { border-left-color: var(--good); }
 .goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .goal-grid button { min-height: 52px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; text-align: left; padding: 8px 12px; }
 .goal-grid button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -389,7 +392,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   const weekStart = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
 
   // ================= exercise library =================
-  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', neck: 'Cổ', other: 'Khác' };
+  const GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', neck: 'Cổ', dynamic: 'Giãn cơ động', static: 'Giãn cơ tĩnh', other: 'Khác' };
   // type: weight = kg × lần · reps = số lần · time = giây · min = phút
   const LIB = [
     { id: 'goblet-squat', name: 'Goblet Squat', group: 'legs', equip: 'Tạ đơn / kettlebell', type: 'weight', inc: 2,
@@ -584,6 +587,60 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     { id: 'neck-side-lift', name: 'Nằm nghiêng nâng đầu', group: 'neck', equip: 'Giường', type: 'reps', inc: 0,
       steps: ['Nằm nghiêng, chân duỗi chồng lên nhau, bỏ gối kê đầu (hoặc gối thật mỏng).', 'Nhấc đầu lên về phía trần (tai hướng về vai trên), mặt nhìn thẳng.', 'Giữ 3 giây rồi hạ chậm. Đủ số lần thì đổi bên.'],
       mistakes: ['Xoay mặt xuống giường hoặc lên trần.', 'Nhún vai trên lên.', 'Nhấc quá cao gây đau.'] },
+    { id: 'dyn-arm-circles', name: 'Xoay tay vòng tròn', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, hai tay duỗi.','Xoay tay thành vòng tròn lớn ra trước 10 lần, rồi ra sau 10 lần.','Đi từ vòng nhỏ đến vòng lớn, nhịp đều.'],
+      mistakes: ['Nhún vai lên tai.','Xoay quá nhanh, giật vai.'] },
+    { id: 'dyn-torso-twist', name: 'Xoay thân đứng', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng chân rộng hơn vai, gối hơi chùng.','Xoay thân sang trái rồi sang phải, tay vung nhẹ theo người.','Hông giữ hướng ra trước, xoay từ eo và ngực. Mỗi bên tính 1 lần.'],
+      mistakes: ['Vặn cả hông và gối theo.','Vung tay quá mạnh lấy đà.'] },
+    { id: 'dyn-leg-swing', name: 'Đá lăng chân trước – sau', group: 'dynamic', equip: 'Không cần dụng cụ (vịn tường nếu cần)', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, một tay vịn tường hoặc ghế.','Đá lăng một chân ra trước rồi ra sau, biên độ tăng dần.','Thân giữ thẳng. Đủ 10 lần thì đổi chân.'],
+      mistakes: ['Cong lưng theo chân.','Đá giật mạnh ngay từ đầu.'] },
+    { id: 'dyn-leg-swing-side', name: 'Đá lăng chân sang ngang', group: 'dynamic', equip: 'Không cần dụng cụ (vịn tường nếu cần)', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, hai tay vịn tường hoặc dang ngang giữ thăng bằng.','Đá lăng một chân sang ngang rồi đưa chéo qua trước chân trụ.','Mũi chân hướng ra trước. Đủ 10 lần thì đổi chân.'],
+      mistakes: ['Nghiêng người theo chân.','Xoay mũi chân lên trần.'] },
+    { id: 'dyn-cat-cow', name: 'Mèo – bò (Cat-Cow)', group: 'dynamic', equip: 'Thảm', type: 'reps', inc: 0,
+      steps: ['Quỳ bốn điểm: tay dưới vai, gối dưới hông.','Thở ra, cong lưng lên như con mèo, cằm thu vào ngực.','Hít vào, võng lưng xuống, ngẩng nhẹ đầu và ngực lên. Chậm theo nhịp thở.'],
+      mistakes: ['Làm quá nhanh, không theo nhịp thở.','Ngửa cổ quá mức.'] },
+    { id: 'dyn-high-knees', name: 'Nâng gối cao tại chỗ', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Đứng thẳng, nâng gối luân phiên lên ngang hông.','Tay đánh theo nhịp chân, tiếp đất nhẹ bằng mũi chân.','Làm 20–30 giây, tăng tốc dần.'],
+      mistakes: ['Ngả người ra sau.','Tiếp đất mạnh bằng gót.'] },
+    { id: 'dyn-butt-kicks', name: 'Đá gót chạm mông', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Chạy tại chỗ, đá gót chân về phía mông.','Đùi giữ hướng xuống sàn, thân thẳng.','Làm 20–30 giây.'],
+      mistakes: ['Gập người ra trước.','Đưa đùi ra trước thay vì chỉ gập gối.'] },
+    { id: 'dyn-squat-reach', name: 'Squat vươn tay lên', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng chân rộng bằng vai, ngồi xuống squat, tay đưa ra trước.','Đứng lên, vươn hai tay thẳng lên trần, kiễng nhẹ.','Nhịp đều, 8–10 lần.'],
+      mistakes: ['Gối đổ vào trong.','Ưỡn lưng khi vươn tay.'] },
+    { id: 'st-hamstring', name: 'Giãn đùi sau ngồi duỗi chân', group: 'static', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Ngồi duỗi thẳng hai chân, mũi chân hướng lên.','Giữ lưng thẳng, gập người từ hông, tay với về phía mũi chân.','Dừng ở chỗ căng vừa, thở đều, giữ 20–30 giây.'],
+      mistakes: ['Cong lưng để với cho xa.','Nhún nhảy, nín thở.'] },
+    { id: 'st-quad', name: 'Giãn đùi trước đứng', group: 'static', equip: 'Không cần dụng cụ (vịn tường nếu cần)', type: 'time', inc: 0,
+      steps: ['Đứng một chân, tay cùng bên cầm cổ chân kia kéo gót về mông.','Hai gối sát nhau, siết nhẹ mông, hông đẩy ra trước.','Giữ 20–30 giây rồi đổi chân.'],
+      mistakes: ['Gối co mở ra ngoài.','Ưỡn lưng, gập người ra trước.'] },
+    { id: 'st-hip-flexor', name: 'Giãn cơ gập hông quỳ một chân', group: 'static', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Quỳ một chân, chân kia bước ra trước, gối trước 90°.','Siết mông bên chân quỳ, đẩy hông nhẹ ra trước đến khi căng phía trước hông.','Giữ 20–30 giây rồi đổi bên.'],
+      mistakes: ['Ưỡn lưng thay vì đẩy hông.','Gối trước vượt xa mũi chân.'] },
+    { id: 'st-calf-wall', name: 'Giãn bắp chân chống tường', group: 'static', equip: 'Tường', type: 'time', inc: 0,
+      steps: ['Hai tay chống tường, một chân lùi ra sau, gót ép xuống sàn.','Gối sau thẳng, dồn người về phía tường đến khi căng bắp chân.','Giữ 20–30 giây rồi đổi chân.'],
+      mistakes: ['Nhấc gót sau lên.','Mũi chân sau xoay ra ngoài.'] },
+    { id: 'st-child-pose', name: 'Tư thế em bé (Child\'s Pose)', group: 'static', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Quỳ, ngồi lên gót chân, gối hơi tách.','Gập người ra trước, trán chạm thảm, hai tay vươn dài.','Thả lỏng lưng và vai, thở sâu, giữ 30–45 giây.'],
+      mistakes: ['Gồng vai, nín thở.','Ép quá mức khi đau gối — kê gối dưới mông.'] },
+    { id: 'st-chest-doorway', name: 'Giãn ngực ở khung cửa', group: 'static', equip: 'Khung cửa / tường', type: 'time', inc: 0,
+      steps: ['Đặt cẳng tay lên khung cửa, khuỷu ngang vai, gập 90°.','Bước nhẹ một chân ra trước, xoay người ra xa đến khi căng ngực.','Giữ 20–30 giây rồi đổi bên.'],
+      mistakes: ['Nhún vai lên.','Ưỡn lưng để đẩy người ra trước.'] },
+    { id: 'st-shoulder-cross', name: 'Kéo tay ngang ngực (giãn vai sau)', group: 'static', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Đưa một tay ngang qua trước ngực.','Tay kia ép nhẹ trên khuỷu tay, kéo về phía ngực.','Vai thả xuống, giữ 20–30 giây rồi đổi tay.'],
+      mistakes: ['Nhún vai lên tai.','Xoay thân theo tay.'] },
+    { id: 'st-triceps-overhead', name: 'Giãn tay sau qua đầu', group: 'static', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Đưa một tay lên cao, gập khuỷu để bàn tay chạm lưng trên.','Tay kia ấn nhẹ khuỷu tay xuống và vào giữa.','Giữ 20–30 giây rồi đổi tay.'],
+      mistakes: ['Cúi đầu, đẩy cổ ra trước.','Ưỡn lưng.'] },
+    { id: 'st-side-bend', name: 'Nghiêng người giãn sườn', group: 'static', equip: 'Không cần dụng cụ', type: 'time', inc: 0,
+      steps: ['Đứng chân rộng bằng vai, một tay chống hông.','Đưa tay kia qua đầu, nghiêng người sang bên chống hông.','Giữ 20–30 giây rồi đổi bên.'],
+      mistakes: ['Gập người ra trước thay vì nghiêng ngang.','Xoay hông theo.'] },
+    { id: 'st-cobra', name: 'Rắn hổ mang (Cobra)', group: 'static', equip: 'Thảm', type: 'time', inc: 0,
+      steps: ['Nằm sấp, hai tay đặt dưới vai.','Đẩy tay nâng ngực lên, hông vẫn chạm thảm, vai thả xa tai.','Giữ 15–30 giây, thở đều. Lưng dưới khó chịu thì hạ thấp hơn.'],
+      mistakes: ['Ngửa cổ ra sau quá mức.','Nhấc hông khỏi thảm.'] },
     { id: 'band-overhead-rot', name: 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Cầm dây thật rộng (rộng hơn vai nhiều), hai tay duỗi thẳng trước đùi.', 'Giữ tay thẳng, đưa dây lên qua đầu rồi ra sau lưng đến ngang mông.', 'Đưa ngược về trước là 1 lần. Đi chậm; thấy kẹt vai thì cầm rộng tay hơn.'],
       mistakes: ['Gập khuỷu tay để đưa qua được.', 'Ưỡn lưng, sườn bật ra trước.', 'Cầm dây quá hẹp gây đau vai.'] },
@@ -691,6 +748,24 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'neck-head-lift': { b: 'hold', c: ['Thu cằm trước rồi mới nhấc đầu', 'Chỉ nhấc 2–3 cm', 'Thở đều, vai thả lỏng'] },
     'neck-prone-lift': { b: 'hold', c: ['Cằm hơi thu, mắt nhìn sàn', 'Nâng đến thẳng hàng với lưng là đủ', 'Hạ chậm 2–3 giây'] },
     'neck-side-lift': { b: 'hold', c: ['Mặt nhìn thẳng, không xoay', 'Nhấc vừa đủ, cổ thẳng hàng', 'Hạ chậm'] },
+    'dyn-arm-circles': { b: 'cardio', c: ['Vai thả xa tai', 'Vòng nhỏ đến vòng lớn', 'Nhịp đều, không giật'] },
+    'dyn-torso-twist': { b: 'cardio', c: ['Hông hướng ra trước', 'Xoay từ eo và ngực', 'Tay vung nhẹ theo người'] },
+    'dyn-leg-swing': { b: 'cardio', c: ['Thân thẳng, bụng siết', 'Biên độ tăng dần', 'Chân trụ hơi chùng gối'] },
+    'dyn-leg-swing-side': { b: 'cardio', c: ['Mũi chân hướng ra trước', 'Thân không nghiêng theo chân', 'Biên độ tăng dần'] },
+    'dyn-cat-cow': { b: 'hold', c: ['Thở ra cong lưng, hít vào võng lưng', 'Chuyển động từng đốt sống', 'Chậm theo nhịp thở'] },
+    'dyn-high-knees': { b: 'cardio', c: ['Gối lên ngang hông', 'Tiếp đất nhẹ bằng mũi chân', 'Tay đánh theo nhịp'] },
+    'dyn-butt-kicks': { b: 'cardio', c: ['Đùi hướng xuống sàn', 'Gót chạm gần mông', 'Thân thẳng'] },
+    'dyn-squat-reach': { b: 'lift', c: ['Gối theo hướng mũi chân', 'Đứng lên vươn dài người', 'Thở ra khi đứng lên'] },
+    'st-hamstring': { b: 'hold', c: ['Gập từ hông, lưng thẳng', 'Căng vừa, không đau', 'Thở ra để vào sâu hơn'] },
+    'st-quad': { b: 'hold', c: ['Hai gối sát nhau', 'Siết mông, hông đẩy ra trước', 'Vịn tường nếu chưa vững'] },
+    'st-hip-flexor': { b: 'hold', c: ['Siết mông bên chân quỳ', 'Đẩy hông ra trước, không ưỡn lưng', 'Thân thẳng đứng'] },
+    'st-calf-wall': { b: 'hold', c: ['Gót sau ép sàn', 'Gối sau thẳng', 'Mũi chân sau hướng ra trước'] },
+    'st-child-pose': { b: 'hold', c: ['Thả lỏng vai và lưng', 'Thở sâu vào lưng', 'Tay vươn dài ra trước'] },
+    'st-chest-doorway': { b: 'hold', c: ['Khuỷu ngang vai', 'Vai thả xuống', 'Xoay người ra xa nhẹ nhàng'] },
+    'st-shoulder-cross': { b: 'hold', c: ['Vai thả xuống', 'Kéo trên khuỷu, không kéo khớp', 'Thân không xoay'] },
+    'st-triceps-overhead': { b: 'hold', c: ['Đầu thẳng, không cúi', 'Ấn nhẹ khuỷu tay', 'Bụng siết, không ưỡn'] },
+    'st-side-bend': { b: 'hold', c: ['Nghiêng ngang, không gập trước', 'Vươn dài qua đầu', 'Thở vào bên sườn căng'] },
+    'st-cobra': { b: 'hold', c: ['Hông chạm thảm', 'Vai thả xa tai', 'Nâng vừa đủ, không đau lưng'] },
     'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
     'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
   };
@@ -787,9 +862,15 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'band-ext-rot': ['reardelts', 'traps delts'],
     'neck-chin-tuck': ['neckf', ''], 'neck-press-back': ['neckb', 'traps'], 'neck-rotation': ['neckf neckb', 'traps'], 'neck-side-bend': ['neckf neckb', 'traps'],
     'neck-head-lift': ['neckf', 'abs'], 'neck-prone-lift': ['neckb traps', ''], 'neck-side-lift': ['neckf neckb', 'traps'],
+    'dyn-arm-circles': ['delts', 'chest reardelts'], 'dyn-torso-twist': ['obliques', 'abs lowerback'], 'dyn-leg-swing': ['hamstrings glutes', 'quads'],
+    'dyn-leg-swing-side': ['glutes', 'quads hamstrings'], 'dyn-cat-cow': ['lowerback abs', 'neckb'], 'dyn-high-knees': ['quads abs', 'calves'],
+    'dyn-butt-kicks': ['quads hamstrings', 'calves'], 'dyn-squat-reach': ['quads glutes', 'delts lats'],
+    'st-hamstring': ['hamstrings', 'calves lowerback'], 'st-quad': ['quads', ''], 'st-hip-flexor': ['quads abs', 'glutes'], 'st-calf-wall': ['calves', 'hamstrings'],
+    'st-child-pose': ['lowerback lats', 'glutes'], 'st-chest-doorway': ['chest', 'delts'], 'st-shoulder-cross': ['reardelts', 'traps'],
+    'st-triceps-overhead': ['triceps', 'lats'], 'st-side-bend': ['lats obliques', ''], 'st-cobra': ['abs', 'lowerback chest'],
     'band-overhead-rot': ['delts reardelts', 'traps chest'], 'band-alt-rot': ['delts reardelts', 'lats traps'],
   };
-  const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves', neck: 'neckf neckb' };
+  const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves', neck: 'neckf neckb', dynamic: 'quads hamstrings', static: 'hamstrings' };
   const split = (s) => (s || '').split(' ').filter(Boolean);
   function musclesFor(ex) {
     const m = MUSCLES[ex.id];
@@ -1039,6 +1120,59 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       { h: [100, 119], t: 90, hd: 118, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { ua: -86, fa: -88 } }, { hd: 82 }] },
     'neck-side-lift': { box: { x: 30, y: 82, w: 112, h: 84 }, v: 'front', dur: 3000, props: [{ k: 'bed', x: 30, y: 140, w: 184, h: 12 }, { k: 'pillow', c: [64, 138], rx: 14, ry: 3 }], f: [
       { h: [128, 124], t: -90, hd: -90, l: { th: 92, sh: 92 }, lL: { th: 94, sh: 92 }, a: { ua: 100, fa: 96 }, aL: { ua: 95, fa: 92 } }, { hd: -64 }] },
+    'dyn-arm-circles': { jump: 1, dur: 2400, f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 0, fa: 0 } }, { an: { ua: 90, fa: 90 } }, { an: { ua: 180, fa: 180 } }, { an: { ua: 270, fa: 270 } }, { an: { ua: 360, fa: 360 } }] },
+    'dyn-torso-twist': { v: 'front', dur: 1800, f: [
+      { h: [120, 84], t: 0, l: { a: [134, 156], k: [1, 0] }, a: { ua: 92, fa: 92 }, aL: { ua: 118, fa: 68 }, yaw: 1 },
+      { a: { ua: 242, fa: 292 }, aL: { ua: 268, fa: 268 }, yaw: -1 }] },
+    'dyn-leg-swing': { dur: 1600, f: [
+      { h: [118, 82], t: 0, ln: { th: 118, sh: 120, toe: 30 }, lf: { a: [118, 156], toe: 90 }, an: { ua: 100, fa: 100 }, af: { ua: 178, fa: 178 } },
+      { ln: { th: 212, sh: 210, toe: 120 } }] },
+    'dyn-leg-swing-side': { v: 'front', dur: 1600, f: [
+      { h: [120, 84], t: 0, l: { th: 150, sh: 150 }, lL: { a: [111, 156], k: [-1, 0] }, a: { ua: 100, fa: 100 } },
+      { l: { th: 194, sh: 194 } }] },
+    'dyn-cat-cow': { dur: 3600, props: [MAT], f: [
+      { h: [90, 108], t: 82, hd: 125, ln: { th: 180, sh: 270 }, lf: { th: 180, sh: 270 }, an: { ua: 180, fa: 180 } },
+      { h: [90, 116], t: 98, hd: 60 }] },
+    'dyn-high-knees': { dur: 900, f: [
+      { h: [118, 80], t: 0, ln: { th: 96, sh: 182, toe: 92 }, lf: { th: 180, sh: 180, toe: 100 }, an: { ua: 210, fa: 150 }, af: { ua: 150, fa: 60 } },
+      { ln: { th: 180, sh: 180, toe: 100 }, lf: { th: 96, sh: 182, toe: 92 }, an: { ua: 150, fa: 60 }, af: { ua: 210, fa: 150 } }] },
+    'dyn-butt-kicks': { dur: 900, f: [
+      { h: [118, 80], t: 2, ln: { th: 172, sh: 12 }, lf: { th: 180, sh: 180, toe: 100 }, an: { ua: 200, fa: 140 }, af: { ua: 160, fa: 70 } },
+      { ln: { th: 180, sh: 180, toe: 100 }, lf: { th: 172, sh: 12 }, an: { ua: 160, fa: 70 }, af: { ua: 200, fa: 140 } }] },
+    'dyn-squat-reach': { dur: 2600, f: [
+      { h: [100, 122], t: 30, ln: { a: [122, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { ua: 95, fa: 95 } },
+      { h: [118, 82], t: -2, ln: { a: [122, 156], toe: 112 }, lf: { a: [117, 156], toe: 112 }, an: { ua: 2, fa: 2 } }] },
+    'st-hamstring': { dur: 4000, props: [MAT], f: [
+      { h: [96, 148], t: 52, hd: 62, ln: { th: 90, sh: 90, toe: 0 }, lf: { th: 90, sh: 89, toe: 0 }, an: { w: [160, 146], e: [0, -1] } },
+      { t: 58, hd: 68 }] },
+    'st-quad': { dur: 4000, f: [
+      { h: [118, 84], t: 2, ln: { th: 196, sh: -12 }, lf: { a: [118, 156], toe: 90 }, an: { wh: [-14, 4], e: [-0.3, 1] }, af: { ua: 100, fa: 95 } },
+      { t: 4 }] },
+    'st-hip-flexor': { dur: 4000, props: [MAT], f: [
+      { h: [108, 116], t: -4, hd: 0, ln: { a: [150, 156], toe: 90 }, lf: { a: [60, 154], k: [0, 1], toe: -90 }, an: { w: [146, 114], e: [0, 1] } },
+      { h: [112, 118], t: -7 }] },
+    'st-calf-wall': { dur: 4000, props: [{ k: 'rect', x: 190, y: 10, w: 8, h: 150, r: 2 }], f: [
+      { h: [124, 98], t: 34, hd: 30, ln: { a: [150, 156], toe: 90 }, lf: { a: [76, 156], toe: 90 }, an: { w: [188, 64], e: [0, 1] } },
+      { h: [127, 99] }] },
+    'st-child-pose': { dur: 4400, props: [MAT], f: [
+      { h: [84, 134], t: 104, hd: 112, ln: { th: 128, sh: 270, toe: -90 }, lf: { th: 128, sh: 270, toe: -90 }, an: { ua: 98, fa: 96 } },
+      { t: 106, hd: 114 }] },
+    'st-chest-doorway': { v: 'front', dur: 4000, props: [{ k: 'line', p: [160, 8, 160, 158], w: 6 }], f: [
+      { h: [118, 84], t: 0, l: { a: [128, 156], k: [1, 0] }, a: { ua: 92, fa: 2 }, aL: { ua: 178, fa: 178 } },
+      { t: -3 }] },
+    'st-shoulder-cross': { v: 'front', dur: 4000, f: [
+      { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: -92, fa: -92 }, aL: { w: [118, 42], e: [-0.4, 1] } },
+      { a: { ua: -96, fa: -96 } }] },
+    'st-triceps-overhead': { v: 'front', dur: 4000, f: [
+      { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 8, fa: 196 }, aL: { w: [138, 12], e: [-1, 0.3] } },
+      { t: 3 }] },
+    'st-side-bend': { v: 'front', dur: 4000, f: [
+      { h: [120, 84], t: 0, l: { a: [134, 156], k: [1, 0] }, a: { wh: [14, -4], e: [1, 0] }, aL: { ua: 20, fa: 40 } },
+      { t: 14, hd: 18, aL: { ua: 35, fa: 62 } }] },
+    'st-cobra': { dur: 4000, props: [MAT], f: [
+      { h: [96, 150], t: 68, hd: 55, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { w: [146, 157], e: [-1, 0] } },
+      { t: 72, hd: 58 }] },
     'band-alt-rot': { v: 'back', cycle: 1, dur: 3400, props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 28, fa: 28 }, aL: { ua: -28, fa: -28 } },
       { a: { ua: 100, fa: 100 } },
@@ -1255,6 +1389,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   function poseAt(spec, ms) {
     const fr = framesOf(spec);
     if (fr.length === 1) return fr[0];
+    if (spec.jump) { const n = fr.length - 1, x = (((ms % (spec.dur || 2600)) / (spec.dur || 2600)) * n), i = Math.min(n - 1, Math.floor(x)); return lerpAny(fr[i], fr[i + 1], x - i); } // vòng tròn liên tục (360° ≡ 0°)
     const seq = spec.cycle || fr.length === 2 ? fr : [...fr, ...fr.slice(1, -1).reverse()];
     const n = seq.length, dur = spec.dur || 2600;
     const x = ((ms % dur) / dur) * n, i = Math.floor(x) % n;
@@ -1320,7 +1455,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.12 (13/11/2026)';
+  const APP_VERSION = '1.13 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1567,6 +1702,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
         <div class="row"><button class="btn sm ghost" data-act="program-info">Xem giáo án</button><button class="btn sm ghost" data-act="help">Hướng dẫn sử dụng</button></div>
       </div>
       ${coachSection()}
+      ${routineSection()}
       <section>
         <div class="row between"><div><h2>Bài PT đã dạy</h2><div class="sub">PT ${esc(D.settings.ptName || DEFAULT_PT)}</div></div><button class="btn sm" data-act="pt-new">+ Ghi buổi PT</button></div>
         ${pts.length ? `<div class="list">${pts.map((p) => `
@@ -1617,7 +1753,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
             </div>
             <button class="rm" data-act="rm-ex" data-i="${i}" aria-label="Bỏ bài ${esc(ex.name)}">×</button>
           </div>
-          ${it.cue ? `<div class="hint pt">PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn: ${esc(it.cue)}</div>` : ''}
+          ${it.cue ? `<div class="hint pt">${A.source && A.source.type === 'routine' ? 'Lưu ý' : `PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn`}: ${esc(it.cue)}</div>` : ''}
           ${tipsFor(ex).personal.map((x) => `<div class="hint pt">HLV dặn riêng bạn: ${esc(x)}</div>`).join('')}
           ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
             <div style="max-width:340px;margin:0 auto;width:100%">${exArt(ex, { anim: true })}</div>${muscleLegend(ex)}
@@ -2428,6 +2564,25 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
   }
   const buildMediaIndex = () => D.media.filter((m) => m.uploaded && !m.missing).slice(-300).map((m) => ({ id: m.id, kind: m.kind, mime: m.mime, size: m.size, chunks: m.chunks, date: m.date, at: m.at, ref: m.ref }));
 
+
+  // ================= KHỞI ĐỘNG & GIÃN CƠ (bài tập nhanh trên trang chính) =================
+  const ROUTINES = {
+    warmup: { name: 'Khởi động · Giãn cơ động', sub: 'Trước khi tập, khoảng 5 phút', items: [
+      ['dyn-arm-circles', 1, 20, '10 lần ra trước, 10 lần ra sau'], ['dyn-torso-twist', 1, 12], ['dyn-cat-cow', 1, 8], ['dyn-leg-swing', 1, 20, 'Mỗi chân 10 lần'],
+      ['dyn-leg-swing-side', 1, 20, 'Mỗi chân 10 lần'], ['dyn-high-knees', 1, 30], ['dyn-butt-kicks', 1, 30], ['dyn-squat-reach', 1, 10]] },
+    cooldown: { name: 'Giãn cơ tĩnh sau tập', sub: 'Sau buổi tập, khoảng 8 phút', items: [
+      ['st-hamstring', 1, 30], ['st-quad', 2, 30, 'Mỗi chân 1 hiệp'], ['st-hip-flexor', 2, 30, 'Mỗi bên 1 hiệp'], ['st-calf-wall', 2, 30, 'Mỗi chân 1 hiệp'],
+      ['st-child-pose', 1, 45], ['st-chest-doorway', 2, 30, 'Mỗi bên 1 hiệp'], ['st-shoulder-cross', 2, 30, 'Mỗi tay 1 hiệp'], ['st-triceps-overhead', 2, 30, 'Mỗi tay 1 hiệp'],
+      ['st-side-bend', 2, 30, 'Mỗi bên 1 hiệp'], ['st-cobra', 1, 30]] },
+  };
+  function startRoutine(id) {
+    const r = ROUTINES[id]; if (!r) return;
+    startWorkout(r.name, r.items.map(([ex, sets, reps, cue]) => ({ ex, sets, reps, cue: cue || '', rest: 15 })), { type: 'routine', id });
+  }
+  const routineSection = () => `<section><h2>Khởi động & giãn cơ</h2><div class="grid2">
+      ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 5 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
+    </div></section>`;
+
   // ================= SYNC WITH COACH (Sổ HLV) =================
   const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
   const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -2676,6 +2831,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       case 'help': closeSheet(); helpSheet(el.dataset.sec); break;
       case 'backup-now': doExport(); break;
       case 'link': closeSheet(); linkSheet(); break;
+      case 'routine': startRoutine(id); break;
       case 'food-day': { const base = S.foodDate || today(); const nd = addDays(base, Number(el.dataset.d)); if (nd <= today()) { S.foodDate = nd; render(); } break; }
       case 'meal-new': mealSheet(null, null); break;
       case 'meal-edit': { const m = D.meals.find((x) => x.id === id); if (m) mealSheet(m, null); break; }

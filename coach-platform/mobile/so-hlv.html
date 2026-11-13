@@ -341,7 +341,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     return overdue ? '<span class="pill overdue">Chưa cập nhật</span>' : `<span class="pill ${esc(s.status)}">${STATUS[s.status] || ''}</span>`;
   };
   // ---------- thư viện bài (trùng id với app học viên Nhật Ký Tập) ----------
-  const EX_GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', neck: 'Cổ' };
+  const EX_GROUPS = { legs: 'Chân', glutes: 'Mông', chest: 'Ngực', back: 'Lưng', shoulders: 'Vai', arms: 'Tay', core: 'Bụng/Core', cardio: 'Cardio', neck: 'Cổ', dynamic: 'Giãn cơ động', static: 'Giãn cơ tĩnh' };
   // [id, tên, nhóm, kiểu (weight=kg×lần, reps=lần, time=giây, min=phút), từ khoá không dấu]
   const EX_LIB = [
     ['goblet-squat', 'Goblet Squat', 'legs', 'weight', ''],
@@ -408,6 +408,24 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     ['neck-head-lift', 'Gập cằm nâng đầu nằm ngửa', 'neck', 'time', 'gap cam nang dau|nang dau nam ngua|head lift|deep neck flexor'],
     ['neck-prone-lift', 'Nằm sấp nâng đầu (cổ sau)', 'neck', 'reps', 'nam sap nang dau|prone head lift|prone neck'],
     ['neck-side-lift', 'Nằm nghiêng nâng đầu', 'neck', 'reps', 'nam nghieng nang dau|side lying head lift'],
+    ['dyn-arm-circles', 'Xoay tay vòng tròn', 'dynamic', 'reps', 'xoay tay|arm circles|xoay tay vong tron'],
+    ['dyn-torso-twist', 'Xoay thân đứng', 'dynamic', 'reps', 'xoay than|torso twist|van nguoi'],
+    ['dyn-leg-swing', 'Đá lăng chân trước – sau', 'dynamic', 'reps', 'da lang chan|leg swing|leg swings|da lang chan truoc sau'],
+    ['dyn-leg-swing-side', 'Đá lăng chân sang ngang', 'dynamic', 'reps', 'da lang chan sang ngang|lateral leg swing|da chan sang ngang'],
+    ['dyn-cat-cow', 'Mèo – bò (Cat-Cow)', 'dynamic', 'reps', 'meo bo|cat cow'],
+    ['dyn-high-knees', 'Nâng gối cao tại chỗ', 'dynamic', 'time', 'nang goi cao|high knees|high knee'],
+    ['dyn-butt-kicks', 'Đá gót chạm mông', 'dynamic', 'time', 'da got cham mong|da got|butt kicks|butt kick'],
+    ['dyn-squat-reach', 'Squat vươn tay lên', 'dynamic', 'reps', 'squat vuon tay|squat reach'],
+    ['st-hamstring', 'Giãn đùi sau ngồi duỗi chân', 'static', 'time', 'gian dui sau|hamstring stretch|ngoi gap nguoi'],
+    ['st-quad', 'Giãn đùi trước đứng', 'static', 'time', 'gian dui truoc|quad stretch'],
+    ['st-hip-flexor', 'Giãn cơ gập hông quỳ một chân', 'static', 'time', 'gian co gap hong|gian hong|hip flexor stretch'],
+    ['st-calf-wall', 'Giãn bắp chân chống tường', 'static', 'time', 'gian bap chan|calf stretch'],
+    ['st-child-pose', "Tư thế em bé (Child's Pose)", 'static', 'time', 'tu the em be|child pose|child s pose|childs pose'],
+    ['st-chest-doorway', 'Giãn ngực ở khung cửa', 'static', 'time', 'gian nguc|chest stretch|doorway stretch'],
+    ['st-shoulder-cross', 'Kéo tay ngang ngực (giãn vai sau)', 'static', 'time', 'keo tay ngang nguc|cross body stretch|gian vai sau|gian vai'],
+    ['st-triceps-overhead', 'Giãn tay sau qua đầu', 'static', 'time', 'gian tay sau|triceps stretch|tricep stretch'],
+    ['st-side-bend', 'Nghiêng người giãn sườn', 'static', 'time', 'nghieng nguoi|gian suon|side bend stretch|side stretch'],
+    ['st-cobra', 'Rắn hổ mang (Cobra)', 'static', 'time', 'ran ho mang|cobra'],
     ['band-overhead-rot', 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', 'shoulders', 'reps', 'overhead shoulder rotation|overhead shoulder rotations|overhead shouder rotations|shoulder dislocate|shoulder dislocates|pass through|xoay vai qua dau'],
     ['band-alt-rot', 'Xoay vai luân phiên với dây (Band Alternating Shoulder Rotations)', 'shoulders', 'reps', 'alternating shoulder rotation|alternating shoulder rotations|alternating shouder rotations|xoay vai luan phien'],
   ].map(([id, name, group, type, kw]) => {
@@ -1409,6 +1427,24 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     'neck-head-lift': { b: 'hold', c: ['Thu cằm trước rồi mới nhấc đầu', 'Chỉ nhấc 2–3 cm', 'Thở đều, vai thả lỏng'] },
     'neck-prone-lift': { b: 'hold', c: ['Cằm hơi thu, mắt nhìn sàn', 'Nâng đến thẳng hàng với lưng là đủ', 'Hạ chậm 2–3 giây'] },
     'neck-side-lift': { b: 'hold', c: ['Mặt nhìn thẳng, không xoay', 'Nhấc vừa đủ, cổ thẳng hàng', 'Hạ chậm'] },
+    'dyn-arm-circles': { b: 'cardio', c: ['Vai thả xa tai', 'Vòng nhỏ đến vòng lớn', 'Nhịp đều, không giật'] },
+    'dyn-torso-twist': { b: 'cardio', c: ['Hông hướng ra trước', 'Xoay từ eo và ngực', 'Tay vung nhẹ theo người'] },
+    'dyn-leg-swing': { b: 'cardio', c: ['Thân thẳng, bụng siết', 'Biên độ tăng dần', 'Chân trụ hơi chùng gối'] },
+    'dyn-leg-swing-side': { b: 'cardio', c: ['Mũi chân hướng ra trước', 'Thân không nghiêng theo chân', 'Biên độ tăng dần'] },
+    'dyn-cat-cow': { b: 'hold', c: ['Thở ra cong lưng, hít vào võng lưng', 'Chuyển động từng đốt sống', 'Chậm theo nhịp thở'] },
+    'dyn-high-knees': { b: 'cardio', c: ['Gối lên ngang hông', 'Tiếp đất nhẹ bằng mũi chân', 'Tay đánh theo nhịp'] },
+    'dyn-butt-kicks': { b: 'cardio', c: ['Đùi hướng xuống sàn', 'Gót chạm gần mông', 'Thân thẳng'] },
+    'dyn-squat-reach': { b: 'lift', c: ['Gối theo hướng mũi chân', 'Đứng lên vươn dài người', 'Thở ra khi đứng lên'] },
+    'st-hamstring': { b: 'hold', c: ['Gập từ hông, lưng thẳng', 'Căng vừa, không đau', 'Thở ra để vào sâu hơn'] },
+    'st-quad': { b: 'hold', c: ['Hai gối sát nhau', 'Siết mông, hông đẩy ra trước', 'Vịn tường nếu chưa vững'] },
+    'st-hip-flexor': { b: 'hold', c: ['Siết mông bên chân quỳ', 'Đẩy hông ra trước, không ưỡn lưng', 'Thân thẳng đứng'] },
+    'st-calf-wall': { b: 'hold', c: ['Gót sau ép sàn', 'Gối sau thẳng', 'Mũi chân sau hướng ra trước'] },
+    'st-child-pose': { b: 'hold', c: ['Thả lỏng vai và lưng', 'Thở sâu vào lưng', 'Tay vươn dài ra trước'] },
+    'st-chest-doorway': { b: 'hold', c: ['Khuỷu ngang vai', 'Vai thả xuống', 'Xoay người ra xa nhẹ nhàng'] },
+    'st-shoulder-cross': { b: 'hold', c: ['Vai thả xuống', 'Kéo trên khuỷu, không kéo khớp', 'Thân không xoay'] },
+    'st-triceps-overhead': { b: 'hold', c: ['Đầu thẳng, không cúi', 'Ấn nhẹ khuỷu tay', 'Bụng siết, không ưỡn'] },
+    'st-side-bend': { b: 'hold', c: ['Nghiêng ngang, không gập trước', 'Vươn dài qua đầu', 'Thở vào bên sườn căng'] },
+    'st-cobra': { b: 'hold', c: ['Hông chạm thảm', 'Vai thả xa tai', 'Nâng vừa đủ, không đau lưng'] },
     'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
     'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
   }
