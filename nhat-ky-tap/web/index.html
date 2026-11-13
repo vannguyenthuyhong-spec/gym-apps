@@ -554,7 +554,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     { id: 'band-row', name: 'Kéo dây chèo đứng (Band Row)', group: 'back', equip: 'Dây kháng lực dài + chỗ neo', type: 'reps', inc: 0,
       steps: ['Neo dây vào cột hoặc khung cửa ngang ngực, lùi ra cho dây hơi căng.', 'Đứng chân rộng bằng vai, gối hơi chùng, ngực mở.', 'Kéo tay về bụng, khuỷu tay lướt sát người; ép hai bả vai rồi duỗi chậm.'],
       mistakes: ['Kéo bằng tay, nhún vai lên tai.', 'Ngả người ra sau lấy đà.'] },
-    { id: 'band-pull-apart', name: 'Kéo giãn dây trước ngực (Pull-Apart)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
+    { id: 'band-pull-apart', name: 'Kéo dây kháng lực mở ngang ngực (Band Pull-Apart)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Hai tay cầm dây rộng bằng vai, duỗi thẳng ngang ngực.', 'Kéo giãn dây sang hai bên đến khi dây chạm ngực, ép hai bả vai.', 'Về chậm, không để dây giật.'],
       mistakes: ['Nhún vai lên.', 'Gập khuỷu tay nhiều — giữ tay gần thẳng.'] },
     { id: 'band-chest-press', name: 'Đẩy ngực với dây', group: 'chest', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
@@ -578,6 +578,9 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     { id: 'band-w-pulldown', name: 'Kéo dây kháng lực chữ W xuống (Band W Pulldown)', group: 'back', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Cầm dây rộng hơn vai, đưa thẳng hai tay lên trên đầu, dây hơi căng.', 'Kéo giãn dây sang hai bên, hạ khuỷu tay xuống sát sườn để tay thành hình chữ W; dây xuống ngang gáy (vai cứng thì kéo xuống trước mặt).', 'Ép hai bả vai xuống và vào trong 1 giây, rồi đưa tay lên chậm.'],
       mistakes: ['Nhún vai lên tai.', 'Đẩy đầu ra trước, ưỡn lưng.', 'Để dây chùng ở trên đầu.'] },
+    { id: 'band-ext-rot', name: 'Xoay ngoài khớp vai với dây (Band External Rotation)', group: 'shoulders', equip: 'Dây kháng lực dài (dây nhẹ)', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, hai tay cầm dây cách nhau khoảng một gang tay; khuỷu tay gập 90°, ép sát sườn, cẳng tay song song sàn.', 'Giữ khuỷu tay dính sườn, xoay cẳng tay ra ngoài để kéo giãn dây (như mở cửa hai cánh).', 'Giữ 1 giây rồi về chậm. Có thể kẹp khăn nhỏ giữa khuỷu tay và sườn để nhớ giữ khuỷu.'],
+      mistakes: ['Khuỷu tay rời khỏi sườn.', 'Nhún vai hoặc ưỡn lưng để xoay được xa hơn.', 'Dùng dây quá nặng — bài này cần dây nhẹ, đi chậm.'] },
     { id: 'band-overhead-rot', name: 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Cầm dây thật rộng (rộng hơn vai nhiều), hai tay duỗi thẳng trước đùi.', 'Giữ tay thẳng, đưa dây lên qua đầu rồi ra sau lưng đến ngang mông.', 'Đưa ngược về trước là 1 lần. Đi chậm; thấy kẹt vai thì cầm rộng tay hơn.'],
       mistakes: ['Gập khuỷu tay để đưa qua được.', 'Ưỡn lưng, sườn bật ra trước.', 'Cầm dây quá hẹp gây đau vai.'] },
@@ -604,7 +607,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
       desc: 'Chỉ cần 1 dây dài và 1 dây mini. Mỗi buổi mở đầu bằng 1 bài xoay vai với dây để khởi động. Tập 3 buổi/tuần, luân phiên A → B. Mỗi buổi khoảng 30–35 phút, nghỉ 60 giây giữa hiệp. Chọn dây đủ nặng để 2–3 lần cuối thấy khó.',
       days: [
         { name: 'Buổi A', items: [['band-overhead-rot', 2, 10], ['band-squat', 3, 15], ['band-row', 3, 12], ['band-chest-press', 3, 12], ['band-glute-bridge', 3, 15], ['band-pull-apart', 3, 15], ['band-w-pulldown', 3, 12], ['dead-bug', 3, 10]] },
-        { name: 'Buổi B', items: [['band-alt-rot', 2, 10], ['band-lateral-walk', 3, 12], ['band-lat-pulldown', 3, 12], ['band-shoulder-press', 3, 12], ['band-glute-kickback', 3, 12], ['band-curl', 3, 12], ['band-triceps-ext', 3, 12], ['jump-rope', 3, 1]] },
+        { name: 'Buổi B', items: [['band-alt-rot', 2, 10], ['band-ext-rot', 2, 12], ['band-lateral-walk', 3, 12], ['band-lat-pulldown', 3, 12], ['band-shoulder-press', 3, 12], ['band-glute-kickback', 3, 12], ['band-curl', 3, 12], ['band-triceps-ext', 3, 12], ['jump-rope', 3, 1]] },
       ] },
   ];
 
@@ -672,6 +675,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'band-lat-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần', 'Ngực mở, vai thả xa tai', 'Đưa tay lên chậm'] },
     'jump-rope': { b: 'cardio', c: ['Bật nhẹ bằng mũi chân', 'Khuỷu tay sát người, quay bằng cổ tay', 'Gối hơi chùng khi tiếp đất'] },
     'band-w-pulldown': { b: 'lift', c: ['Cùi chỏ dẫn đường xuống túi quần sau', 'Kéo giãn dây sang hai bên suốt động tác', 'Ép bả vai xuống và vào trong, vai xa tai'] },
+    'band-ext-rot': { b: 'lift', c: ['Khuỷu tay dính sườn suốt bài', 'Xoay bằng vai, cổ tay thẳng', 'Dây nhẹ, đi chậm và đều'] },
     'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
     'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
   };
@@ -765,6 +769,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'band-pull-apart': ['reardelts traps', 'lats'], 'band-chest-press': ['chest', 'delts triceps'], 'band-shoulder-press': ['delts', 'triceps traps'],
     'band-curl': ['biceps', 'forearms'], 'band-triceps-ext': ['triceps', ''], 'band-lat-pulldown': ['lats', 'biceps reardelts'], 'jump-rope': ['calves', 'quads delts'],
     'band-w-pulldown': ['lats traps', 'reardelts biceps'],
+    'band-ext-rot': ['reardelts', 'traps delts'],
     'band-overhead-rot': ['delts reardelts', 'traps chest'], 'band-alt-rot': ['delts reardelts', 'lats traps'],
   };
   const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves' };
@@ -999,6 +1004,10 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     'band-w-pulldown': { v: 'back', props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { w: [156, -6], e: [1, 0] } },
       { a: { w: [158, 40], e: [0.2, 1] } }] },
+    'band-ext-rot': { v: 'back', dur: 3000, props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
+      { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 180, fa: -90, fs: 0.9 } },
+      { a: { ua: 180, fa: 0, fs: 0.12 } },
+      { a: { ua: 180, fa: 88, fs: 1 } }] },
     'band-alt-rot': { v: 'back', cycle: 1, dur: 3400, props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 28, fa: 28 }, aL: { ua: -28, fa: -28 } },
       { a: { ua: 100, fa: 100 } },
@@ -1032,7 +1041,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
     const a1 = sp.ua ?? sp.th, a2 = sp.fa ?? sp.sh;
     if (a1 != null) {
       const m = vadd(root, av(mir ? mir.ang(a1) : a1), la);
-      return [m, vadd(m, av(mir ? mir.ang(a2) : a2), lb)];
+      return [m, vadd(m, av(mir ? mir.ang(a2) : a2), lb * (sp.fs ?? 1))];
     }
     let T = sp.w || sp.a || (sp.wr && vadd(ctx.S, sp.wr)) || (sp.wh && vadd(ctx.H, sp.wh)) || vadd(root, [0, 1], la + lb);
     let h = sp.e || sp.k || defHint;
@@ -1277,7 +1286,7 @@ svg.exart.big { max-width: 440px; margin: 0 auto; }
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.10 (13/11/2026)';
+  const APP_VERSION = '1.11 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
