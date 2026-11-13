@@ -286,6 +286,34 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
 .btn:active, button.card:active, .meal:active, .pick:active, .tabbar button:active, .icon-btn:active, .me-card:active { transform: scale(.97); }
 .tabbar button svg { transition: transform .2s ease; }
 .tabbar button[aria-current="page"] svg { transform: translateY(-2px); }
+/* @@EXART-CSS */
+/* Hình động tác: nền tối, người tập nữ, cơ chính phát sáng hồng, cơ phụ vàng */
+svg.exart { display: block; width: 100%; height: auto; border-radius: 14px; background: #12070c; }
+svg.exart .bd { stroke: #5c2339; } svg.exart .bdf { stroke: #3b1523; } svg.exart .bdfill { fill: #5c2339; }
+svg.exart .tor { fill: #55203a; stroke: #6d2b47; stroke-width: .8; }
+svg.exart .hd { fill: #7a3550; } svg.exart .hdf { fill: #4a1a2c; }
+svg.exart .face { fill: #7c3954; } svg.exart .hair { fill: #241016; } svg.exart .tail { stroke: #241016; }
+svg.exart .mi { fill: #8a3050; stroke: #a8456b; stroke-width: .35; }
+svg.exart .ms { fill: #f2a93b; stroke: #ffe2a8; stroke-width: .4; filter: url(#nkGlowS); }
+svg.exart .mp { fill: url(#nkHot); stroke: #ffe0ea; stroke-width: .5; filter: url(#nkGlow); }
+svg.exart .far { opacity: .55; }
+svg.exart .shadow { fill: rgba(0, 0, 0, .45); }
+svg.exart .pb { fill: #252830; stroke: #5d6470; stroke-width: 1.2; }
+svg.exart .mat { fill: #3a1a28; }
+svg.exart .pl { stroke: #555c68; }
+svg.exart .pr { fill: #1f2127; stroke: #b9c1cd; stroke-width: 1.6; }
+svg.exart .pr2 { fill: #b9c1cd; } svg.exart .pr2l { stroke: #b9c1cd; }
+svg.exart .pring { fill: none; stroke: #555c68; stroke-width: 3; }
+svg.exart .pc { stroke: #d6dae1; stroke-width: 1; opacity: .7; }
+svg.exart[data-anim] .mp { animation: nkPulse 2.4s ease-in-out infinite; }
+@keyframes nkPulse { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
+svg.exart .fib { fill: none; stroke: #fff; stroke-width: .7; stroke-linecap: round; opacity: .75; }
+svg.exart .ms + .fib, svg.exart .fib.s { opacity: .5; }
+svg.exart .jt { fill: #6a2a44; }
+.lib-row svg.exart { width: 112px; flex: none; border-radius: 12px; }
+svg.exart.big { max-width: 440px; margin: 0 auto; }
+.legend .dot { background: #ff2e6e; } .legend .dot.s { background: #f2a93b; opacity: 1; }
+/* @@EXART-CSS-END */
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -685,9 +713,408 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
       ${s.length ? `<span><span class="dot s"></span><b>Cơ phụ:</b> ${esc(s.map((k) => MUSCLE_NAMES[k]).join(', '))}</span>` : ''}</div>`;
   }
 
+  // @@EXART-START (hình động tác: người tập nữ, cơ phát sáng, có chuyển động)
+  // ================= HÌNH ĐỘNG TÁC: người tập nữ, cơ chính phát sáng, có chuyển động =================
+  // Toàn bộ vẽ bằng SVG (không cần ảnh): mỗi bài có 2+ khung tư thế; app nội suy để ra chuyển động.
+  // Góc tính bằng độ: 0 = hướng lên, 90 = hướng mặt người tập (sang phải), 180 = xuống.
+  // Chân/tay đặt bằng điểm đích (IK 2 khớp) hoặc bằng góc. v: 'side' (nhìn ngang) | 'front' | 'back'.
+  const ART_L = { torso: 46, neck: 6, head: 8.2, th: 37, sh: 35, ft: 12, ua: 25, fa: 22 };
+  const STAND = { h: [118, 84], t: 0, ln: { a: [120, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 178, fa: 178 } };
+  const DB = (at, extra) => ({ k: 'db', at, ...extra });
+  const BENCH = (x, y, w) => [{ k: 'rect', x, y, w, h: 7, r: 3 }, { k: 'line', p: [x + 10, y + 7, x + 10, 158], w: 5 }, { k: 'line', p: [x + w - 10, y + 7, x + w - 10, 158], w: 5 }];
+  const MAT = { k: 'rect', x: 18, y: 158, w: 204, h: 3, r: 1.5, mat: 1 };
+  const ART = {
+    'goblet-squat': { props: [{ k: 'kb', at: 'wn', dx: 3, dy: 3 }], f: [
+      { h: [118, 84], t: 2, ln: { a: [122, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { wr: [14, 12], e: [0.2, 1] } },
+      { h: [100, 122], t: 30 }] },
+    'back-squat': { props: [{ k: 'bar', at: 's', dx: -5, dy: -3 }], f: [
+      { h: [118, 84], t: 4, ln: { a: [122, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { wr: [-7, 4], e: [-1, 0.7] } },
+      { h: [98, 122], t: 38 }] },
+    'leg-press': { thumb: 0, props: [{ k: 'line', p: [42, 92, 80, 142], w: 8 }, { k: 'line', p: [76, 142, 108, 136], w: 8 }, { k: 'line', p: [94, 140, 94, 158], w: 5 }, { k: 'plate', at: 'tn', ang: -38, len: 46 }], f: [
+      { h: [82, 128], t: -52, hd: -42, ln: { a: [126, 94], k: [-0.2, -1], toe: -38 }, lf: { a: [130, 98], k: [-0.2, -1], toe: -38 }, an: { w: [94, 136], e: [0, 1] } },
+      { ln: { a: [146, 76], k: [-0.2, -1], toe: -38 }, lf: { a: [150, 80], k: [-0.2, -1], toe: -38 } }] },
+    'db-lunge': { props: [DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [110, 84], t: 0, ln: { a: [114, 156], toe: 90 }, lf: { a: [106, 156], toe: 90, k: [1, 0] }, an: { ua: 180, fa: 180 } },
+      { h: [98, 121], t: 3, ln: { a: [130, 156], toe: 90 }, lf: { a: [58, 150], toe: 125, k: [0, 1] } }] },
+    'rdl-db': { props: [DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { ua: 178, fa: 178 } },
+      { h: [92, 92], t: 78, hd: 70, an: { ua: 168, fa: 172 } }] },
+    deadlift: { thumb: 0, props: [{ k: 'bar', at: 'wn' }], f: [
+      { h: [94, 112], t: 55, hd: 62, ln: { a: [120, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 180, fa: 180 } },
+      { h: [116, 84], t: 0, hd: 0 }] },
+    'hip-thrust': { props: [{ k: 'rect', x: 28, y: 112, w: 46, h: 46, r: 4 }, { k: 'bar', at: 'h', dx: 3, dy: -10 }], f: [
+      { h: [112, 140], t: -62, hd: -72, ln: { a: [158, 156], toe: 90, k: [0, -1] }, lf: { a: [154, 156], toe: 90, k: [0, -1] }, an: { wh: [5, -9], e: [0, -1] } },
+      { h: [114, 112], t: -90, hd: -82 }] },
+    'glute-bridge': { props: [MAT], f: [
+      { h: [110, 150], t: -88, hd: -93, ln: { a: [152, 156], toe: 90, k: [0, -1] }, lf: { a: [148, 156], toe: 90, k: [0, -1] }, an: { wr: [38, 7], e: [0, 1] } },
+      { h: [110, 130], t: -116, hd: -104 }] },
+    'leg-curl': { props: [...BENCH(54, 112, 112), { k: 'pad', at: 'an', dx: -2, dy: -6 }], f: [
+      { h: [96, 104], t: 90, hd: 84, ln: { th: -90, sh: -90 }, lf: { th: -92, sh: -92 }, an: { w: [156, 122], e: [0, 1] } },
+      { ln: { th: -90, sh: 15 }, lf: { th: -92, sh: 13 } }] },
+    'leg-ext': { props: [{ k: 'rect', x: 66, y: 120, w: 50, h: 7, r: 3 }, { k: 'rect', x: 58, y: 58, w: 7, h: 66, r: 3 }, { k: 'line', p: [90, 127, 90, 158], w: 5 }, { k: 'pad', at: 'an', dx: 3, dy: -3 }], f: [
+      { h: [80, 112], t: -4, ln: { th: 92, sh: 178 }, lf: { th: 90, sh: 176 }, an: { w: [104, 122], e: [-1, 0.5] } },
+      { ln: { th: 92, sh: 98 }, lf: { th: 90, sh: 96 } }] },
+    'calf-raise': { props: [DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [118, 84], t: 0, ln: { a: [120, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 179, fa: 179 } },
+      { h: [118, 75], ln: { a: [120, 147], toe: 130 }, lf: { a: [116, 147], toe: 130 } }] },
+    'bw-squat': { f: [
+      { h: [118, 84], t: 2, ln: { a: [122, 156], toe: 90 }, lf: { a: [117, 156], toe: 90 }, an: { ua: 160, fa: 160 } },
+      { h: [100, 123], t: 32, an: { ua: 92, fa: 92 } }] },
+    'reverse-lunge': { f: [
+      { h: [110, 84], t: 0, ln: { a: [114, 156], toe: 90 }, lf: { a: [106, 156], toe: 90, k: [1, 0] }, an: { wh: [8, 2], e: [-1, -0.2] } },
+      { h: [98, 121], t: 3, ln: { a: [130, 156], toe: 90 }, lf: { a: [58, 150], toe: 125, k: [0, 1] } }] },
+    'wall-sit': { props: [{ k: 'rect', x: 50, y: 8, w: 9, h: 152, r: 2 }], f: [
+      { h: [72, 112], t: 0, ln: { a: [110, 156], toe: 90 }, lf: { a: [106, 156], toe: 90 }, an: { ua: 150, fa: 100 } },
+      { h: [72, 113] }] },
+    pushup: { thumb: 0, props: [MAT], f: [
+      { h: [128, 127], t: 67, hd: 72, ln: { a: [62, 150], toe: 225 }, an: { w: [170, 156], e: [-1, -0.3] } },
+      { h: [132, 145], t: 82, hd: 86 }] },
+    'knee-pushup': { thumb: 0, props: [MAT], f: [
+      { h: [124, 134], t: 62, hd: 66, ln: { a: [68, 126], k: [0, 1] }, an: { w: [166, 156], e: [-1, -0.3] } },
+      { h: [130, 148], t: 80, hd: 84 }] },
+    'db-bench': { props: [...BENCH(40, 116, 96), DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [110, 107], t: -90, hd: -96, ln: { a: [150, 156], toe: 90, k: [1, -1] }, lf: { a: [146, 156], toe: 90, k: [1, -1] }, an: { wr: [0, -46], e: [-1, 0] } },
+      { an: { wr: [3, -14], e: [0, 1] } }] },
+    bench: { props: [...BENCH(40, 116, 96), { k: 'bar', at: 'wn' }], f: [
+      { h: [110, 107], t: -90, hd: -96, ln: { a: [150, 156], toe: 90, k: [1, -1] }, lf: { a: [146, 156], toe: 90, k: [1, -1] }, an: { wr: [2, -46], e: [-1, 0] } },
+      { an: { wr: [7, -13], e: [0, 1] } }] },
+    'chest-press': { props: [{ k: 'rect', x: 56, y: 58, w: 8, h: 64, r: 3 }, { k: 'rect', x: 60, y: 120, w: 48, h: 7, r: 3 }, { k: 'line', p: [84, 127, 84, 158], w: 5 }, { k: 'handle', at: 'wn' }], f: [
+      { h: [78, 113], t: -3, ln: { a: [116, 154], toe: 90, k: [1, -1] }, lf: { a: [112, 154], toe: 90, k: [1, -1] }, an: { wr: [13, 8], e: [-1, 0.2] } },
+      { an: { wr: [45, 7], e: [-1, 0.2] } }] },
+    'incline-db': { props: [{ k: 'line', p: [42, 70, 86, 130], w: 8 }, { k: 'line', p: [82, 132, 116, 128], w: 8 }, { k: 'line', p: [92, 132, 92, 158], w: 5 }, DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [96, 122], t: -37, hd: -28, ln: { a: [140, 156], toe: 90, k: [1, -1] }, lf: { a: [136, 156], toe: 90, k: [1, -1] }, an: { wr: [8, -46], e: [-1, 0] } },
+      { an: { wr: [12, -12], e: [-0.4, 1] } }] },
+    'lat-pulldown': { v: 'back', props: [{ k: 'hbar' }, { k: 'rect', x: 92, y: 120, w: 56, h: 8, r: 3 }, { k: 'line', p: [120, 128, 120, 158], w: 6 }], f: [
+      { h: [120, 116], t: 0, l: { a: [140, 156], k: [1, 0] }, a: { w: [172, 22], e: [1, 0] } },
+      { a: { w: [158, 64], e: [1, 1] } }] },
+    'cable-row': { props: [{ k: 'rect', x: 58, y: 120, w: 56, h: 7, r: 3 }, { k: 'line', p: [86, 127, 86, 158], w: 5 }, { k: 'line', p: [160, 106, 160, 158], w: 6 }, { k: 'cable', at: 'wn', to: [216, 116] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [84, 114], t: 34, hd: 38, ln: { a: [152, 132], toe: -8, k: [0, -1] }, lf: { a: [152, 128], toe: -8, k: [0, -1] }, an: { wr: [40, 22], e: [0, 1] } },
+      { t: -6, hd: -2, an: { wr: [16, 30], e: [-1, 0] } }] },
+    'db-row': { props: [...BENCH(38, 132, 126).map((p) => (p.k === 'line' ? { ...p, p: [p.p[0], 139, p.p[2], 158] } : p)), DB('wn')], f: [
+      { h: [84, 96], t: 84, hd: 88, ln: { a: [88, 156], toe: 90, k: [1, 0] }, lf: { a: [46, 128], k: [0, 1], toe: 180 }, an: { wr: [0, 46], e: [-1, 0] }, af: { w: [136, 134], e: [-1, 0] } },
+      { an: { wr: [-15, 6], e: [-0.5, -1] } }] },
+    'assisted-pullup': { props: [{ k: 'line', p: [132, 18, 214, 18], w: 5 }, { k: 'circle', c: [132, 18], r: 4.5, fill: 1 }, { k: 'line', p: [214, 18, 214, 158], w: 6 }, { k: 'pad', at: 'kn', dx: 2, dy: 7 }], f: [
+      { h: [126, 116], t: 4, hd: 0, ln: { a: [102, 150], k: [1, 0], toe: 110 }, an: { w: [132, 20], e: [0.4, 1] } },
+      { h: [128, 84], t: 3, hd: -4, ln: { a: [104, 118], k: [1, 0], toe: 110 } }] },
+    superman: { props: [MAT], f: [
+      { h: [106, 148], t: 90, hd: 92, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { ua: 90, fa: 90 } },
+      { t: 80, hd: 72, ln: { th: -80, sh: -82 }, lf: { th: -81, sh: -83 }, an: { ua: 72, fa: 72 } }] },
+    'db-press': { v: 'front', props: [{ k: 'rect', x: 94, y: 116, w: 52, h: 8, r: 3 }, { k: 'line', p: [120, 124, 120, 158], w: 6 }, DB('wR'), DB('wL')], f: [
+      { h: [120, 112], t: 0, l: { a: [138, 156], k: [1, 0] }, a: { w: [156, 60], e: [1, 0.6] } },
+      { a: { w: [141, 22], e: [1, 0] } }] },
+    'lateral-raise': { v: 'front', props: [DB('wR'), DB('wL')], f: [
+      { h: [120, 84], t: 0, l: { a: [128, 156], k: [1, 0] }, a: { ua: 172, fa: 174 } },
+      { a: { ua: 96, fa: 100 } }] },
+    'face-pull': { props: [{ k: 'line', p: [228, 8, 228, 158], w: 6 }, { k: 'cable', at: 'wn', to: [226, 44] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [104, 84], t: -6, hd: -2, ln: { a: [116, 156], toe: 90 }, lf: { a: [94, 156], toe: 90 }, an: { wr: [44, 6], e: [0, 1] } },
+      { an: { wr: [12, -6], e: [-1, -0.8] } }] },
+    'pike-pushup': { props: [MAT], f: [
+      { h: [110, 84], t: 120, hd: 140, ln: { a: [100, 152], toe: 200 }, an: { w: [154, 156], e: [-1, -0.4] } },
+      { h: [114, 88], t: 140, hd: 168 }] },
+    'db-curl': { props: [DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 178, fa: 178 } },
+      { an: { ua: 172, fa: 22 } }] },
+    'triceps-pushdown': { props: [{ k: 'line', p: [164, 0, 164, 158], w: 6 }, { k: 'cable', at: 'wn', to: [160, 6] }, { k: 'handle', at: 'wn' }], f: [
+      { h: [112, 84], t: 10, hd: 6, ln: { a: [118, 156], toe: 90 }, lf: { a: [104, 156], toe: 90 }, an: { ua: 172, fa: 28 } },
+      { an: { ua: 174, fa: 172 } }] },
+    plank: { props: [MAT], f: [
+      { h: [108, 138], t: 84, hd: 88, ln: { a: [40, 150], toe: 225 }, an: { ua: 180, fa: 90 } },
+      { h: [108, 136] }] },
+    'side-plank': { v: 'front', props: [MAT], f: [
+      { h: [118, 134], t: 68, hd: 72, l: { a: [44, 151], k: [0, -1] }, lL: { a: [48, 145], k: [0, -1] }, a: { ua: 180, fa: 90 }, aL: { ua: 18, fa: 18 } },
+      { h: [118, 131] }] },
+    'dead-bug': { props: [MAT], f: [
+      { h: [118, 150], t: -90, hd: -93, ln: { th: 2, sh: 90 }, lf: { th: -2, sh: 88 }, an: { ua: 2, fa: 2 }, af: { ua: -2, fa: -2 } },
+      { ln: { th: 72, sh: 80 }, af: { ua: -82, fa: -84 } }] },
+    'bird-dog': { props: [MAT], f: [
+      { h: [90, 112], t: 90, hd: 94, ln: { th: 180, sh: 270 }, lf: { th: 180, sh: 270 }, an: { ua: 180, fa: 180 }, af: { ua: 180, fa: 180 } },
+      { ln: { th: 272, sh: 272 }, af: { ua: 88, fa: 88 } }] },
+    crunch: { props: [MAT], f: [
+      { h: [120, 150], t: -88, hd: -93, ln: { a: [158, 156], toe: 90, k: [0, -1] }, lf: { a: [154, 156], toe: 90, k: [0, -1] }, an: { wr: [-6, -8], e: [1, -1] } },
+      { t: -62, hd: -32 }] },
+    'mountain-climber': { dur: 1300, props: [MAT], f: [
+      { h: [118, 124], t: 70, hd: 76, ln: { a: [56, 150], toe: 225 }, lf: { a: [60, 150], toe: 225 }, an: { w: [166, 156], e: [-1, 0] } },
+      { ln: { a: [128, 146], toe: 160, k: [0, 1] } }] },
+    'incline-walk': { dur: 1500, props: [{ k: 'line', p: [16, 162, 204, 150], w: 7 }, { k: 'line', p: [198, 150, 208, 70], w: 6 }, { k: 'line', p: [180, 72, 214, 68], w: 6 }], f: [
+      { h: [112, 82], t: 5, hd: 4, ln: { a: [136, 150], toe: 86 }, lf: { a: [92, 154], toe: 112 }, an: { ua: 205, fa: 175 }, af: { ua: 152, fa: 118 } },
+      { ln: { a: [92, 154], toe: 112 }, lf: { a: [136, 150], toe: 86 }, an: { ua: 152, fa: 118 }, af: { ua: 205, fa: 175 } }] },
+    bike: { dur: 1700, cycle: 1, props: [{ k: 'line', p: [94, 96, 114, 140], w: 5 }, { k: 'line', p: [84, 94, 104, 92], w: 6 }, { k: 'line', p: [114, 140, 150, 82], w: 5 }, { k: 'line', p: [146, 74, 160, 74], w: 6 }, { k: 'circle', c: [162, 136], r: 20 }, { k: 'circle', c: [118, 140], r: 15 }], f: [
+      { h: [94, 90], t: 30, hd: 44, ln: { a: [133, 140], k: [1, -0.3] }, lf: { a: [103, 140], k: [1, -0.3] }, an: { w: [150, 76], e: [0, 1] } },
+      { ln: { a: [118, 155], k: [1, -0.3] }, lf: { a: [118, 125], k: [1, -0.3] } },
+      { ln: { a: [103, 140], k: [1, -0.3] }, lf: { a: [133, 140], k: [1, -0.3] } },
+      { ln: { a: [118, 125], k: [1, -0.3] }, lf: { a: [118, 155], k: [1, -0.3] } }] },
+    'bulgarian-split-squat': { props: [...BENCH(28, 110, 44), DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [106, 86], t: 4, ln: { a: [124, 155], toe: 90 }, lf: { a: [58, 104], toe: -100, k: [0, 1] }, an: { ua: 180, fa: 180 } },
+      { h: [96, 118], t: 14 }] },
+    'hip-abduction': { v: 'back', props: [{ k: 'rect', x: 90, y: 118, w: 60, h: 8, r: 3 }, { k: 'line', p: [120, 126, 120, 158], w: 6 }, { k: 'pad', at: 'kR', dx: 7, dy: 0 }, { k: 'pad', at: 'kL', dx: -7, dy: 0 }], f: [
+      { h: [120, 114], t: 0, l: { a: [126, 156], k: [1, 0] }, a: { w: [152, 122], e: [1, 0] } },
+      { l: { a: [152, 152], k: [1, 0] } }] },
+    'stair-climber': { dur: 1500, props: [{ k: 'path', d: 'M30 160V146H92V132H150V118H206', w: 3 }, { k: 'line', p: [150, 92, 206, 92], w: 5 }], f: [
+      { h: [108, 74], t: 6, hd: 4, ln: { a: [130, 128], toe: 90 }, lf: { a: [86, 142], toe: 90 }, an: { w: [156, 94], e: [0, 1] } },
+      { ln: { a: [86, 142], toe: 90 }, lf: { a: [130, 128], toe: 90 } }] },
+  };
+
+  const av = (a) => { const r = (a * Math.PI) / 180; return [Math.sin(r), -Math.cos(r)]; };
+  const vadd = (p, v, k = 1) => [p[0] + v[0] * k, p[1] + v[1] * k];
+  const vsub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const vlen = (v) => Math.hypot(v[0], v[1]);
+  const vlerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const angOf = (v) => (Math.atan2(v[0], -v[1]) * 180) / Math.PI;
+  const nf = (n) => Math.round(n * 10) / 10;
+  const pt = (p) => `${nf(p[0])} ${nf(p[1])}`;
+
+  function ik(root, target, a, b, hint) {
+    const v = vsub(target, root), d = vlen(v) || 0.001;
+    const dc = Math.max(Math.abs(a - b) + 0.01, Math.min(a + b - 0.01, d));
+    const u = [v[0] / d, v[1] / d];
+    const ang = Math.acos(Math.max(-1, Math.min(1, (a * a + dc * dc - b * b) / (2 * a * dc))));
+    const rot = (s) => [u[0] * Math.cos(s * ang) - u[1] * Math.sin(s * ang), u[0] * Math.sin(s * ang) + u[1] * Math.cos(s * ang)];
+    const j1 = vadd(root, rot(1), a), j2 = vadd(root, rot(-1), a), mid = vadd(root, u, dc / 2);
+    const h = hint || [1, 0];
+    const dot = (j) => (j[0] - mid[0]) * h[0] + (j[1] - mid[1]) * h[1];
+    const joint = dot(j1) >= dot(j2) ? j1 : j2;
+    const tc = vadd(root, u, dc), w = vsub(tc, joint), wl = vlen(w) || 1;
+    return [joint, vadd(joint, [w[0] / wl, w[1] / wl], b)];
+  }
+  function solveLimb(root, sp, la, lb, defHint, ctx, mir) {
+    const a1 = sp.ua ?? sp.th, a2 = sp.fa ?? sp.sh;
+    if (a1 != null) {
+      const m = vadd(root, av(mir ? mir.ang(a1) : a1), la);
+      return [m, vadd(m, av(mir ? mir.ang(a2) : a2), lb)];
+    }
+    let T = sp.w || sp.a || (sp.wr && vadd(ctx.S, sp.wr)) || (sp.wh && vadd(ctx.H, sp.wh)) || vadd(root, [0, 1], la + lb);
+    let h = sp.e || sp.k || defHint;
+    if (mir) { T = mir.pt(T); h = mir.vec(h); }
+    return ik(root, T, la, lb, h);
+  }
+  function solveSide(f) {
+    const L = ART_L, H = f.h, d = av(f.t), S = vadd(H, d, L.torso), ctx = { S, H };
+    const lf = f.lf || f.ln, af = f.af || f.an;
+    const legN = solveLimb(H, f.ln, L.th, L.sh, [1, 0], ctx), legF = solveLimb(H, lf, L.th, L.sh, [1, 0], ctx);
+    const armN = solveLimb(S, f.an, L.ua, L.fa, [-1, 0.3], ctx), armF = solveLimb(S, af, L.ua, L.fa, [-1, 0.3], ctx);
+    const toe = (leg, sp) => vadd(leg[1], av(sp.toe ?? angOf(vsub(leg[1], leg[0])) - 90), L.ft);
+    const nb = vadd(S, d, 2), hd = f.hd ?? f.t;
+    return { H, S, d, n: [-d[1], d[0]], nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
+      kn: legN[0], an: legN[1], tn: toe(legN, f.ln), kf: legF[0], af: legF[1], tf: toe(legF, lf),
+      en: armN[0], wn: armN[1], ef: armF[0], wf: armF[1] };
+  }
+  function solveFront(f) {
+    const L = ART_L, t = f.t || 0, H = f.h, d = av(t), r = [-d[1], d[0]], S = vadd(H, d, L.torso), ctx = { S, H };
+    const refl = (v) => { const k = 2 * (v[0] * r[0] + v[1] * r[1]); return [v[0] - k * r[0], v[1] - k * r[1]]; };
+    const mir = { pt: (p) => vadd(H, refl(vsub(p, H))), vec: refl, ang: (a) => 2 * t - a };
+    const sR = vadd(S, r, 14), sL = vadd(S, r, -14), hR = vadd(H, r, 9.5), hL = vadd(H, r, -9.5);
+    const aR = solveLimb(sR, f.a, L.ua, L.fa, [1, 0.4], ctx);
+    const aL = f.aL ? solveLimb(sL, f.aL, L.ua, L.fa, [-1, 0.4], ctx) : solveLimb(sL, f.a, L.ua, L.fa, [1, 0.4], ctx, mir);
+    const lR = solveLimb(hR, f.l, L.th, L.sh, [1, 0], ctx);
+    const lL = f.lL ? solveLimb(hL, f.lL, L.th, L.sh, [-1, 0], ctx) : solveLimb(hL, f.l, L.th, L.sh, [1, 0], ctx, mir);
+    const nb = vadd(S, d, 2), hd = f.hd ?? t;
+    return { H, S, d, r, sR, sL, hR, hL, nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
+      eR: aR[0], wR: aR[1], eL: aL[0], wL: aL[1], kR: lR[0], fR: lR[1], kL: lL[0], fL: lL[1] };
+  }
+
+  // ---------- vẽ ----------
+  const nrmOf = (p0, p1) => { const v = vsub(p1, p0), l = vlen(v) || 1; return [-v[1] / l, v[0] / l]; };
+  function lensPath(p0, p1, n, side, off, w) {
+    const a = vadd(p0, n, side * off), b = vadd(p1, n, side * off), m = vlerp(a, b, 0.5), s = side || 1;
+    const c1 = vadd(m, n, s * w * 1.9), c2 = vadd(m, n, -s * w * (side ? 0.45 : 1.9));
+    return `M${pt(a)}Q${pt(c1)} ${pt(b)}Q${pt(c2)} ${pt(a)}Z`;
+  }
+  function fiber(a, b, n, side, off, w) {
+    const s = side || 1, a2 = vadd(a, n, side * off), b2 = vadd(b, n, side * off), m = vadd(vlerp(a2, b2, 0.5), n, s * w * (side ? 1 : 0.15));
+    const a3 = vlerp(a2, b2, 0.15), b3 = vlerp(a2, b2, 0.85);
+    return `<path class="fib" d="M${pt(a3)}Q${pt(m)} ${pt(b3)}"/>`;
+  }
+  function blobPath(P) {
+    const mids = P.map((p, i) => vlerp(p, P[(i + 1) % P.length], 0.5));
+    return `M${pt(mids[P.length - 1])}` + P.map((p, i) => `Q${pt(p)} ${pt(mids[i])}`).join('') + 'Z';
+  }
+  const seg = (p0, p1, w, cls) => `<line x1="${nf(p0[0])}" y1="${nf(p0[1])}" x2="${nf(p1[0])}" y2="${nf(p1[1])}" class="${cls}" stroke-width="${w}" stroke-linecap="round"/>`;
+
+  function figure(spec, f, act) {
+    const v = spec.v || 'side';
+    const J = v === 'side' ? solveSide(f) : solveFront(f);
+    const lv = (m) => (act.p.includes(m) ? 'mp' : act.s.includes(m) ? 'ms' : 'mi');
+    const mus = (name, p0, p1, t0, t1, side, off, w, far) => { const c = lv(name), a = vlerp(p0, p1, t0), b = vlerp(p0, p1, t1), n = nrmOf(p0, p1); return `<path class="${c}${far ? ' far' : ''}" d="${lensPath(a, b, n, side, off, w)}"/>` + (c !== 'mi' && !far ? fiber(a, b, n, side, off, w) : ''); };
+    const props = (layer) => (spec.props || []).filter((p) => (p.layer || (['rect', 'line', 'plate', 'circle', 'path', 'hbar'].includes(p.k) ? 'back' : 'front')) === layer).map((p) => drawProp(p, J, v)).join('');
+    let body = '';
+    const hairColor = 'hair';
+    if (v === 'side') {
+      const { H, S, d, n } = J;
+      const P = (t, side, off) => vadd(vadd(H, d, t * ART_L.torso), n, side * off);
+      const leg = (k, a, t, far) => {
+        const c = far ? 'bdf' : 'bd';
+        return seg(H, k, 15.5, c) + seg(k, a, 11, c) + seg(a, t, 6, c) + `<circle cx="${nf(k[0])}" cy="${nf(k[1])}" r="5" class="jt${far ? " far" : ""}"/>`
+          + mus('quads', H, k, 0.12, 0.9, -1, 2.2, 4.8, far) + mus('hamstrings', H, k, 0.14, 0.86, 1, 2.2, 4.2, far) + mus('calves', k, a, 0.08, 0.56, 1, 1.6, 4, far);
+      };
+      const arm = (e, w, far) => {
+        const c = far ? 'bdf' : 'bd';
+        return seg(S, e, 9.5, c) + seg(e, w, 7.4, c) + mus('delts', S, e, -0.14, 0.36, -1, 0.5, 3.4, far) + mus('reardelts', S, e, -0.14, 0.36, 1, 0.5, 3, far)
+          + mus('biceps', S, e, 0.3, 0.88, -1, 1, 2.9, far) + mus('triceps', S, e, 0.24, 0.88, 1, 1, 3, far) + mus('forearms', e, w, 0.06, 0.62, 0, 0, 2.1, far)
+          + `<circle cx="${nf(w[0])}" cy="${nf(w[1])}" r="3.4" class="${far ? 'hdf' : 'hd'}"/>`;
+      };
+      // thân nữ: eo thon, ngực, hông/mông tròn
+      const outline = [P(-0.1, 1, 6.5), P(0.2, 1, 6.2), P(0.48, 1, 5.2), P(0.66, 1, 8.5), P(0.8, 1, 9.8), P(0.93, 1, 6), P(1.0, -1, 5),
+        P(0.88, -1, 7.5), P(0.62, -1, 6), P(0.38, -1, 5.6), P(0.16, -1, 9.5), P(0.0, -1, 11.5), P(-0.14, -1, 8)];
+      const torso = `<path class="tor" d="${blobPath(outline)}"/>`
+        + mus('glutes', H, S, -0.18, 0.22, -1, 6.2, 5.6) + mus('lowerback', H, S, 0.08, 0.42, -1, 4.6, 2.2) + mus('lats', H, S, 0.42, 0.84, -1, 4, 3.4)
+        + mus('traps', H, S, 0.84, 1.08, -1, 2.6, 2.6) + mus('abs', H, S, 0.14, 0.56, 1, 4, 2.2) + mus('obliques', H, S, 0.18, 0.52, 0, 0, 3)
+        + mus('chest', H, S, 0.62, 0.9, 1, 5.5, 3.6);
+      const head = drawHeadSide(J);
+      body = arm(J.ef, J.wf, true) + leg(J.kf, J.af, J.tf, true) + torso + head + leg(J.kn, J.an, J.tn, false) + arm(J.en, J.wn, false);
+    } else {
+      const back = v === 'back';
+      const { H, d, r } = J;
+      const W = (u, vv) => vadd(vadd(H, r, u * 14), d, vv * ART_L.torso);
+      const sym = (pts) => [blobPath(pts.map(([u, vv]) => W(u, vv))), blobPath(pts.map(([u, vv]) => W(-u, vv)))];
+      const shape = (name, pts, mirror = true) => (mirror ? sym(pts) : [blobPath(pts.map(([u, vv]) => W(u, vv)))]).map((dd) => `<path class="${lv(name)}" d="${dd}"/>`).join('') + (lv(name) !== 'mi' && pts.length >= 4 ? (mirror ? [1, -1] : [1]).map((sg) => { const q = pts.map(([u, vv]) => W(u * sg, vv)); return `<path class="fib" d="M${pt(vlerp(q[0], q[1], 0.5))}Q${pt(vlerp(q[0], q[2], 0.5))} ${pt(vlerp(q[2], q[3], 0.5))}"/>`; }).join('') : '');
+      const outline = [[-1.02, 0.94], [1.02, 0.94], [0.95, 0.76], [0.6, 0.5], [0.66, 0.26], [0.86, 0.06], [0.78, -0.12], [-0.78, -0.12], [-0.86, 0.06], [-0.66, 0.26], [-0.6, 0.5], [-0.95, 0.76]].map(([u, vv]) => W(u, vv));
+      const torso = `<path class="tor" d="${blobPath(outline)}"/>` + (back
+        ? shape('traps', [[0, 1.06], [0.66, 0.96], [0.22, 0.8], [0, 0.58], [-0.22, 0.8], [-0.66, 0.96]], false)
+          + shape('lats', [[0.3, 0.84], [0.92, 0.82], [0.62, 0.42], [0.16, 0.28]]) + shape('lowerback', [[-0.26, 0.44], [0.26, 0.44], [0.2, 0.06], [-0.2, 0.06]], false)
+          + shape('glutes', [[0.04, 0.08], [0.82, 0.04], [0.74, -0.34], [0.06, -0.32]])
+        : shape('chest', [[0.06, 0.88], [0.82, 0.86], [0.8, 0.62], [0.1, 0.6]]) + shape('abs', [[-0.26, 0.56], [0.26, 0.56], [0.22, 0.14], [-0.22, 0.14]], false)
+          + shape('obliques', [[0.34, 0.52], [0.58, 0.54], [0.66, 0.2], [0.4, 0.18]]) + shape('traps', [[0.12, 1.02], [0.55, 0.97], [0.2, 0.92]]));
+      const legF = (hp, k, a) => seg(hp, k, 14, 'bd') + seg(k, a, 10, 'bd')
+        + (back ? mus('hamstrings', hp, k, 0.12, 0.88, 0, 0, 4.4) + mus('calves', k, a, 0.08, 0.5, 0, 0, 3.6)
+          : mus('quads', hp, k, 0.1, 0.9, 0, 0, 4.6) + mus('calves', k, a, 0.12, 0.48, 0, 0, 2.2))
+        + `<ellipse cx="${nf(a[0])}" cy="${nf(a[1] + 2)}" rx="5" ry="3" class="bdfill"/>`;
+      const armF = (sp, e, w) => seg(sp, e, 8.5, 'bd') + seg(e, w, 6.8, 'bd')
+        + mus(back ? 'reardelts' : 'delts', sp, e, -0.16, 0.34, 0, 0, 4.4)
+        + (back ? mus('triceps', sp, e, 0.26, 0.88, 0, 0, 3) : mus('biceps', sp, e, 0.3, 0.86, 0, 0, 2.8))
+        + mus('forearms', e, w, 0.06, 0.6, 0, 0, 2.2) + `<circle cx="${nf(w[0])}" cy="${nf(w[1])}" r="3.4" class="hd"/>`;
+      body = legF(J.hR, J.kR, J.fR) + legF(J.hL, J.kL, J.fL) + torso + drawHeadFront(J, back) + armF(J.sR, J.eR, J.wR) + armF(J.sL, J.eL, J.wL);
+    }
+    const shadowX = J.h[0];
+    return `<ellipse cx="${nf(shadowX)}" cy="161" rx="46" ry="3.2" class="shadow"/>` + props('back') + body + props('front');
+  }
+  function drawHeadSide(J) {
+    const { nb, hc, hd } = J;
+    const fwd = av(hd + 90), up = av(hd), back = [-fwd[0], -fwd[1]];
+    const hairC = vadd(vadd(hc, back, 1.4), up, 0.8);
+    const tail0 = vadd(vadd(hc, back, 7), up, 3), tail1 = vadd(vadd(hc, back, 15), up, -9), tailC = vadd(vadd(hc, back, 17), up, 4);
+    return seg(nb, hc, 6.5, 'bd')
+      + `<path d="M${pt(tail0)}Q${pt(tailC)} ${pt(tail1)}" class="tail" stroke-width="5" stroke-linecap="round" fill="none"/>`
+      + `<circle cx="${nf(hairC[0])}" cy="${nf(hairC[1])}" r="9.2" class="hair"/>`
+      + `<circle cx="${nf(hc[0] + fwd[0] * 1.6 - up[0] * 1)}" cy="${nf(hc[1] + fwd[1] * 1.6 - up[1] * 1)}" r="7.6" class="face"/>`;
+  }
+  function drawHeadFront(J, back) {
+    const { nb, hc, d } = J;
+    const tail = vadd(hc, d, -15);
+    return seg(nb, hc, 6.5, 'bd')
+      + (back ? `<path d="M${pt(hc)}L${pt(tail)}" class="tail" stroke-width="5.5" stroke-linecap="round"/><circle cx="${nf(hc[0])}" cy="${nf(hc[1])}" r="9" class="hair"/>`
+        : `<circle cx="${nf(hc[0] + d[0] * 1.2)}" cy="${nf(hc[1] + d[1] * 1.2)}" r="9.4" class="hair"/><circle cx="${nf(hc[0] - d[0] * 1)}" cy="${nf(hc[1] - d[1] * 1)}" r="7.6" class="face"/>`);
+  }
+  function drawProp(p, J, v) {
+    const at = p.at && J[p.at] ? vadd(J[p.at], [p.dx || 0, p.dy || 0]) : null;
+    const far = p.far ? ' far' : '';
+    switch (p.k) {
+      case 'db':
+        if (!at) return '';
+        return v === 'side' ? `<g class="${far}"><circle cx="${nf(at[0])}" cy="${nf(at[1])}" r="6.4" class="pr"/><circle cx="${nf(at[0])}" cy="${nf(at[1])}" r="2" class="pr2"/></g>`
+          : `<g><rect x="${nf(at[0] - 10)}" y="${nf(at[1] - 1.8)}" width="20" height="3.6" rx="1.5" class="pr2"/><rect x="${nf(at[0] - 13)}" y="${nf(at[1] - 6)}" width="5" height="12" rx="1.5" class="pr"/><rect x="${nf(at[0] + 8)}" y="${nf(at[1] - 6)}" width="5" height="12" rx="1.5" class="pr"/></g>`;
+      case 'bar': return at ? `<circle cx="${nf(at[0])}" cy="${nf(at[1])}" r="13" class="pr"/><circle cx="${nf(at[0])}" cy="${nf(at[1])}" r="3.4" class="pr2"/>` : '';
+      case 'kb': return at ? `<path d="M${pt(vadd(at, [-5, -4]))}Q${pt(vadd(at, [0, -12]))} ${pt(vadd(at, [5, -4]))}" class="pl" stroke-width="2.4" fill="none"/><circle cx="${nf(at[0])}" cy="${nf(at[1] + 3)}" r="8" class="pr"/>` : '';
+      case 'rect': return `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="${p.r || 0}" class="${p.mat ? 'mat' : 'pb'}"/>`;
+      case 'line': return `<line x1="${p.p[0]}" y1="${p.p[1]}" x2="${p.p[2]}" y2="${p.p[3]}" class="pl" stroke-width="${p.w || 4}" stroke-linecap="round"/>`;
+      case 'path': return `<path d="${p.d}" class="pl" stroke-width="${p.w || 3}" fill="none" stroke-linejoin="round"/>`;
+      case 'circle': return `<circle cx="${p.c[0]}" cy="${p.c[1]}" r="${p.r}" class="${p.fill ? 'pb' : 'pring'}"/>`;
+      case 'cable': return at ? `<line x1="${nf(at[0])}" y1="${nf(at[1])}" x2="${p.to[0]}" y2="${p.to[1]}" class="pc"/><circle cx="${p.to[0]}" cy="${p.to[1]}" r="5" class="pb"/>` : '';
+      case 'handle': return at ? seg(vadd(at, [0, -6]), vadd(at, [0, 6]), 3, 'pl') : '';
+      case 'pad': return at ? `<circle cx="${nf(at[0])}" cy="${nf(at[1])}" r="5.6" class="pb"/>` : '';
+      case 'plate': { if (!at) return ''; const dv = av(p.ang); return seg(vadd(at, dv, -p.len / 2), vadd(at, dv, p.len / 2), 6, 'pl'); }
+      case 'hbar': {
+        if (!J.wR) return '';
+        const y = (J.wR[1] + J.wL[1]) / 2, x0 = Math.min(J.wR[0], J.wL[0]) - 16, x1 = Math.max(J.wR[0], J.wL[0]) + 16, cx = (x0 + x1) / 2;
+        return `<line x1="${nf(cx)}" y1="${nf(y)}" x2="${nf(cx)}" y2="-4" class="pc"/><line x1="${nf(x0)}" y1="${nf(y)}" x2="${nf(x1)}" y2="${nf(y)}" class="pr2l" stroke-width="3.2" stroke-linecap="round"/>`;
+      }
+      default: return '';
+    }
+  }
+
+  // ---------- khung hình & chuyển động ----------
+  const framesOf = (spec) => spec._fr || (spec._fr = spec.f.reduce((acc, x, i) => (acc.push(i ? { ...acc[i - 1], ...x } : { ...x }), acc), []));
+  function lerpAny(a, b, t) {
+    if (typeof a === 'number' && typeof b === 'number') return a + (b - a) * t;
+    if (Array.isArray(a) && Array.isArray(b)) return a.map((x, i) => x + (b[i] - x) * t);
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+      const o = {};
+      for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+        if (k in a && k in b) o[k] = lerpAny(a[k], b[k], t); else o[k] = t < 0.5 ? a[k] : b[k];
+        if (o[k] === undefined) delete o[k];
+      }
+      return o;
+    }
+    return t < 0.5 ? a : b;
+  }
+  const easeIO = (t) => 0.5 - Math.cos(Math.PI * t) / 2;
+  function poseAt(spec, ms) {
+    const fr = framesOf(spec);
+    if (fr.length === 1) return fr[0];
+    const seq = spec.cycle || fr.length === 2 ? fr : [...fr, ...fr.slice(1, -1).reverse()];
+    const n = seq.length, dur = spec.dur || 2600;
+    const x = ((ms % dur) / dur) * n, i = Math.floor(x) % n;
+    return lerpAny(seq[i], seq[(i + 1) % n], spec.cycle ? x - Math.floor(x) : easeIO(x - Math.floor(x)));
+  }
+  // Phần dùng chung trong app: defs (nền, phát sáng), vẽ hình, vòng chuyển động.
+  const ART_DEFS = `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <radialGradient id="nkBg" cx="50%" cy="38%" r="78%"><stop offset="0" stop-color="#3d1529"/><stop offset=".6" stop-color="#1c0b13"/><stop offset="1" stop-color="#0d0509"/></radialGradient>
+    <linearGradient id="nkHot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9fbe"/><stop offset="1" stop-color="#ff2e6e"/></linearGradient>
+    <linearGradient id="nkFloor" x1="0" x2="1"><stop offset="0" stop-color="#ff4f86" stop-opacity="0"/><stop offset=".5" stop-color="#ff4f86" stop-opacity=".55"/><stop offset="1" stop-color="#ff4f86" stop-opacity="0"/></linearGradient>
+    <filter id="nkGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur in="SourceGraphic" stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="nkGlowS" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceGraphic" stdDeviation="1.3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs></svg>`;
+  function ensureArtDefs() { if (!document.getElementById('nkBg')) document.body.insertAdjacentHTML('afterbegin', ART_DEFS); }
+  // Khung tự căn: gom mọi khớp & dụng cụ qua các khung chuyển động → người tập luôn to, rõ trong ô 4:3
+  function artBox(sp) {
+    if (sp._box) return sp._box;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    const take = (p, r = 0) => { x0 = Math.min(x0, p[0] - r); y0 = Math.min(y0, p[1] - r); x1 = Math.max(x1, p[0] + r); y1 = Math.max(y1, p[1] + r); };
+    const fr = framesOf(sp);
+    for (let i = 0; i < fr.length; i++) for (const t of [0, 0.5]) {
+      const f = t ? lerpAny(fr[i], fr[(i + 1) % fr.length], t) : fr[i];
+      const J = (sp.v || 'side') === 'side' ? solveSide(f) : solveFront(f);
+      for (const [k, p] of Object.entries(J)) if (Array.isArray(p) && p.length === 2 && k !== 'd' && k !== 'n' && k !== 'r') take(p, 8);
+      take(J.hc, 13);
+    }
+    for (const p of sp.props || []) {
+      if (p.k === 'rect' && !p.mat) { take([p.x, p.y]); take([p.x + p.w, p.y + p.h]); }
+      if (p.k === 'line') { take([p.p[0], Math.max(p.p[1], y0 - 10)]); take([p.p[2], p.p[3]]); }
+    }
+    take([x0, 163]);
+    let w = x1 - x0 + 20, h = y1 - y0 + 18;
+    w = Math.max(w, 120); h = Math.max(h, 90);
+    if (w / h > 4 / 3) h = (w * 3) / 4; else w = (h * 4) / 3;
+    const cx = (x0 + x1) / 2, bottom = Math.max(y1 + 6, 166);
+    return (sp._box = { x: cx - w / 2, y: bottom - h, w, h });
+  }
+  function exArtSvg(id, act, opts = {}) {
+    const sp = ART[id];
+    if (!sp) return '';
+    ensureArtDefs();
+    const fr = framesOf(sp), pose = fr[Math.min(fr.length - 1, sp.thumb ?? fr.length - 1)];
+    const b = artBox(sp), vb = `${nf(b.x)} ${nf(b.y)} ${nf(b.w)} ${nf(b.h)}`;
+    const bg = `<rect x="${nf(b.x)}" y="${nf(b.y)}" width="${nf(b.w)}" height="${nf(b.h)}" fill="url(#nkBg)"/><line x1="${nf(b.x)}" y1="160.5" x2="${nf(b.x + b.w)}" y2="160.5" stroke="url(#nkFloor)" stroke-width="1.2"/>`;
+    if (opts.anim) setTimeout(artKick, 0);
+    return `<svg class="exart${opts.cls ? ' ' + opts.cls : ''}" viewBox="${vb}" ${opts.anim ? `data-anim="1" data-ex="${id}"` : ''} role="img" aria-label="${opts.label || 'Hình động tác'}">${bg}<g class="fig">${figure(sp, pose, act)}</g></svg>`;
+  }
+  let artRaf = null, artLast = 0;
+  function artLoop(now) {
+    const els = [...document.querySelectorAll('svg.exart[data-anim]')].filter((el) => !el.closest('details:not([open])') && !el.closest('[hidden]'));
+    if (!document.querySelector('svg.exart[data-anim]')) { artRaf = null; return; }
+    if (now - artLast > 33) {
+      artLast = now;
+      for (const el of els) { const sp = ART[el.dataset.ex]; const g = el.querySelector('.fig'); if (sp && g) g.innerHTML = figure(sp, poseAt(sp, now), artAct(el.dataset.ex)); }
+    }
+    artRaf = requestAnimationFrame(artLoop);
+  }
+  function artKick() { if (!artRaf) artRaf = requestAnimationFrame(artLoop); }
+  const artAct = (id) => musclesFor(exById(id));
+  const exArt = (ex, opts = {}) => (ART[ex.id] ? exArtSvg(ex.id, musclesFor(ex), { ...opts, label: esc('Hình động tác ' + ex.name) }) : bodySvg(ex, opts));
+  // @@EXART-END
+
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.5 (13/11/2026)';
+  const APP_VERSION = '1.6 (13/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -966,7 +1393,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
           ${it.cue ? `<div class="hint pt">PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn: ${esc(it.cue)}</div>` : ''}
           ${tipsFor(ex).personal.map((x) => `<div class="hint pt">HLV dặn riêng bạn: ${esc(x)}</div>`).join('')}
           ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
-            <div style="max-width:220px;margin:0 auto;width:100%">${bodySvg(ex)}</div>${muscleLegend(ex)}
+            <div style="max-width:340px;margin:0 auto;width:100%">${exArt(ex, { anim: true })}</div>${muscleLegend(ex)}
             ${tp.cues.length > 1 ? `<ul>${tp.cues.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
             <div><span class="tip-label">Hít thở</span><br>${esc(tp.breath)}</div>
             ${ex.type !== 'min' ? `<div><span class="tip-label">Gồng core</span><br>${esc(BRACE)}</div>` : ''}
@@ -1322,7 +1749,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
         <span class="sub" style="color:var(--ink)">Hít thở, gồng core, gối theo mũi chân, cùi chỏ dẫn đường, khởi động, tăng tạ an toàn</span>
       </button>
       <div class="list" id="libList">${items.map((e) => { const m = musclesFor(e); return `<button class="card" data-act="ex-info" data-id="${esc(e.id)}">
-        <div class="lib-row">${bodySvg(e, { labels: false })}<div class="grow">
+        <div class="lib-row">${exArt(e, { labels: false })}<div class="grow">
           <div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><span class="card-title">${esc(e.name)}</span>${e.custom ? '<span class="chip">Bài riêng</span>' : `<span class="chip">${GROUPS[e.group]}</span>`}</div>
           <div class="sub"><b style="color:var(--accent)">${esc(m.p.map((k) => MUSCLE_NAMES[k]).join(', '))}</b>${m.s.length ? ' · ' + esc(m.s.map((k) => MUSCLE_NAMES[k]).join(', ')) : ''}</div>
           <div class="sub">${esc(e.equip || '')}</div>
@@ -1336,7 +1763,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     const tp = tipsFor(e);
     openSheet(`${sheetHead(e.name)}
       <div class="row"><span class="chip accent">${GROUPS[e.group] || ''}</span>${e.equip ? `<span class="chip">${esc(e.equip)}</span>` : ''}<span class="chip">${e.type === 'weight' ? 'kg × lần' : unit(e.type)}</span></div>
-      <section><h3>Cơ tác động</h3>${bodySvg(e)}${muscleLegend(e)}</section>
+      <section><h3>Động tác & cơ tác động</h3>${exArt(e, { anim: true, cls: 'big' })}${muscleLegend(e)}${ART[e.id] ? `<details class="tips"><summary>Bản đồ cơ mặt trước / mặt sau</summary><div class="in">${bodySvg(e)}</div></details>` : ''}</section>
       ${tp.personal.length ? `<section><h3>HLV dặn riêng bạn</h3><ul class="cue-list">${tp.personal.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       ${tp.cues.length ? `<section><h3>Câu nhắc khi tập${tp.fromCoach ? ' <span class="chip warn">HLV cập nhật</span>' : ''}</h3><ul class="cue-list">${tp.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></section>` : ''}
       <section><h3>Hít thở</h3><p style="margin:0">${esc(tp.breath)}</p></section>
