@@ -1,4 +1,4 @@
-# Cập nhật app lên GitHub (GitHub Pages + Vercel tự deploy khi đã nối repo).
+﻿# Cập nhật app lên GitHub (GitHub Pages + Vercel tự deploy khi đã nối repo).
 # Cách dùng (PowerShell, trong G:\Gym):
 #   .\cap-nhat.ps1 "Mô tả thay đổi"
 param([string]$Message = "Cập nhật app")
