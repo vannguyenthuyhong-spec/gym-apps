@@ -17,6 +17,7 @@ App web cho người tập, dùng trên điện thoại:
 | `build-web.mjs` | Tạo bản web tĩnh vào `web/` (manifest, icon, chạy offline) |
 | `web/` và `nhat-ky-tap-web.zip` | Bản để tải lên hosting |
 | `serve.mjs` | Chạy thử trên máy: `node serve.mjs` → http://localhost:4173 |
+| `vercel.json` | Cấu hình Vercel: tự chạy `node build-web.mjs` và phát hành thư mục `web` (Root Directory = `nhat-ky-tap`) |
 
 Sửa `nhat-ky-tap.html` xong thì chạy `node build-web.mjs`, rồi nén lại thư mục `web`.
 
