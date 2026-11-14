@@ -1589,7 +1589,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.17 (14/11/2026)';
+  const APP_VERSION = '1.18 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1874,7 +1874,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       <div class="row between"><span class="muted small num">${doneSets}/${allSets} hiệp đã xong</span><button class="btn sm ghost" data-act="cancel-workout">Huỷ buổi</button></div>
       <div id="cancelBox"></div>
       ${A.pausedAt ? `<div class="paused"><div><b>Đang tạm dừng</b><br>Từ ${new Date(A.pausedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}. Đồng hồ buổi tập và giờ nghỉ đã dừng.</div><button class="btn primary" data-act="pause">▶ Tiếp tục tập</button></div>` : ''}
-      ${A.coachNote ? `<div class="hint pt">HLV ${esc((D.link && D.link.coachName) || '')} dặn: ${esc(A.coachNote)}</div>` : ''}
+      ${A.coachNote ? `<div class="hint pt">HLV ${esc((D.link && D.link.coachName) || '')} dặn: ${richNote(A.coachNote)}</div>` : ''}
+      ${(A.coachMedia || []).length ? `<div class="media-box"><b>Ảnh/video HLV gửi</b>${coachTiles(A.coachMedia)}</div>` : ''}
       ${A.items.map((it, i) => {
         const ex = exById(it.ex);
         const one = ex.type !== 'weight';
@@ -1952,7 +1953,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       $('#fSave', root).addEventListener('click', () => {
         const items = A.items.map((it) => ({ ex: it.ex, cue: it.cue, target: it.target, note: it.note.trim(), sets: it.sets.filter((s) => s.done).map((s) => ({ kg: s.kg, reps: s.reps, done: true })) }))
           .filter((it) => it.sets.length || it.note);
-        const w = { id: A.id, title: A.title, source: A.source, date: iso(new Date(A.startedAt)), startedAt: A.startedAt,
+        const w = { id: A.id, title: A.title, source: A.source, coachMedia: A.coachMedia || [], date: iso(new Date(A.startedAt)), startedAt: A.startedAt,
           minutes: Math.max(1, Math.round(activeMs() / 60000)), feeling, note: $('#fNote', root).value.trim(), items };
         D.workouts.push(w);
         if (A.source && A.source.type === 'program' && A.source.programId === D.program.id) {
@@ -2110,6 +2111,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           <div class="num" style="font-size:14px">${it.sets.map((s, i) => `Hiệp ${i + 1}: ${ex.type === 'weight' ? `${fmt(s.kg)} kg × ${s.reps}` : `${s.reps} ${unit(ex.type)}`}`).join('<br>')}</div>
           ${it.note ? `<div class="sub">Ghi chú: ${richNote(it.note)}</div>` : ''}</div>`;
       }).join('')}</div>
+      ${(w.coachMedia || []).length ? `<div class="media-box"><b>Ảnh/video HLV gửi</b>${coachTiles(w.coachMedia)}</div>` : ''}
       <label class="f">Nhật ký buổi này<textarea id="wNote">${esc(w.note)}</textarea></label>
       <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
         ${mediaTiles(mediaOf('workout', w.id), true).replace(/data-act="media-del"/g, `data-act="media-del" data-w="${esc(w.id)}"`)}
@@ -2758,6 +2760,33 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     return out + linkEx(t.slice(last));
   }
 
+  // ================= ẢNH/VIDEO HLV GỬI (lưu vào điện thoại) =================
+  async function fetchCoachMedia() {
+    if (!D.link) return;
+    const auth = { pairId: D.link.pairId, traineeKey: D.link.traineeKey };
+    const have = D.coachMediaHave || (D.coachMediaHave = {});
+    const started = Date.now();
+    for (const p of D.coachPlans || []) for (const m of p.media || []) {
+      if (!m || !m.id || have[m.id] || Date.now() - started > 60000) continue;
+      try {
+        const parts = [];
+        for (let i = 0; i < m.chunks; i++) parts.push((await api('coach-media-get', { ...auth, id: m.id, idx: i })).data);
+        const bin = atob(parts.join('')), u = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        await MDB.put('cm-' + m.id, new Blob([u], { type: m.mime || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg') }));
+        have[m.id] = true; save();
+      } catch (e) { if (e.status === 404) { have[m.id] = 'gone'; save(); } else return; }
+    }
+  }
+  function coachTiles(list) {
+    const all = (list || []).filter((m) => m && m.id), ok = all.filter((m) => (D.coachMediaHave || {})[m.id] === true);
+    const waiting = all.filter((m) => !(D.coachMediaHave || {})[m.id]).length;
+    return (ok.length ? `<div class="mgrid">${ok.map((m) => `<div class="mtile">${m.kind === 'video'
+      ? `<video data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" controls playsinline preload="metadata"></video>`
+      : `<img data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" alt="Ảnh HLV gửi" data-act="cm-view" data-id="cm-${esc(m.id)}">`}</div>`).join('')}</div>` : '')
+      + (waiting ? `<div class="sub">Đang tải ${waiting} ảnh/video HLV gửi… (cần mạng, bấm Đồng bộ)</div>` : '');
+  }
+
   // ================= SYNC WITH COACH (Sổ HLV) =================
   const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
   const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -2812,6 +2841,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       if (pull.coachName) D.link.coachName = pull.coachName;
       D.coachTips = pull.tips && typeof pull.tips === 'object' ? pull.tips : null;
       D.feedback = pull.feedback && typeof pull.feedback === 'object' ? pull.feedback : {};
+      await fetchCoachMedia();
       await uploadPending();
       await api('trainee-push', { ...auth, results: buildResults(), profile: buildProfile(), meals: buildMeals(), media: buildMediaIndex() });
       try { D.aiOn = Boolean((await api('ping', {})).ai); } catch { /* giữ trạng thái cũ */ }
@@ -2849,6 +2879,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
           <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
+          ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi</b></div>${coachTiles(p.media)}` : ''}
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
         </div>`).join('')}</div>`
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
@@ -2865,7 +2896,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     });
     if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
     startWorkout(p.title || `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
-    if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; A.coach = (D.link && D.link.coachName) || ''; saveActive(true); render(); }
+    if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; A.coachMedia = p.media || []; A.coach = (D.link && D.link.coachName) || ''; saveActive(true); render(); }
   }
   function linkSheet() {
     const L = D.link;
@@ -3019,7 +3050,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       case 'pt-new': ptSheet(null); break;
       case 'pt-edit': ptSheet(D.pt.find((p) => p.id === id)); break;
       case 'pt-start': { const p = D.pt.find((x) => x.id === id); if (p) startPt(p); break; }
-      case 'ext': break; // link web: để trình duyệt mở
+      case 'ext': break;
+      case 'cm-view': openSheet(`${sheetHead('Ảnh HLV gửi')}<img src="${mediaSrc(id)}" alt="" style="width:100%;border-radius:14px">`); break; // link web: để trình duyệt mở
       case 'ex-info': e.stopPropagation(); exInfoSheet(id); break;
       case 'lib-group': S.libGroup = el.dataset.g; render(); break;
       case 'custom-new': customSheet(); break;

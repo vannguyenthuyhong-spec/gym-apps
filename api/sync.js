@@ -12,6 +12,7 @@ const AI_MODEL = 'claude-opus-5-5';
 const AI_PER_DAY = 30; // lượt AI ước lượng bữa ăn mỗi học viên mỗi ngày
 const CODE_TTL = 7 * 24 * 3600;
 const MEDIA_TTL = 21 * 24 * 3600; // ảnh/video nằm trên máy chủ tối đa 21 ngày (HLV tải về là xoá luôn)
+const COACH_MEDIA_TTL = 60 * 24 * 3600; // ảnh/video HLV gửi học viên giữ 60 ngày (học viên tải về máy khi đồng bộ)
 const MAX_CHUNK = 520 * 1024; // ký tự base64 mỗi khúc
 const MAX_CHUNKS = 48; // ~18 MB tệp gốc
 const MAX_BODY = 900 * 1024;
@@ -189,6 +190,25 @@ const actions = {
     const n = Math.min(MAX_CHUNKS, Number(b.chunks) || 0);
     if (n) await store(...Array.from({ length: n }, (_, i) => ['DEL', `media:${b.pairId}:${b.id}:${i}`]));
     return { ok: true };
+  },
+
+  // HLV gửi một khúc ảnh/video của buổi tập cho học viên xem
+  async 'coach-media-put'(b) {
+    await asCoach(b);
+    if (!isId(b.id) || !Number.isInteger(b.idx) || !Number.isInteger(b.total) || b.total < 1 || b.total > MAX_CHUNKS || b.idx < 0 || b.idx >= b.total) {
+      throw new HttpError(400, 'bad_request', 'Tệp quá lớn hoặc không hợp lệ');
+    }
+    if (typeof b.data !== 'string' || !b.data.length || b.data.length > MAX_CHUNK || !/^[A-Za-z0-9+/=]+$/.test(b.data)) throw new HttpError(400, 'bad_request', 'Dữ liệu tệp không hợp lệ');
+    await store(['SET', `cmedia:${b.pairId}:${b.id}:${b.idx}`, b.data, 'EX', COACH_MEDIA_TTL]);
+    return { ok: true };
+  },
+  // Học viên tải một khúc ảnh/video HLV gửi
+  async 'coach-media-get'(b) {
+    await asTrainee(b);
+    if (!isId(b.id) || !Number.isInteger(b.idx) || b.idx < 0 || b.idx >= MAX_CHUNKS) throw new HttpError(400, 'bad_request', 'Tệp không hợp lệ');
+    const [data] = await store(['GET', `cmedia:${b.pairId}:${b.id}:${b.idx}`]);
+    if (!data) throw new HttpError(404, 'not_found', 'Tệp đã hết hạn trên máy chủ');
+    return { data };
   },
 
   async 'trainee-pull'(b) {

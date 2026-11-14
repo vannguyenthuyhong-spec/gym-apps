@@ -238,6 +238,8 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
 .btn:active, button.card:active, .tabbar button:active, .icon-btn:active, .lib-item:active, .chips button:active { transform: scale(.97); }
 .tabbar button svg { transition: transform .2s ease; }
 .tabbar button[aria-current="page"] svg { transform: translateY(-2px); }
+label.tick { display: flex; gap: 10px; align-items: center; font-weight: 600; min-height: 44px; color: var(--ink); }
+label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
 /* Lightbox & toast */
 .lightbox { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.92); display: flex; align-items: center; justify-content: center; padding: calc(56px + env(safe-area-inset-top, 0px)) 8px calc(16px + env(safe-area-inset-bottom, 0px)); }
 .lightbox img, .lightbox video { max-width: 100%; max-height: 100%; border-radius: 8px; }
@@ -850,6 +852,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
           </div>
           <div class="card-sub">${esc(s.title || 'Buổi tập')}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
           ${s.fromTrainee ? '<div class="row"><span class="pill planned">Học viên tự tập (app)</span></div>' : s.result ? '<div class="row"><span class="pill done">Có kết quả từ app học viên</span></div>' : ''}
+          ${!s.fromTrainee && (s.sendApp === false || (s.shareMedia && media)) ? `<div class="row">${s.sendApp === false ? '<span class="pill skipped">Không gửi app</span>' : '<span class="pill done">Ảnh/video gửi học viên</span>'}</div>` : ''}
           ${lines}${ex.length > 3 ? `<div class="card-sub">+${ex.length - 3} bài nữa</div>` : ''}
         </button>
         ${quick}
@@ -1193,6 +1196,10 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
             <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video tối đa 20 MB (khoảng 30–60 giây).</p>`
             : '<p class="muted small" style="margin:0">Chỉ chủ sổ hoặc người có quyền sửa mới tải được ảnh/video.</p>'}
         </section>
+        ${f.fromTrainee ? '' : (() => { const c2 = clientById(f.clientId); return `<section><h2>Gửi sang app học viên</h2>
+          <label class="tick"><input type="checkbox" id="sSend" ${f.sendApp !== false ? 'checked' : ''}> Gửi giáo án buổi này cho học viên</label>
+          <label class="tick"><input type="checkbox" id="sShare" ${f.shareMedia ? 'checked' : ''}> Cho học viên xem ảnh/video của buổi này</label>
+          <p class="muted small" style="margin:0">${c2 && c2.link ? 'Khi đồng bộ, buổi đã tích sẽ hiện trong buổi tập của học viên (kèm ảnh/video nếu tích ô thứ hai).' : 'Học viên chưa nối app: vào học viên → Hồ sơ → Tạo mã kết nối.'}</p></section>`; })()}
         <button class="btn primary block" type="submit" id="sSave">Lưu buổi tập</button>
         ${!isNew ? '<button class="btn danger block" type="button" id="sDelete">Xoá buổi tập</button><div id="sConfirm"></div>' : ''}
       </form>`, (root) => {
@@ -1348,6 +1355,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
           exercises: f.exercises.filter((x) => x.name), status: f.status, rating: f.rating, note: $('#sNote', root).value.trim(),
           media: f.media, createdAt: f.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
           result: f.result || null, fromTrainee: Boolean(f.fromTrainee),
+          sendApp: $('#sSend', root) ? $('#sSend', root).checked : f.sendApp !== false, shareMedia: $('#sShare', root) ? $('#sShare', root).checked : Boolean(f.shareMedia), shared: f.shared || {},
         };
         const fbIn = $('#sFb', root);
         if (fbIn && f.result && fbIn.value.trim() !== ((clientById(data.clientId) || {}).feedback || {})[f.result.wid] && (fbIn.value.trim() || ((clientById(data.clientId) || {}).feedback || {})[f.result.wid])) await setFeedback(data.clientId, f.result.wid, fbIn.value.trim());
@@ -1617,9 +1625,43 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
     return j;
   }
   const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  // ---------- ảnh/video HLV cho học viên xem ----------
+  const sharedCache = {};
+  function sharedMediaOf(s) {
+    if (!s.shareMedia) return [];
+    const shared = { ...(s.shared || {}), ...(sharedCache[s.id] || {}) };
+    return (s.media || []).filter((m) => !m.fromTrainee && shared[m.id]).map((m) => ({ id: shared[m.id].sid, kind: m.kind, mime: shared[m.id].mime, chunks: shared[m.id].chunks }));
+  }
+  async function blobOf(id) {
+    if (S.mode === 'cloud') { const r = await fetch('/_blob/' + encodeURIComponent(id)); if (!r.ok) throw new Error('blob'); return r.blob(); }
+    const rec = await S.assets.get(id); if (!rec) throw new Error('blob'); return rec.blob;
+  }
+  const toB64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+  async function shareSessionMedia(c) {
+    const started = Date.now();
+    for (const s of sessionsOf(c.id).filter((x) => x.shareMedia && x.sendApp !== false && !x.fromTrainee)) {
+      const shared = { ...(s.shared || {}), ...(sharedCache[s.id] || {}) };
+      let changed = false;
+      for (const m of (s.media || []).filter((x) => !x.fromTrainee && !shared[x.id])) {
+        if (Date.now() - started > 90000) break;
+        let blob;
+        try { blob = await blobOf(m.id); } catch { continue; }
+        if (blob.size > 18 * 1024 * 1024) continue;
+        const data = await toB64(blob), CH = 500 * 1024, total = Math.max(1, Math.ceil(data.length / CH)), sid = uid('h');
+        for (let i = 0; i < total; i++) await api('coach-media-put', { pairId: c.link.pairId, coachKey: coachKey(), id: sid, idx: i, total, data: data.slice(i * CH, (i + 1) * CH) });
+        shared[m.id] = { sid, chunks: total, mime: blob.type || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg') };
+        changed = true;
+      }
+      if (changed) {
+        sharedCache[s.id] = shared;
+        const cur = S.sessions.find((x) => x.id === s.id) || s;
+        await write('sessions', s.id, { ...clean(cur), shared });
+      }
+    }
+  }
   function plansFor(clientId) {
-    return sessionsOf(clientId).filter((s) => !s.fromTrainee).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
-      .map((s) => ({ id: s.id, date: s.date, title: s.title || '', note: s.note || '', status: s.status,
+    return sessionsOf(clientId).filter((s) => !s.fromTrainee && s.sendApp !== false).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
+      .map((s) => ({ id: s.id, date: s.date, title: s.title || '', note: s.note || '', status: s.status, media: sharedMediaOf(s),
         exercises: (s.exercises || []).map((e) => { const lib = e.libId ? libById(e.libId) : matchLib(e.name);
           return { name: e.name, libId: lib ? lib.id : null, type: lib ? lib.type : (e.type || 'weight'), sets: e.sets ?? null, reps: e.reps ?? null, repsTo: e.repsTo ?? null,
             kg: e.kg ?? null, rest: e.rest ?? null, restText: e.restText || '', note: e.note || '' }; }) }));
@@ -1627,6 +1669,7 @@ main.enter > *:nth-child(2) { animation-delay: .03s; } main.enter > *:nth-child(
   async function pushPlans(clientId) {
     const c = clientById(clientId);
     if (!c || !c.link) return;
+    try { await shareSessionMedia(c); } catch (e) { toast('Chưa gửi được ảnh/video cho học viên: ' + (e.message || 'mất mạng?')); }
     await api('coach-push', { pairId: c.link.pairId, coachKey: coachKey(), coachName: coachName(), clientName: c.name, plans: plansFor(clientId),
       tips: tipsPayload(c), feedback: c.feedback || {} });
   }
