@@ -621,7 +621,31 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     { id: 'neck-side-lift', name: 'Nằm nghiêng nâng đầu', group: 'neck', equip: 'Giường', type: 'reps', inc: 0,
       steps: ['Nằm nghiêng, chân duỗi chồng lên nhau, bỏ gối kê đầu (hoặc gối thật mỏng).', 'Nhấc đầu lên về phía trần (tai hướng về vai trên), mặt nhìn thẳng.', 'Giữ 3 giây rồi hạ chậm. Đủ số lần thì đổi bên.'],
       mistakes: ['Xoay mặt xuống giường hoặc lên trần.', 'Nhún vai trên lên.', 'Nhấc quá cao gây đau.'] },
-    { id: 'dyn-arm-circles', name: 'Xoay tay vòng tròn', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+    { id: 'dyn-neck-circles', name: 'Xoay cổ chậm', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, vai thả lỏng, cằm hơi thu.','Nghiêng tai về vai phải, cúi cằm xuống ngực, rồi nghiêng tai về vai trái (nửa vòng phía trước).','Đi ngược lại. Làm thật chậm, không ngửa cổ ra sau.'],
+      mistakes: ['Xoay cả vòng, ngửa cổ ra sau.','Xoay nhanh, giật cổ.','Nhún vai theo đầu.'] },
+    { id: 'dyn-shoulder-rolls', name: 'Xoay khớp vai (tay đặt lên vai)', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, đầu ngón tay đặt lên vai cùng bên.','Vẽ vòng tròn lớn bằng khuỷu tay: ra trước, lên trên, ra sau, xuống dưới.','Làm 5 vòng ra trước rồi 5 vòng ra sau.'],
+      mistakes: ['Vòng quá nhỏ.','Ưỡn lưng khi đưa khuỷu ra sau.'] },
+    { id: 'dyn-elbow-circles', name: 'Xoay khuỷu tay (cẳng tay)', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Dang hai tay ngang vai, cánh tay giữ yên.','Xoay cẳng tay thành vòng tròn quanh khuỷu tay.','10 vòng vào trong, 10 vòng ra ngoài.'],
+      mistakes: ['Hạ cánh tay xuống.','Nhún vai.'] },
+    { id: 'dyn-wrist-circles', name: 'Xoay cổ tay', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đan hai bàn tay vào nhau trước ngực (hoặc nắm nhẹ hai tay).','Xoay cổ tay thành vòng tròn đều.','10 vòng mỗi chiều. Có thể kéo nhẹ từng ngón tay ra sau sau khi xoay.'],
+      mistakes: ['Xoay nhanh, giật cổ tay.','Gồng vai.'] },
+    { id: 'dyn-hip-circles', name: 'Xoay hông', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng chân rộng bằng vai, hai tay chống hông, gối hơi chùng.','Đẩy hông vẽ vòng tròn lớn: sang phải, ra sau, sang trái, ra trước.','5 vòng mỗi chiều. Đầu và vai gần như đứng yên.'],
+      mistakes: ['Lắc cả người theo hông.','Khoá gối thẳng.'] },
+    { id: 'dyn-knee-circles', name: 'Xoay gối', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng khép chân, gối chùng, hai tay đặt lên gối.','Xoay gối thành vòng tròn nhỏ, bàn chân dính sàn.','5 vòng mỗi chiều, chậm và nhẹ.'],
+      mistakes: ['Vòng quá lớn, đè mạnh tay lên gối.','Nhấc gót chân.'] },
+    { id: 'dyn-ankle-circles', name: 'Xoay cổ chân', group: 'dynamic', equip: 'Không cần dụng cụ (vịn tường nếu cần)', type: 'reps', inc: 0,
+      steps: ['Đứng một chân (vịn tường nếu cần), nhấc chân kia lên trước.','Xoay cổ chân vẽ vòng tròn bằng mũi chân.','5 vòng mỗi chiều rồi đổi chân.'],
+      mistakes: ['Xoay cả cẳng chân thay vì cổ chân.','Nghiêng người, mất thăng bằng.'] },
+    { id: 'dyn-side-lunge', name: 'Xoạc chân ngang động (Side Lunge)', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng chân rộng gấp đôi vai, mũi chân hơi mở ra ngoài, hai tay đưa ra trước.','Dồn người sang một bên, gập gối bên đó, đẩy hông ra sau; chân kia duỗi thẳng để giãn đùi trong.','Đẩy về giữa rồi sang bên kia. Mỗi bên tính 1 lần.'],
+      mistakes: ['Gối gập vượt quá mũi chân, đổ vào trong.','Nhấc gót chân duỗi.','Cong lưng khi xuống.'] },
+    { id: 'dyn-arm-circles', name: 'Xoay cánh tay vòng tròn', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
       steps: ['Đứng thẳng, hai tay duỗi.','Xoay tay thành vòng tròn lớn ra trước 10 lần, rồi ra sau 10 lần.','Đi từ vòng nhỏ đến vòng lớn, nhịp đều.'],
       mistakes: ['Nhún vai lên tai.','Xoay quá nhanh, giật vai.'] },
     { id: 'dyn-torso-twist', name: 'Xoay thân đứng', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
@@ -782,6 +806,14 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'neck-head-lift': { b: 'hold', c: ['Thu cằm trước rồi mới nhấc đầu', 'Chỉ nhấc 2–3 cm', 'Thở đều, vai thả lỏng'] },
     'neck-prone-lift': { b: 'hold', c: ['Cằm hơi thu, mắt nhìn sàn', 'Nâng đến thẳng hàng với lưng là đủ', 'Hạ chậm 2–3 giây'] },
     'neck-side-lift': { b: 'hold', c: ['Mặt nhìn thẳng, không xoay', 'Nhấc vừa đủ, cổ thẳng hàng', 'Hạ chậm'] },
+    'dyn-neck-circles': { b: 'hold', c: ['Chậm như kim giây', 'Chỉ nửa vòng phía trước', 'Vai thả xa tai'] },
+    'dyn-shoulder-rolls': { b: 'cardio', c: ['Khuỷu tay vẽ vòng thật to', 'Ngực mở khi đưa khuỷu ra sau', 'Thở đều'] },
+    'dyn-elbow-circles': { b: 'cardio', c: ['Cánh tay ngang vai, đứng yên', 'Chỉ cẳng tay chuyển động', 'Vai thả lỏng'] },
+    'dyn-wrist-circles': { b: 'cardio', c: ['Vòng tròn đều, mượt', 'Đổi chiều sau 10 vòng', 'Vai thả lỏng'] },
+    'dyn-hip-circles': { b: 'cardio', c: ['Vòng hông thật rộng', 'Gối hơi chùng', 'Vai gần như đứng yên'] },
+    'dyn-knee-circles': { b: 'cardio', c: ['Bàn chân dính sàn', 'Vòng nhỏ, nhẹ nhàng', 'Tay đỡ nhẹ, không đè'] },
+    'dyn-ankle-circles': { b: 'cardio', c: ['Mũi chân vẽ vòng tròn', 'Chân trụ hơi chùng gối', 'Vịn tường nếu chưa vững'] },
+    'dyn-side-lunge': { b: 'lift', c: ['Gối gập theo hướng mũi chân', 'Đẩy hông ra sau như ngồi ghế', 'Gót chân duỗi dính sàn'] },
     'dyn-arm-circles': { b: 'cardio', c: ['Vai thả xa tai', 'Vòng nhỏ đến vòng lớn', 'Nhịp đều, không giật'] },
     'dyn-torso-twist': { b: 'cardio', c: ['Hông hướng ra trước', 'Xoay từ eo và ngực', 'Tay vung nhẹ theo người'] },
     'dyn-leg-swing': { b: 'cardio', c: ['Thân thẳng, bụng siết', 'Biên độ tăng dần', 'Chân trụ hơi chùng gối'] },
@@ -896,6 +928,9 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'band-ext-rot': ['reardelts', 'traps delts'],
     'neck-chin-tuck': ['neckf', ''], 'neck-press-back': ['neckb', 'traps'], 'neck-rotation': ['neckf neckb', 'traps'], 'neck-side-bend': ['neckf neckb', 'traps'],
     'neck-head-lift': ['neckf', 'abs'], 'neck-prone-lift': ['neckb traps', ''], 'neck-side-lift': ['neckf neckb', 'traps'],
+    'dyn-neck-circles': ['neckf neckb', 'traps'], 'dyn-shoulder-rolls': ['delts reardelts', 'traps chest'], 'dyn-elbow-circles': ['forearms', 'biceps triceps delts'],
+    'dyn-wrist-circles': ['forearms', ''], 'dyn-hip-circles': ['glutes obliques', 'lowerback abs'], 'dyn-knee-circles': ['quads hamstrings', 'calves'],
+    'dyn-ankle-circles': ['calves', 'quads'], 'dyn-side-lunge': ['quads glutes', 'hamstrings'],
     'dyn-arm-circles': ['delts', 'chest reardelts'], 'dyn-torso-twist': ['obliques', 'abs lowerback'], 'dyn-leg-swing': ['hamstrings glutes', 'quads'],
     'dyn-leg-swing-side': ['glutes', 'quads hamstrings'], 'dyn-cat-cow': ['lowerback abs', 'neckb'], 'dyn-high-knees': ['quads abs', 'calves'],
     'dyn-butt-kicks': ['quads hamstrings', 'calves'], 'dyn-squat-reach': ['quads glutes', 'delts lats'],
@@ -1203,6 +1238,26 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       { h: [100, 119], t: 90, hd: 118, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { ua: -86, fa: -88 } }, { hd: 82 }] },
     'neck-side-lift': { box: { x: 30, y: 82, w: 112, h: 84 }, v: 'front', dur: 3000, props: [{ k: 'bed', x: 30, y: 140, w: 184, h: 12 }, { k: 'pillow', c: [64, 138], rx: 14, ry: 3 }], f: [
       { h: [128, 124], t: -90, hd: -90, l: { th: 92, sh: 92 }, lL: { th: 94, sh: 92 }, a: { ua: 100, fa: 96 }, aL: { ua: 95, fa: 92 } }, { hd: -64 }] },
+    'dyn-neck-circles': { v: 'front', box: { x: 84, y: -2, w: 72, h: 54 }, dur: 4200, f: [
+      { h: [120, 84], t: 0, l: { a: [130, 156], k: [1, 0] }, a: { ua: 176, fa: 176 }, hd: 32, yaw: 0 }, { hd: 0, yaw: 0, nod: 1 }, { hd: -32, yaw: 0 }] },
+    'dyn-shoulder-rolls': { jump: 1, dur: 2600, f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 160, fa: -20 } }, { an: { ua: 90, fa: -90 } }, { an: { ua: 20, fa: -160 } }, { an: { ua: -60, fa: -240 } }, { an: { ua: -200, fa: -380 } }] },
+    'dyn-elbow-circles': { v: 'front', jump: 1, dur: 1800, f: [
+      { h: [120, 84], t: 0, l: { a: [130, 156], k: [1, 0] }, a: { ua: 90, fa: 0 } }, { a: { ua: 90, fa: 90 } }, { a: { ua: 90, fa: 180 } }, { a: { ua: 90, fa: 270 } }, { a: { ua: 90, fa: 360 } }] },
+    'dyn-wrist-circles': { box: { x: 82, y: 4, w: 88, h: 66 }, cycle: 1, dur: 1600, f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { wr: [24, 14], e: [0, 1] } }, { an: { wr: [27, 10], e: [0, 1] } }, { an: { wr: [24, 6], e: [0, 1] } }, { an: { wr: [21, 10], e: [0, 1] } }] },
+    'dyn-hip-circles': { v: 'front', cycle: 1, dur: 2600, f: [
+      { h: [126, 86], t: -4, hd: 0, l: { a: [134, 156], k: [1, 0] }, lL: { a: [106, 156], k: [-1, 0] }, a: { wh: [14, -4], e: [1, 0] } },
+      { h: [120, 89], t: 0 }, { h: [114, 86], t: 4 }, { h: [120, 83], t: 0 }] },
+    'dyn-knee-circles': { cycle: 1, dur: 2400, f: [
+      { h: [100, 102], t: 42, hd: 30, ln: { a: [118, 156], toe: 90, k: [1, 0] }, lf: { a: [114, 156], toe: 90, k: [1, 0] }, an: { w: [127, 128], e: [0, 1] } },
+      { h: [104, 104], an: { w: [131, 130], e: [0, 1] } }, { h: [100, 106], an: { w: [128, 133], e: [0, 1] } }, { h: [96, 104], an: { w: [124, 130], e: [0, 1] } }] },
+    'dyn-ankle-circles': { box: { x: 66, y: 50, w: 144, h: 108 }, cycle: 1, dur: 2200, f: [
+      { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, ln: { th: 128, sh: 162, toe: 50 }, lf: { a: [118, 156], toe: 90 }, an: { ua: 100, fa: 100 } },
+      { ln: { th: 128, sh: 162, toe: 100 } }, { ln: { th: 128, sh: 162, toe: 140 } }, { ln: { th: 128, sh: 162, toe: 90 } }] },
+    'dyn-side-lunge': { v: 'front', dur: 2400, f: [
+      { h: [146, 112], t: -6, hd: -2, l: { a: [162, 156], k: [1, 0] }, lL: { a: [78, 156], k: [-1, 0] }, a: { w: [140, 76], e: [1, 0.4] }, aL: { w: [132, 76], e: [-1, 0.4] } },
+      { h: [94, 112], t: 6, hd: 2, a: { w: [108, 76], e: [1, 0.4] }, aL: { w: [100, 76], e: [-1, 0.4] } }] },
     'dyn-arm-circles': { jump: 1, dur: 2400, f: [
       { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 0, fa: 0 } }, { an: { ua: 90, fa: 90 } }, { an: { ua: 180, fa: 180 } }, { an: { ua: 270, fa: 270 } }, { an: { ua: 360, fa: 360 } }] },
     'dyn-torso-twist': { v: 'front', dur: 1800, f: [
@@ -1317,7 +1372,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     const lR = solveLimb(hR, f.l, L.th, L.sh, [1, 0], ctx);
     const lL = f.lL ? solveLimb(hL, f.lL, L.th, L.sh, [-1, 0], ctx) : solveLimb(hL, f.l, L.th, L.sh, [1, 0], ctx, mir);
     const nb = vadd(S, d, 2), hd = f.hd ?? t;
-    return { yaw: f.yaw || 0, H, S, d, r, sR, sL, hR, hL, nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
+    return { nod: f.nod || 0, yaw: f.yaw || 0, H, S, d, r, sR, sL, hR, hL, nb, hd, hc: vadd(nb, av(hd), L.neck + L.head), s: S, h: H,
       eR: aR[0], wR: aR[1], eL: aL[0], wL: aL[1], kR: lR[0], fR: lR[1], kL: lL[0], fL: lL[1] };
   }
 
@@ -1407,7 +1462,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       + `<circle cx="${nf(hc[0] + fwd[0] * 1.6 - up[0] * 1)}" cy="${nf(hc[1] + fwd[1] * 1.6 - up[1] * 1)}" r="7.6" class="face"/>`;
   }
   function drawHeadFront(J, back, neckMus) {
-    const { nb, hc, r } = J, d = av(J.hd), yaw = J.yaw || 0, fc = vadd(vadd(hc, d, -1), r, yaw * 3);
+    const { nb, hc, r } = J, d = av(J.hd), yaw = J.yaw || 0, fc = vadd(vadd(hc, d, -1 - (J.nod || 0) * 3), r, yaw * 3);
     const tail = vadd(hc, d, -15);
     return seg(nb, hc, 6.5, 'bd') + (neckMus || '')
       + (back ? `<path d="M${pt(hc)}L${pt(tail)}" class="tail" stroke-width="5.5" stroke-linecap="round"/><circle cx="${nf(hc[0])}" cy="${nf(hc[1])}" r="9" class="hair"/>`
@@ -1538,7 +1593,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.15 (14/11/2026)';
+  const APP_VERSION = '1.16 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2651,9 +2706,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= KHỞI ĐỘNG & GIÃN CƠ (bài tập nhanh trên trang chính) =================
   const ROUTINES = {
-    warmup: { name: 'Khởi động · Giãn cơ động', sub: 'Trước khi tập, khoảng 5 phút', items: [
-      ['dyn-arm-circles', 1, 20, '10 lần ra trước, 10 lần ra sau'], ['dyn-torso-twist', 1, 12], ['dyn-cat-cow', 1, 8], ['dyn-leg-swing', 1, 20, 'Mỗi chân 10 lần'],
-      ['dyn-leg-swing-side', 1, 20, 'Mỗi chân 10 lần'], ['dyn-high-knees', 1, 30], ['dyn-butt-kicks', 1, 30], ['dyn-squat-reach', 1, 10]] },
+    warmup: { name: 'Khởi động · Giãn cơ động', sub: 'Trước khi tập, khoảng 7 phút, từ cổ xuống chân', items: [
+      ['dyn-neck-circles', 1, 10, 'Mỗi chiều 5 lần, thật chậm'], ['dyn-shoulder-rolls', 1, 10, '5 vòng ra trước, 5 vòng ra sau'],
+      ['dyn-arm-circles', 1, 20, '10 vòng ra trước, 10 vòng ra sau'], ['dyn-elbow-circles', 1, 20, '10 vòng vào trong, 10 vòng ra ngoài'],
+      ['dyn-wrist-circles', 1, 20, '10 vòng mỗi chiều'], ['dyn-hip-circles', 1, 10, '5 vòng mỗi chiều'], ['dyn-knee-circles', 1, 10, '5 vòng mỗi chiều'],
+      ['dyn-ankle-circles', 2, 10, 'Mỗi chân 1 hiệp, 5 vòng mỗi chiều'], ['dyn-side-lunge', 1, 10, 'Mỗi bên 5 lần'],
+      ['dyn-leg-swing', 2, 10, 'Mỗi chân 1 hiệp'], ['dyn-leg-swing-side', 2, 10, 'Mỗi chân 1 hiệp']] },
     cooldown: { name: 'Giãn cơ tĩnh sau tập', sub: 'Sau buổi tập, khoảng 8 phút', items: [
       ['st-hamstring', 1, 30], ['st-quad', 2, 30, 'Mỗi chân 1 hiệp'], ['st-hip-flexor', 2, 30, 'Mỗi bên 1 hiệp'], ['st-calf-wall', 2, 30, 'Mỗi chân 1 hiệp'],
       ['st-child-pose', 1, 45], ['st-chest-doorway', 2, 30, 'Mỗi bên 1 hiệp'], ['st-shoulder-cross', 2, 30, 'Mỗi tay 1 hiệp'], ['st-triceps-overhead', 2, 30, 'Mỗi tay 1 hiệp'],
@@ -2664,7 +2722,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     startWorkout(r.name, r.items.map(([ex, sets, reps, cue]) => ({ ex, sets, reps, cue: cue || '', rest: 15 })), { type: 'routine', id });
   }
   const routineSection = () => `<section><h2>Khởi động & giãn cơ</h2><div class="grid2">
-      ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 5 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
+      ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 7 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
     </div></section>`;
 
 
