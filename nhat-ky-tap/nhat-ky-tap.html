@@ -1599,7 +1599,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.22 (14/11/2026)';
+  const APP_VERSION = '1.23 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2973,6 +2973,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   setInterval(() => { if (D.link && document.visibilityState === 'visible' && S.view !== 'workout') syncNow(false); }, 120000);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && D.link && S.view !== 'workout') syncNow(false); });
 
+  const planTitle = (p) => [p.no ? 'Buổi ' + p.no : '', p.title || (p.no ? '' : 'Buổi tập')].filter(Boolean).join(' · ');
   const planDone = (id) => D.workouts.some((w) => w.source && w.source.type === 'coach' && w.source.planId === id);
   function coachSection() {
     if (!D.link) {
@@ -2991,7 +2992,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ${D.link.error ? `<div class="banner-backup"><div>${esc(D.link.error)}</div><div><button class="btn sm" data-act="link">Kết nối lại</button></div></div>` : ''}
       ${plans.length ? `<div class="list">${plans.map((p) => `
         <div class="card" style="border-left:5px solid var(--accent)">
-          <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
+          <div class="row between"><span class="card-title">${esc(planTitle(p))}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
           <div class="sub">${esc(planSummary(p.exercises || []))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi</b></div>${coachTiles(p.media)}` : ''}
@@ -3000,7 +3001,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
       ${older.length ? `<details class="tips older" data-tip="__older" ${S.openTips.has('__older') ? 'open' : ''}><summary>Buổi HLV đã gửi trước đây (${older.length}) · xem lại ảnh/video, tập lại</summary><div class="in"><div class="list">${older.map((p) => `
         <div class="card">
-          <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="row" style="gap:4px">${planDone(p.id) ? '<span class="chip good">Đã tập</span>' : ''}<span class="chip">${esc(fmtShort(p.date))}</span></span></div>
+          <div class="row between"><span class="card-title">${esc(planTitle(p))}</span><span class="row" style="gap:4px">${planDone(p.id) ? '<span class="chip good">Đã tập</span>' : ''}<span class="chip">${esc(fmtShort(p.date))}</span></span></div>
           <div class="sub">${esc(planSummary(p.exercises || [], 6))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi (${p.media.length})</b></div>${coachTiles(p.media)}` : ''}
@@ -3018,7 +3019,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         cue: [/\s(hoặc|or)\s|\//i.test(e.name) ? e.name : '', e.note || ''].filter(Boolean).join(' · ') };
     });
     if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
-    startWorkout(p.title || `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
+    startWorkout(p.no || p.title ? planTitle(p) : `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
     if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; A.coachMedia = p.media || []; A.coach = (D.link && D.link.coachName) || ''; saveActive(true); render(); }
   }
   function linkSheet() {

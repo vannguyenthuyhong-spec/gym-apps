@@ -555,6 +555,19 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   const clientById = (id) => S.clients.find((c) => c.id === id);
   const activeClients = () => S.clients.filter((c) => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
   const sessionsOf = (id) => S.sessions.filter((s) => s.clientId === id);
+  // Số buổi: các buổi HLV lên lịch cho học viên, xếp theo ngày (cùng ngày thì theo lúc tạo) → Buổi 1, Buổi 2…
+  let noCache = { arr: null, map: new Map() };
+  function sessionNo(sess) {
+    if (!sess || sess.fromTrainee) return null;
+    if (noCache.arr !== S.sessions) {
+      const map = new Map(), byClient = new Map();
+      for (const x of S.sessions) if (!x.fromTrainee) { if (!byClient.has(x.clientId)) byClient.set(x.clientId, []); byClient.get(x.clientId).push(x); }
+      for (const list of byClient.values()) list.sort((a, b) => (a.date === b.date ? (a.createdAt || '').localeCompare(b.createdAt || '') : a.date.localeCompare(b.date))).forEach((x, i) => map.set(x.id, i + 1));
+      noCache = { arr: S.sessions, map };
+    }
+    return noCache.map.get(sess.id) || null;
+  }
+  const sessionLabel = (s) => { const n = sessionNo(s); return [n ? 'Buổi ' + n : '', s.title || (n ? '' : 'Buổi tập')].filter(Boolean).join(' · '); };
   const metricsOf = (id) => S.metrics.filter((m) => m.clientId === id).sort((a, b) => a.date.localeCompare(b.date));
 
   function stats(clientId) {
@@ -922,7 +935,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
             <div class="card-title">${opts.showClient ? esc(c ? c.name : 'Học viên đã xoá') : esc(fmtShort(s.date))}</div>
             ${statusPill(s)}
           </div>
-          <div class="card-sub">${esc(s.title || 'Buổi tập')}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
+          <div class="card-sub">${esc(sessionLabel(s))}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
           ${s.fromTrainee ? '<div class="row"><span class="pill planned">Học viên tự tập (app)</span></div>' : s.result ? '<div class="row"><span class="pill done">Có kết quả từ app học viên</span></div>' : ''}
           ${!s.fromTrainee && (s.sendApp === false || (s.shareMedia && media)) ? `<div class="row">${s.sendApp === false ? '<span class="pill skipped">Không gửi app</span>' : '<span class="pill done">Ảnh/video gửi học viên</span>'}</div>` : ''}
           ${lines}${main.length > 3 ? `<div class="card-sub">+${main.length - 3} bài nữa</div>` : ''}
@@ -1222,7 +1235,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     const c = clientById(f.clientId);
 
     openSheet(`
-      <div class="sheet-head"><h2>${isNew ? 'Buổi tập mới' : 'Buổi tập'}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
+      <div class="sheet-head"><h2>${isNew ? 'Buổi tập mới' : (sessionNo(sess) ? 'Buổi ' + sessionNo(sess) : 'Buổi tập')}</h2><button class="icon-btn" data-act="close-sheet" aria-label="Đóng">×</button></div>
       <form id="sForm" class="list" novalidate>
         ${!f.clientId || isNew && !c ? `<label class="f">Học viên<select id="sClient"><option value="">Chọn học viên…</option>${clients.map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></label>`
           : `<div class="muted small">Học viên: <b style="color:var(--ink)">${esc(c ? c.name : '')}</b></div>`}
@@ -1755,7 +1768,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   }
   function plansFor(clientId) {
     return sessionsOf(clientId).filter((s) => !s.fromTrainee && s.sendApp !== false).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
-      .map((s) => ({ id: s.id, date: s.date, title: s.title || '', note: s.note || '', status: s.status, media: sharedMediaOf(s),
+      .map((s) => ({ id: s.id, no: sessionNo(s), date: s.date, title: s.title || '', note: s.note || '', status: s.status, media: sharedMediaOf(s),
         exercises: (s.exercises || []).map((e) => { const lib = e.libId ? libById(e.libId) : matchLib(e.name);
           return { name: e.name, libId: lib ? lib.id : null, type: lib ? lib.type : (e.type || 'weight'), sets: e.sets ?? null, reps: e.reps ?? null, repsTo: e.repsTo ?? null,
             kg: e.kg ?? null, rest: e.rest ?? null, restText: e.restText || '', note: e.note || '' }; }) }));
