@@ -138,7 +138,7 @@ table.rec td.r, table.rec th.r { text-align: right; font-variant-numeric: tabula
 
 /* Media */
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.thumb { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--surface-2); border: 0; padding: 0; }
+.thumb { position: relative; display: block; width: 100%; aspect-ratio: 1; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--surface-2); border: 0; padding: 0; }
 .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .thumb .vid-ph { position: absolute; inset: 0; display: grid; place-items: center; font-size: 30px; color: var(--muted); background: var(--surface-2); }
 .thumb .badge { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 6px; }
@@ -844,12 +844,38 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     }
     onProgress && onProgress('');
   }
+  // Video chưa có ảnh bìa (thêm trước đây, hoặc máy chưa tạo kịp): tạo dần khi hiện ra, nhớ trong máy
+  const posterMap = (() => { try { return JSON.parse(lsGet('so-hlv.posters') || '{}'); } catch { return {}; } })();
+  const posterOf = (m) => m.poster || posterMap[m.id] || null;
+  const posterTried = new Set(), posterQueue = [];
+  let posterBusy = false;
+  function ensurePoster(m) {
+    if (!m || m.kind !== 'video' || posterOf(m) || posterTried.has(m.id) || !S.assets) return;
+    posterTried.add(m.id); posterQueue.push(m.id);
+    if (!posterBusy) setTimeout(runPosters, 300);
+  }
+  async function runPosters() {
+    posterBusy = true;
+    while (posterQueue.length) {
+      const id = posterQueue.shift();
+      try {
+        const pid = await posterIdFor(await blobOf(id));
+        if (pid) {
+          posterMap[id] = pid; lsSet('so-hlv.posters', JSON.stringify(posterMap));
+          const src = blobUrl(pid);
+          const put = (u) => document.querySelectorAll(`.thumb[data-id="${id}"] .vid-ph`).forEach((ph) => { const img = document.createElement('img'); img.src = u; img.alt = ''; ph.replaceWith(img); });
+          if (src) put(src); else setTimeout(() => { const u = blobUrl(pid); if (u) put(u); }, 400);
+        }
+      } catch { /* bỏ qua, giữ ô ▶ */ }
+    }
+    posterBusy = false;
+  }
   const mediaThumb = (m, opts = {}) => {
     const src = m.kind === 'video' ? '' : blobUrl(m.id);
     return `
     <button class="thumb" type="button" data-act="lightbox" data-id="${esc(m.id)}" data-kind="${esc(m.kind)}" aria-label="Xem ${m.kind === 'video' ? 'video' : 'ảnh'}">
       ${m.kind === 'video'
-        ? (m.poster && blobUrl(m.poster) ? `<img src="${blobUrl(m.poster)}" alt="" loading="lazy">` : '<span class="vid-ph">▶</span>') + '<span class="badge">▶ Video</span>'
+        ? (posterOf(m) && blobUrl(posterOf(m)) ? `<img src="${blobUrl(posterOf(m))}" alt="" loading="lazy">` : (ensurePoster(m), '<span class="vid-ph">▶</span>')) + '<span class="badge">▶ Video</span>'
         : !src ? '' : `<img src="${src}" alt="" loading="lazy">`}
       ${opts.caption ? `<span class="badge">${esc(opts.caption)}</span>` : ''}
     </button>`;
