@@ -271,6 +271,8 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 .cue-list li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-weight: 600; }
 .guide-sec { display: flex; flex-direction: column; gap: 8px; }
 .guide-sec ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.ex-link { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.note-link { color: var(--info); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 /* Ăn uống */
 .food-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1536,7 +1538,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.14 (13/11/2026)';
+  const APP_VERSION = '1.15 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1792,7 +1794,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
               <div class="row between"><span class="card-title">${esc(p.title || 'Buổi với PT')}</span><span class="muted small">${esc(fmtShort(p.date))}</span></div>
               ${p.coach ? `<div class="sub">với PT ${esc(p.coach)}</div>` : ''}
               <div class="sub">${esc(p.items.map((i) => exById(i.ex).name).join(' · '))}</div>
-              ${p.note ? `<div class="sub">PT dặn: ${esc(p.note)}</div>` : ''}
+              ${p.note ? `<div class="sub">PT dặn: ${richNote(p.note)}</div>` : ''}
             </button>
             <button class="btn sm primary" data-act="pt-start" data-id="${esc(p.id)}">Tự tập lại buổi này</button>
           </div>`).join('')}</div>`
@@ -1834,8 +1836,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
             </div>
             <button class="rm" data-act="rm-ex" data-i="${i}" aria-label="Bỏ bài ${esc(ex.name)}">×</button>
           </div>
-          ${it.cue ? `<div class="hint pt">${A.source && A.source.type === 'routine' ? 'Lưu ý' : `PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn`}: ${esc(it.cue)}</div>` : ''}
-          ${tipsFor(ex).personal.map((x) => `<div class="hint pt">HLV dặn riêng bạn: ${esc(x)}</div>`).join('')}
+          ${it.cue ? `<div class="hint pt">${A.source && A.source.type === 'routine' ? 'Lưu ý' : `PT ${esc(A.coach || D.settings.ptName || DEFAULT_PT)} dặn`}: ${richNote(it.cue)}</div>` : ''}
+          ${tipsFor(ex).personal.map((x) => `<div class="hint pt">HLV dặn riêng bạn: ${richNote(x)}</div>`).join('')}
           ${(() => { const tp = tipsFor(ex); const first = tp.cues[0]; return `<details class="tips" data-tip="${esc(it.ex)}" ${S.openTips.has(it.ex) ? 'open' : ''}><summary>${esc(first || 'Mẹo hít thở')}</summary><div class="in">
             <div style="max-width:340px;margin:0 auto;width:100%">${exArt(ex, { anim: true })}</div>${muscleLegend(ex)}
             ${tp.cues.length > 1 ? `<ul>${tp.cues.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
@@ -2036,13 +2038,13 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           return `<button class="card" data-act="w-open" data-id="${esc(w.id)}">
             <div class="row between"><span class="card-title">${esc(w.title)}</span>${w.feeling ? `<span class="chip ${w.feeling >= 4 ? 'good' : w.feeling <= 2 ? 'warn' : 'info'}">${FEEL[w.feeling]}</span>` : ''}</div>
             <div class="sub num">${w.minutes} phút · ${w.items.length} bài · ${sets} hiệp${vol ? ` · ${fmt(vol / 1000, 2)} tấn` : ''}</div>
-            ${w.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${esc(w.note)}</div>` : ''}
+            ${w.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${richNote(w.note)}</div>` : ''}
           </button>`;
         }
         const j = x.j;
         return `<button class="card" data-act="journal-edit" data-id="${esc(j.id)}">
           <div class="row"><span class="chip">Ghi chú ngày</span>${j.weight ? `<span class="chip info num">${fmt(j.weight)} kg</span>` : ''}${j.sleep ? `<span class="chip num">Ngủ ${fmt(j.sleep)} giờ</span>` : ''}${j.energy ? `<span class="chip num">Năng lượng ${j.energy}/5</span>` : ''}</div>
-          ${j.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${esc(j.note)}</div>` : ''}
+          ${j.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${richNote(j.note)}</div>` : ''}
         </button>`;
       }).join('')}</div></section>`).join('')
       : '<div class="empty"><h3>Nhật ký còn trống</h3><p>Mỗi buổi tập bạn kết thúc sẽ được lưu ở đây cùng cảm nhận và điều cần cải thiện. Bạn cũng có thể ghi cân nặng, giấc ngủ, năng lượng mỗi ngày.</p></div>'}`;
@@ -2055,12 +2057,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         const ex = exById(it.ex);
         return `<div class="card"><b>${esc(ex.name)}</b>
           <div class="num" style="font-size:14px">${it.sets.map((s, i) => `Hiệp ${i + 1}: ${ex.type === 'weight' ? `${fmt(s.kg)} kg × ${s.reps}` : `${s.reps} ${unit(ex.type)}`}`).join('<br>')}</div>
-          ${it.note ? `<div class="sub">Ghi chú: ${esc(it.note)}</div>` : ''}</div>`;
+          ${it.note ? `<div class="sub">Ghi chú: ${richNote(it.note)}</div>` : ''}</div>`;
       }).join('')}</div>
       <label class="f">Nhật ký buổi này<textarea id="wNote">${esc(w.note)}</textarea></label>
       <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
         ${mediaTiles(mediaOf('workout', w.id), true).replace(/data-act="media-del"/g, `data-act="media-del" data-w="${esc(w.id)}"`)}
-        ${(D.feedback || {})[w.id] ? `<div class="fb">HLV: ${esc(D.feedback[w.id])}</div>` : ''}
+        ${(D.feedback || {})[w.id] ? `<div class="fb">HLV: ${richNote(D.feedback[w.id])}</div>` : ''}
         <label class="btn sm" style="position:relative;overflow:hidden">📷 Thêm ảnh / video<input type="file" accept="image/*,video/*" data-media-ref="workout:${esc(w.id)}" style="position:absolute;inset:0;opacity:0"></label></div>
       <button class="btn primary block" id="wSave">Lưu nhật ký</button>
       <button class="btn block" id="wAgain">Tập lại buổi này</button>
@@ -2514,8 +2516,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
             ${m.photo ? `<img data-mid="${esc(m.photo)}" src="${mediaSrc(m.photo)}" alt="">` : '<span class="ph">🍽</span>'}
             <span class="grow"><span class="row between"><b>${esc(SLOTS[m.slot] || 'Bữa ăn')}${m.time ? ' · ' + esc(m.time) : ''}</b><span class="num small">${fmt(n.kcal, 0)} kcal</span></span>
               <span class="sub">${esc(m.src === 'ai' && m.ai ? m.ai.items.map((i) => i.name).join(', ') : portionText(m.portions) || 'Chưa chọn khẩu phần')} · đạm ${fmt(n.protein, 0)} g</span>
-              ${m.note ? `<span class="sub">${esc(m.note)}</span>` : ''}
-              ${fb ? `<span class="fb">HLV: ${esc(fb)}</span>` : ''}</span>
+              ${m.note ? `<span class="sub">${richNote(m.note)}</span>` : ''}
+              ${fb ? `<span class="fb">HLV: ${richNote(fb)}</span>` : ''}</span>
           </button>`; }).join('')}</div>` : '<div class="empty"><p>Chưa ghi bữa nào. Chụp ảnh mỗi bữa ăn để theo dõi calo, đạm và gửi HLV xem.</p></div>'}
       </section>
       ${days7.length ? `<div class="stats">
@@ -2547,7 +2549,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         <label class="f">Calo khác (đồ uống, bánh kẹo…)<input id="mExtra" inputmode="numeric" value="${m.extraKcal ?? ''}" placeholder="VD: 150"></label></section>
       <div class="card" id="mSum"></div>
       <label class="f">Ghi chú<textarea id="mNote" maxlength="300" placeholder="VD: cơm gà, uống trà sữa ít đường">${esc(m.note)}</textarea></label>
-      ${fb ? `<div class="hint pt">HLV nhận xét: ${esc(fb)}</div>` : ''}
+      ${fb ? `<div class="hint pt">HLV nhận xét: ${richNote(fb)}</div>` : ''}
       <button class="btn primary block" id="mSave">Lưu bữa ăn</button>
       ${!isNew ? '<button class="btn danger block" id="mDel">Xoá bữa này</button><div id="mConfirm"></div>' : ''}`, (root) => {
       const drawPhoto = () => {
@@ -2665,6 +2667,43 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 5 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
     </div></section>`;
 
+
+  // ================= LINK TRONG GHI CHÚ: tên bài → mở hướng dẫn bài; địa chỉ web → mở trang =================
+  let noteIdx = null, noteIdxKey = '';
+  function noteIndex() {
+    const list = allEx();
+    const key = list.length + ':' + list.map((e) => e.id).join(',').length;
+    if (noteIdx && noteIdxKey === key) return noteIdx;
+    const map = new Map();
+    for (const e of list) {
+      const n = e.name || '', base = n.replace(/\s*\(.*\)\s*$/, '').trim(), inner = (n.match(/\(([^)]+)\)/) || [])[1];
+      for (const v of [n, base, inner]) if (v && v.trim().length >= 5 && !map.has(v.trim().toLowerCase())) map.set(v.trim().toLowerCase(), e.id);
+    }
+    const names = [...map.keys()].sort((a, b) => b.length - a.length).map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    noteIdx = { map, re: names.length ? new RegExp('(?<![\\p{L}\\d])(' + names.join('|') + ')(?![\\p{L}\\d])', 'giu') : null };
+    noteIdxKey = key;
+    return noteIdx;
+  }
+  function richNote(text) {
+    const t = String(text ?? '');
+    if (!t) return '';
+    const idx = noteIndex();
+    const linkEx = (chunk) => (idx.re ? esc(chunk).replace(idx.re, (m) => {
+      const id = idx.map.get(m.toLowerCase());
+      return id ? `<span class="ex-link" role="link" tabindex="0" data-act="ex-info" data-id="${esc(id)}">${m}</span>` : m;
+    }) : esc(chunk));
+    let out = '', last = 0;
+    for (const m of t.matchAll(/\b(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi)) {
+      let url = m[0].replace(/[),.;!?]+$/, '');
+      out += linkEx(t.slice(last, m.index));
+      const href = /^https?:/i.test(url) ? url : 'https://' + url;
+      const label = /youtu\.?be/i.test(url) ? '▶ Xem video' : url.replace(/^https?:\/\//i, '').slice(0, 40) + (url.length > 48 ? '…' : '');
+      out += `<a class="note-link" data-act="ext" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+      last = m.index + url.length;
+    }
+    return out + linkEx(t.slice(last));
+  }
+
   // ================= SYNC WITH COACH (Sổ HLV) =================
   const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
   const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -2755,11 +2794,11 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         <div class="card" style="border-left:5px solid var(--accent)">
           <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
           <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
-          ${p.note ? `<div class="sub">HLV dặn: ${esc(p.note)}</div>` : ''}
+          ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
         </div>`).join('')}</div>`
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
-      ${(() => { const gen = ((D.coachTips || {}).personal || []).filter((p) => p && !p.exId && p.text); return gen.length ? `<div class="tip-day"><span class="tip-label">HLV dặn riêng bạn</span>${gen.map((p) => `<p>${esc(p.text)}</p>`).join('')}</div>` : ''; })()}
+      ${(() => { const gen = ((D.coachTips || {}).personal || []).filter((p) => p && !p.exId && p.text); return gen.length ? `<div class="tip-day"><span class="tip-label">HLV dặn riêng bạn</span>${gen.map((p) => `<p>${richNote(p.text)}</p>`).join('')}</div>` : ''; })()}
     </section>`;
   }
   function startCoachPlan(p) {
@@ -2926,7 +2965,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       case 'pt-new': ptSheet(null); break;
       case 'pt-edit': ptSheet(D.pt.find((p) => p.id === id)); break;
       case 'pt-start': { const p = D.pt.find((x) => x.id === id); if (p) startPt(p); break; }
-      case 'ex-info': exInfoSheet(id); break;
+      case 'ext': break; // link web: để trình duyệt mở
+      case 'ex-info': e.stopPropagation(); exInfoSheet(id); break;
       case 'lib-group': S.libGroup = el.dataset.g; render(); break;
       case 'custom-new': customSheet(); break;
       case 'log-filter': S.logFilter = el.dataset.f; render(); break;
