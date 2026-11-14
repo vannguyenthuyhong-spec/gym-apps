@@ -171,6 +171,9 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font
 .f textarea { min-height: 84px; resize: vertical; }
 .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .ex-list { display: flex; flex-direction: column; gap: 8px; }
+details.ex-group { border: 1px solid var(--line); border-left: 5px solid var(--gold); border-radius: 12px; background: var(--surface); }
+details.ex-group summary { cursor: pointer; padding: 12px; font-weight: 700; }
+details.ex-group > .ex-list { padding: 0 6px 6px; }
 .ex-row { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
 .ex-row .name { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; }
 .ex-row .name input { flex: 1; font-weight: 600; }
@@ -402,7 +405,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     ['band-lat-pulldown', 'Kéo xô với dây', 'back', 'reps', 'keo xo voi day|band pulldown|band lat pulldown'],
     ['jump-rope', 'Nhảy dây', 'cardio', 'min', 'nhay day|jump rope|skipping'],
     ['band-w-pulldown', 'Kéo dây kháng lực chữ W xuống (Band W Pulldown)', 'back', 'reps', 'keo day khang luc chu w|keo day chu w|chu w|w pulldown|band w pulldown|w pull down'],
-    ['band-ext-rot', 'Xoay ngoài khớp vai với dây (Band External Rotation)', 'shoulders', 'reps', 'xoay ngoai khop vai|xoay ngoai vai|xoay ngoai|xoay khop vai|external rotation|band external rotation|shoulder external rotation'],
+    ['band-ext-rot', 'Xoay ngoài khớp vai với dây (Band External Rotation)', 'shoulders', 'reps', 'xoay ngoai khop vai|xoay ngoai vai|xoay ngoai|external rotation|band external rotation|shoulder external rotation'],
     ['neck-chin-tuck', 'Gập cằm nằm ngửa (Chin Tuck)', 'neck', 'reps', 'chin tuck|gap cam|thu cam'],
     ['neck-press-back', 'Ấn gáy xuống gối (giữ tĩnh)', 'neck', 'time', 'an gay|an dau xuong goi|neck isometric|ep gay'],
     ['neck-rotation', 'Xoay đầu chậm nằm ngửa', 'neck', 'reps', 'xoay dau|xoay co|quay dau|neck rotation'],
@@ -491,7 +494,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
       const prev = out.exercises[out.exercises.length - 1];
       if (restText && !leftover && prev) { prev.restText = restText; prev.rest = rest; continue; }
       if (!numbered && /^(ngay|buoi|day|thu|tuan|session|workout)\s*\d/.test(fl) && !out.title && !/\d+\s*(set|hiep|x)\b/.test(fl)) { out.title = line.replace(/[:\s]+$/, '').slice(0, 80); continue; }
-      if (/^(khoi dong|warm ?up|gian co|cool ?down|luu y|ghi chu|note|chu y|an uong|uong nuoc)/.test(fl)) { out.notes.push(line); continue; }
+      if (/^(khoi dong|warm ?up|gian co|cool ?down|luu y|ghi chu|note|chu y|an uong|uong nuoc)/.test(fl) && !(/\d+\s*[x×]\s*\d/.test(fl) && matchLib(line.replace(/\d.*$/, '')))) { out.notes.push(line); continue; }
       if (/^cardio\b/.test(fl) && !/\d/.test(fl.replace(/^cardio/, '').replace(/cuoi buoi|dau buoi/, ''))) { cardio = true; continue; }
       if (/:\s*$/.test(line) && !/\d/.test(line)) { cardio = /cardio/.test(fl); continue; }
       // tách tên và thông số
@@ -836,11 +839,15 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     return drawToday(v);
   }
 
+  const WARM_G = { dynamic: '🔥 Khởi động', static: '🧘 Giãn cơ tĩnh' };
   function sessionCard(s, opts = {}) {
     const c = clientById(s.clientId);
     const ex = s.exercises || [];
     const media = (s.media || []).length;
-    const lines = ex.slice(0, 3).map((e) => `<div class="ex-line">${e.done ? '<span class="done-mark">✓</span> ' : ''}${exText(e)}</div>`).join('');
+    const grpOf = (e) => { const lib = e.libId ? libById(e.libId) : matchLib(e.name); return lib ? lib.group : ''; };
+    const warm = ex.filter((e) => grpOf(e) === 'dynamic'), cool = ex.filter((e) => grpOf(e) === 'static'), main = ex.filter((e) => !WARM_G[grpOf(e)]);
+    const gl = (arr, k) => (arr.length ? `<div class="ex-line">${arr.every((e) => e.done) ? '<span class="done-mark">✓</span> ' : ''}<b>${WARM_G[k]}</b> · ${arr.length} động tác</div>` : '');
+    const lines = gl(warm, 'dynamic') + main.slice(0, 3).map((e) => `<div class="ex-line">${e.done ? '<span class="done-mark">✓</span> ' : ''}${exText(e)}</div>`).join('') + gl(cool, 'static');
     const quick = opts.quick && canWrite() && s.status === 'planned'
       ? `<div class="row"><button class="btn small" type="button" data-act="quick-done" data-id="${esc(s.id)}">✓ Đánh dấu đã tập</button></div>` : '';
     return `
@@ -853,7 +860,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
           <div class="card-sub">${esc(s.title || 'Buổi tập')}${opts.showClient && opts.showDate ? ' · ' + esc(fmtShort(s.date)) : ''}${s.rating ? ` · Đánh giá ${s.rating}/5` : ''}${media ? ` · ${media} ảnh/video` : ''}</div>
           ${s.fromTrainee ? '<div class="row"><span class="pill planned">Học viên tự tập (app)</span></div>' : s.result ? '<div class="row"><span class="pill done">Có kết quả từ app học viên</span></div>' : ''}
           ${!s.fromTrainee && (s.sendApp === false || (s.shareMedia && media)) ? `<div class="row">${s.sendApp === false ? '<span class="pill skipped">Không gửi app</span>' : '<span class="pill done">Ảnh/video gửi học viên</span>'}</div>` : ''}
-          ${lines}${ex.length > 3 ? `<div class="card-sub">+${ex.length - 3} bài nữa</div>` : ''}
+          ${lines}${main.length > 3 ? `<div class="card-sub">+${main.length - 3} bài nữa</div>` : ''}
         </button>
         ${quick}
       </div>`;
@@ -1222,7 +1229,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
       const drawEx = () => {
         const n = f.exercises.filter((x) => x.name).length;
         $('#exCount', root).textContent = n ? n + ' bài' : '';
-        exList.innerHTML = f.exercises.map((e, i) => {
+        const rows = f.exercises.map((e, i) => {
           const t = exTypeOf(e), lib = e.libId ? libById(e.libId) : matchLib(e.name);
           return `
           <div class="ex-row">
@@ -1238,8 +1245,22 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
             </div>
             <label class="tick"><input id="exDone${i}" data-k="done" type="checkbox" ${e.done ? 'checked' : ''}> Đã hoàn thành</label>
           </div>`;
-        }).join('');
+        });
+        const gOf = (e) => { const lib = e.name && (e.libId ? libById(e.libId) : matchLib(e.name)); return lib && WARM_G[lib.group] ? lib.group : ''; };
+        const g = f.exercises.map(gOf);
+        let html = '', i = 0;
+        while (i < rows.length) {
+          if (!g[i]) { html += rows[i++]; continue; }
+          let j = i; while (j < rows.length && g[j] === g[i]) j++;
+          if (j - i < 2) { html += rows.slice(i, j).join(''); i = j; continue; }
+          const key = g[i] + i;
+          html += `<details class="ex-group" data-g="${key}" ${openGroups.has(key) ? 'open' : ''}><summary>${WARM_G[g[i]]} · ${j - i} động tác</summary><div class="ex-list">${rows.slice(i, j).join('')}</div></details>`;
+          i = j;
+        }
+        exList.innerHTML = html;
       };
+      const openGroups = new Set();
+      exList.addEventListener('toggle', (ev) => { const d = ev.target; if (d.matches && d.matches('details.ex-group')) d.open ? openGroups.add(d.dataset.g) : openGroups.delete(d.dataset.g); }, true);
       // --- chọn từ thư viện ---
       const client = () => clientById(($('#sClient', root) && $('#sClient', root).value) || f.clientId);
       const lastKgFor = (lib) => {

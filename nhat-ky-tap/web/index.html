@@ -278,6 +278,13 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 details.older { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
 details.older summary { color: var(--accent); }
 details.older summary::after { color: var(--muted); }
+details.wgroup { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--gold); border-radius: var(--radius); }
+details.wgroup summary { list-style: none; cursor: pointer; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+details.wgroup summary::-webkit-details-marker { display: none; }
+details.wgroup summary::after { content: "Mở"; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: underline; }
+details.wgroup[open] summary::after { content: "Thu gọn"; }
+details.wgroup summary span:first-child { flex: 1; }
+.wg-in { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 10px; }
 .food-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .food-add .btn.primary { grid-column: 1 / -1; min-height: 54px; font-size: 16px; }
 .nutri .progress { height: 10px; }
@@ -1611,7 +1618,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.19 (14/11/2026)';
+  const APP_VERSION = '1.20 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1898,7 +1905,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ${A.pausedAt ? `<div class="paused"><div><b>Đang tạm dừng</b><br>Từ ${new Date(A.pausedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}. Đồng hồ buổi tập và giờ nghỉ đã dừng.</div><button class="btn primary" data-act="pause">▶ Tiếp tục tập</button></div>` : ''}
       ${A.coachNote ? `<div class="hint pt">HLV ${esc((D.link && D.link.coachName) || '')} dặn: ${richNote(A.coachNote)}</div>` : ''}
       ${(A.coachMedia || []).length ? `<div class="media-box"><b>Ảnh/video HLV gửi</b>${coachTiles(A.coachMedia)}</div>` : ''}
-      ${A.items.map((it, i) => {
+      ${foldWorkout(A.items.map((it, i) => {
         const ex = exById(it.ex);
         const one = ex.type !== 'weight';
         const complete = it.sets.length && it.sets.every((s) => s.done);
@@ -1937,7 +1944,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           </div>
           <input class="note-in" id="note-${i}" data-i="${i}" data-f="note" value="${esc(it.note)}" placeholder="Ghi chú bài này (cảm giác, kỹ thuật cần sửa…)" aria-label="Ghi chú ${esc(ex.name)}">
         </div>`;
-      }).join('')}
+      }))}
       ${A.items.length ? '' : '<div class="empty"><p>Chưa có bài nào. Bấm "+ Bài" để chọn từ thư viện.</p></div>'}
       <button class="btn block" data-act="add-ex">+ Thêm bài tập</button>
       <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
@@ -2782,6 +2789,36 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     return out + linkEx(t.slice(last));
   }
 
+
+  // ================= GOM KHỞI ĐỘNG / GIÃN CƠ TĨNH (giống nhau mọi buổi) =================
+  const WARM_GROUPS = { dynamic: '🔥 Khởi động', static: '🧘 Giãn cơ tĩnh' };
+  const planExGroup = (e) => { const id = e.libId && LIB.some((x) => x.id === e.libId) ? e.libId : null; return id ? exById(id).group : ''; };
+  function planSummary(exs, limit) {
+    const warm = exs.filter((e) => planExGroup(e) === 'dynamic').length, cool = exs.filter((e) => planExGroup(e) === 'static').length;
+    const main = exs.filter((e) => !WARM_GROUPS[planExGroup(e)]);
+    const txt = (e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`;
+    const parts = [];
+    if (warm) parts.push(`🔥 Khởi động ${warm} động tác`);
+    parts.push(...(limit ? main.slice(0, limit) : main).map(txt));
+    if (limit && main.length > limit) parts.push(`+${main.length - limit} bài`);
+    if (cool) parts.push(`🧘 Giãn cơ ${cool} động tác`);
+    return parts.join(' · ');
+  }
+  function foldWorkout(cards) {
+    const g = A.items.map((it) => exById(it.ex).group);
+    if (g.every((x) => WARM_GROUPS[x])) return cards.join('');
+    let out = '', i = 0;
+    while (i < cards.length) {
+      if (!WARM_GROUPS[g[i]]) { out += cards[i++]; continue; }
+      let j = i; while (j < cards.length && g[j] === g[i]) j++;
+      if (j - i < 2) { out += cards.slice(i, j).join(''); i = j; continue; }
+      const its = A.items.slice(i, j), done = its.filter((it) => it.sets.length && it.sets.every((x) => x.done)).length, key = 'grp-' + g[i] + '-' + i;
+      out += `<details class="wgroup" data-tip="${key}" ${S.openTips.has(key) ? 'open' : ''}><summary><span>${WARM_GROUPS[g[i]]} · ${j - i} động tác</span><span class="chip ${done === j - i ? 'good' : ''}">${done}/${j - i} xong</span></summary><div class="wg-in">${cards.slice(i, j).join('')}</div></details>`;
+      i = j;
+    }
+    return out;
+  }
+
   // ================= ẢNH/VIDEO HLV GỬI (lưu vào điện thoại) =================
   async function fetchCoachMedia() {
     if (!D.link) return;
@@ -2901,7 +2938,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ${plans.length ? `<div class="list">${plans.map((p) => `
         <div class="card" style="border-left:5px solid var(--accent)">
           <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="chip ${p.date === t ? 'accent' : p.date < t ? 'warn' : ''}">${p.date === t ? 'Hôm nay' : esc(fmtShort(p.date))}</span></div>
-          <div class="sub">${esc((p.exercises || []).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}${e.repsTo ? '–' + e.repsTo : ''}` : ''}${e.kg ? ` @${fmt(e.kg)}kg` : ''}`).join(' · '))}</div>
+          <div class="sub">${esc(planSummary(p.exercises || []))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi</b></div>${coachTiles(p.media)}` : ''}
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
@@ -2910,7 +2947,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ${older.length ? `<details class="tips older" data-tip="__older" ${S.openTips.has('__older') ? 'open' : ''}><summary>Buổi HLV đã gửi trước đây (${older.length}) · xem lại ảnh/video, tập lại</summary><div class="in"><div class="list">${older.map((p) => `
         <div class="card">
           <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="row" style="gap:4px">${planDone(p.id) ? '<span class="chip good">Đã tập</span>' : ''}<span class="chip">${esc(fmtShort(p.date))}</span></span></div>
-          <div class="sub">${esc((p.exercises || []).slice(0, 6).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}` : ''}`).join(' · '))}${(p.exercises || []).length > 6 ? ` · +${p.exercises.length - 6} bài` : ''}</div>
+          <div class="sub">${esc(planSummary(p.exercises || [], 6))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi (${p.media.length})</b></div>${coachTiles(p.media)}` : ''}
           <button class="btn sm" data-act="plan-start" data-id="${esc(p.id)}">Tập lại buổi này</button>
