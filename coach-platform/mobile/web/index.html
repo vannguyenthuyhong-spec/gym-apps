@@ -733,6 +733,48 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     if (c === 'rate_limited') return 'Tải lên quá nhanh, thử lại sau ít phút.';
     return 'Tải lên không thành công. Kiểm tra mạng rồi thử lại.';
   }
+  // ---------- nén video nặng ngay trên điện thoại (vẽ lại khung hình nhỏ hơn + ghi lại với bitrate thấp) ----------
+  const VIDEO_TARGET = 15 * 1024 * 1024; // nén về khoảng 15 MB (giới hạn gửi là 18 MB)
+  const VIDEO_MAX_SEC = 90;
+  const canShrinkVideo = () => typeof MediaRecorder !== 'undefined' && typeof HTMLCanvasElement !== 'undefined' && 'captureStream' in HTMLCanvasElement.prototype;
+  async function shrinkVideo(file, onProgress) {
+    if (!canShrinkVideo()) return null;
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    try {
+      await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('read')); setTimeout(() => rej(new Error('timeout')), 15000); });
+      const full = Number.isFinite(v.duration) ? v.duration : VIDEO_MAX_SEC;
+      const dur = Math.min(full, VIDEO_MAX_SEC);
+      const scale = Math.min(1, 640 / Math.max(v.videoWidth || 640, v.videoHeight || 640));
+      const c = document.createElement('canvas');
+      c.width = Math.max(2, Math.round(((v.videoWidth || 640) * scale) / 2) * 2);
+      c.height = Math.max(2, Math.round(((v.videoHeight || 360) * scale) / 2) * 2);
+      const g = c.getContext('2d');
+      const types = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+      const mime = types.find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+      const bps = Math.max(250000, Math.min(1500000, Math.floor((VIDEO_TARGET * 8) / Math.max(1, dur))));
+      const rec = new MediaRecorder(c.captureStream(24), mime ? { mimeType: mime, videoBitsPerSecond: bps } : { videoBitsPerSecond: bps });
+      const chunks = [];
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      const finished = new Promise((res) => { rec.onstop = res; });
+      let stopped = false, timer = null;
+      const stop = () => { if (stopped) return; stopped = true; clearInterval(timer); try { v.pause(); } catch { /* ignore */ } if (rec.state !== 'inactive') rec.stop(); };
+      g.drawImage(v, 0, 0, c.width, c.height);
+      rec.start(1000);
+      v.onended = stop;
+      await v.play();
+      timer = setInterval(() => {
+        g.drawImage(v, 0, 0, c.width, c.height);
+        if (onProgress) onProgress(Math.min(99, Math.round((v.currentTime / dur) * 100)));
+        if (v.currentTime >= dur || v.ended) stop();
+      }, 1000 / 24);
+      await finished;
+      const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
+      const blob = new Blob(chunks, { type });
+      return blob.size ? { blob, type, cut: full > VIDEO_MAX_SEC + 1 } : null;
+    } catch { return null; } finally { URL.revokeObjectURL(url); }
+  }
   async function uploadFiles(files, onEach, onProgress) {
     let i = 0;
     for (const file of files) {
@@ -744,6 +786,11 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         catch { if (!/^image\/(jpeg|png|webp|gif)$/.test(type)) { toast('Ảnh này không đọc được (có thể là HEIC). Hãy chọn ảnh JPG.'); continue; } }
       } else if (type === 'video/quicktime' || !type) {
         type = 'video/mp4'; // iPhone .mov: same MPEG-4 family; stored and played as mp4
+      }
+      // video trên 18 MB: tự nén để lưu nhẹ và gửi được cho học viên
+      if (isVideo && blob.size > 18 * 1024 * 1024 && canShrinkVideo()) {
+        const r = await shrinkVideo(blob, (p) => onProgress && onProgress(`Đang nén video ${i}/${files.length}… ${p}%`));
+        if (r && r.blob.size < blob.size) { blob = r.blob; type = r.type; toast(`Đã nén video còn ${(r.blob.size / 1048576).toFixed(1)} MB${r.cut ? ' (lấy 90 giây đầu)' : ''}`); }
       }
       if (blob.size > maxBytes()) { toast(S.mode === 'local' ? 'Video lớn hơn 150 MB. Hãy quay đoạn ngắn hơn.' : assetErr({ code: 'too_large' })); continue; }
       try {
@@ -1219,7 +1266,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         <section><div class="row between"><h2>Ảnh & video</h2><span class="muted small" id="upState"></span></div>
           <div class="grid" id="mediaGrid"></div>
           ${S.assets ? `<label class="btn block file-btn">+ Thêm ảnh/video<input id="sFiles" type="file" accept="image/*,video/*" multiple></label>
-            <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video tối đa 20 MB (khoảng 30–60 giây).</p>`
+            <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video trên 18 MB được tự nén nhỏ lại (dài quá 90 giây thì lấy 90 giây đầu); giữ màn hình mở trong lúc nén.</p>`
             : '<p class="muted small" style="margin:0">Chỉ chủ sổ hoặc người có quyền sửa mới tải được ảnh/video.</p>'}
         </section>
         ${f.fromTrainee ? '' : (() => { const c2 = clientById(f.clientId); return `<section><h2>Gửi sang app học viên</h2>
