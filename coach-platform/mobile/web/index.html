@@ -159,6 +159,7 @@ table.rec td.r, table.rec th.r { text-align: right; font-variant-numeric: tabula
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .thumb { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--surface-2); border: 0; padding: 0; }
 .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .vid-ph { position: absolute; inset: 0; display: grid; place-items: center; font-size: 30px; color: var(--muted); background: var(--surface-2); }
 .thumb .badge { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 6px; }
 .thumb .x { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 16px; line-height: 1; }
 .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -811,10 +812,36 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
       try { actx && actx.close(); } catch { /* ignore */ }
     }
   }
+  // Ảnh bìa nhỏ (khung ở giây 0,5) để lưới không phải mở cả video nặng
+  async function makePoster(file) {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
+    try {
+      // chờ có khung hình (tối đa ~4 giây); iPhone đôi khi cần tua/phát nhẹ mới có khung
+      const got = await new Promise((res) => {
+        let ok = false; const fin = (x) => { if (!ok) { ok = true; res(x); } };
+        v.onloadeddata = () => fin(true); v.onseeked = () => fin(true); v.onerror = () => fin(false);
+        v.onloadedmetadata = () => { try { v.currentTime = Math.min(0.5, Number.isFinite(v.duration) && v.duration > 0 ? v.duration / 2 : 0.1); } catch { /* ignore */ } };
+        setTimeout(() => fin(v.readyState >= 2), 4000);
+      });
+      if (!got || v.readyState < 2) return null;
+      const sc = Math.min(1, 360 / Math.max(v.videoWidth || 360, v.videoHeight || 360));
+      const c = document.createElement('canvas');
+      c.width = Math.max(2, Math.round((v.videoWidth || 360) * sc)); c.height = Math.max(2, Math.round((v.videoHeight || 360) * sc));
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      return await new Promise((res) => c.toBlob((b) => res(b), 'image/jpeg', 0.75));
+    } catch { return null; } finally { URL.revokeObjectURL(url); }
+  }
+  async function posterIdFor(blob) {
+    const p = await makePoster(blob);
+    if (!p || !S.assets) return null;
+    try { return (await S.assets.upload(p, { type: 'image/jpeg' })).id; } catch { return null; }
+  }
   async function uploadFiles(files, onEach, onProgress) {
     let i = 0;
     for (const file of files) {
-      i += 1; onProgress && onProgress(`Đang tải ${i}/${files.length}…`);
+      i += 1; onProgress && onProgress(`Đang lưu ${i}/${files.length}…`);
       const isVideo = file.type.startsWith('video/');
       let blob = file, type = file.type;
       if (!isVideo) {
@@ -825,19 +852,24 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
       }
       if (blob.size > maxBytes()) { toast(S.mode === 'local' ? 'Video lớn hơn 150 MB. Hãy quay đoạn ngắn hơn.' : assetErr({ code: 'too_large' })); continue; }
       try {
+        let poster = null;
+        if (isVideo) {
+          onProgress && onProgress(`Đang lưu video ${i}/${files.length} (${Math.round(blob.size / 1048576)} MB)… video dài có thể mất 10–30 giây, giữ màn hình mở`);
+          poster = await posterIdFor(blob);
+        }
         const r = await S.assets.upload(blob, { type });
-        onEach({ id: r.id, kind: isVideo ? 'video' : 'image', at: new Date().toISOString() });
+        onEach({ id: r.id, kind: isVideo ? 'video' : 'image', ...(poster ? { poster } : {}), at: new Date().toISOString() });
       } catch (e) { toast(assetErr(e)); }
     }
     onProgress && onProgress('');
   }
   const mediaThumb = (m, opts = {}) => {
-    const src = blobUrl(m.id);
+    const src = m.kind === 'video' ? '' : blobUrl(m.id);
     return `
     <button class="thumb" type="button" data-act="lightbox" data-id="${esc(m.id)}" data-kind="${esc(m.kind)}" aria-label="Xem ${m.kind === 'video' ? 'video' : 'ảnh'}">
-      ${!src ? '' : m.kind === 'video'
-        ? `<video src="${src}#t=0.5" preload="metadata" muted playsinline></video><span class="badge">▶ Video</span>`
-        : `<img src="${src}" alt="" loading="lazy">`}
+      ${m.kind === 'video'
+        ? (m.poster && blobUrl(m.poster) ? `<img src="${blobUrl(m.poster)}" alt="" loading="lazy">` : '<span class="vid-ph">▶</span>') + '<span class="badge">▶ Video</span>'
+        : !src ? '' : `<img src="${src}" alt="" loading="lazy">`}
       ${opts.caption ? `<span class="badge">${esc(opts.caption)}</span>` : ''}
     </button>`;
   };
@@ -1713,10 +1745,11 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         for (let i = 0; i < m.chunks; i++) parts.push((await api('media-get', { pairId: c.link.pairId, coachKey: coachKey(), id: m.id, idx: i })).data);
         const blob = b64ToBlob(parts.join(''), m.mime || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg'));
         const r = await S.assets.upload(blob, { type: blob.type });
+        const poster = m.kind === 'video' ? await posterIdFor(blob) : null;
         map[m.id] = r.id; changed = true;
         if (session) {
           const cur = S.sessions.find((s) => s.id === session.id) || session;
-          await write('sessions', cur.id, { ...clean(cur), media: [...(cur.media || []), { id: r.id, kind: m.kind, at: m.at || new Date().toISOString(), fromTrainee: true }], updatedAt: new Date().toISOString() });
+          await write('sessions', cur.id, { ...clean(cur), media: [...(cur.media || []), { id: r.id, kind: m.kind, ...(poster ? { poster } : {}), at: m.at || new Date().toISOString(), fromTrainee: true }], updatedAt: new Date().toISOString() });
         }
         api('media-ack', { pairId: c.link.pairId, coachKey: coachKey(), id: m.id, chunks: m.chunks }).catch(() => {});
       } catch (e) {
