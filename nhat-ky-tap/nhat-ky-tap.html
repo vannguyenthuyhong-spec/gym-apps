@@ -256,6 +256,9 @@ details.tips ul { margin: 0; padding-left: 18px; display: flex; flex-direction: 
 .note-link { color: var(--info); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab-h) + 18px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 /* Ăn uống */
+details.older { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+details.older summary { color: var(--accent); }
+details.older summary::after { color: var(--muted); }
 .food-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .food-add .btn.primary { grid-column: 1 / -1; min-height: 54px; font-size: 16px; }
 .nutri .progress { height: 10px; }
@@ -1589,7 +1592,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.18 (14/11/2026)';
+  const APP_VERSION = '1.19 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2869,6 +2872,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     const t = today();
     const plans = (D.coachPlans || []).filter((p) => p.status !== 'done' && p.status !== 'skipped' && !planDone(p.id) && p.date >= addDays(t, -3))
       .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
+    const older = (D.coachPlans || []).filter((p) => !plans.includes(p) && (p.exercises || []).length)
+      .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 40);
     const last = D.link.lastSync ? new Date(D.link.lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : null;
     return `<section>
       <div class="row between"><div><h2>Bài HLV giao</h2><div class="sub">HLV ${esc(D.link.coachName || '')}${last ? ' · đồng bộ lúc ' + last : ''}</div></div>
@@ -2883,6 +2888,14 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
         </div>`).join('')}</div>`
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
+      ${older.length ? `<details class="tips older" data-tip="__older" ${S.openTips.has('__older') ? 'open' : ''}><summary>Buổi HLV đã gửi trước đây (${older.length}) · xem lại ảnh/video, tập lại</summary><div class="in"><div class="list">${older.map((p) => `
+        <div class="card">
+          <div class="row between"><span class="card-title">${esc(p.title || 'Buổi tập')}</span><span class="row" style="gap:4px">${planDone(p.id) ? '<span class="chip good">Đã tập</span>' : ''}<span class="chip">${esc(fmtShort(p.date))}</span></span></div>
+          <div class="sub">${esc((p.exercises || []).slice(0, 6).map((e) => `${e.name}${e.sets || e.reps ? ` ${e.sets || '?'}×${e.reps || '?'}` : ''}`).join(' · '))}${(p.exercises || []).length > 6 ? ` · +${p.exercises.length - 6} bài` : ''}</div>
+          ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
+          ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi (${p.media.length})</b></div>${coachTiles(p.media)}` : ''}
+          <button class="btn sm" data-act="plan-start" data-id="${esc(p.id)}">Tập lại buổi này</button>
+        </div>`).join('')}</div></div></details>` : ''}
       ${(() => { const gen = ((D.coachTips || {}).personal || []).filter((p) => p && !p.exId && p.text); return gen.length ? `<div class="tip-day"><span class="tip-label">HLV dặn riêng bạn</span>${gen.map((p) => `<p>${richNote(p.text)}</p>`).join('')}</div>` : ''; })()}
     </section>`;
   }

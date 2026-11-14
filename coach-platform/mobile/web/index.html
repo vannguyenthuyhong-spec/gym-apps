@@ -1658,14 +1658,15 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   const toB64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
   async function shareSessionMedia(c) {
     const started = Date.now();
+    let tooBig = 0, more = false;
     for (const s of sessionsOf(c.id).filter((x) => x.shareMedia && x.sendApp !== false && !x.fromTrainee)) {
       const shared = { ...(s.shared || {}), ...(sharedCache[s.id] || {}) };
       let changed = false;
       for (const m of (s.media || []).filter((x) => !x.fromTrainee && !shared[x.id])) {
-        if (Date.now() - started > 90000) break;
+        if (Date.now() - started > 90000) { more = true; break; }
         let blob;
         try { blob = await blobOf(m.id); } catch { continue; }
-        if (blob.size > 18 * 1024 * 1024) continue;
+        if (blob.size > 18 * 1024 * 1024) { tooBig++; continue; }
         const data = await toB64(blob), CH = 500 * 1024, total = Math.max(1, Math.ceil(data.length / CH)), sid = uid('h');
         for (let i = 0; i < total; i++) await api('coach-media-put', { pairId: c.link.pairId, coachKey: coachKey(), id: sid, idx: i, total, data: data.slice(i * CH, (i + 1) * CH) });
         shared[m.id] = { sid, chunks: total, mime: blob.type || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg') };
@@ -1677,6 +1678,8 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         await write('sessions', s.id, { ...clean(cur), shared });
       }
     }
+    if (tooBig) toast(`${tooBig} video lớn hơn 18 MB không gửi được cho ${c.name}. Hãy quay ngắn hơn (15–30 giây).`);
+    if (more) setTimeout(() => pushPlans(c.id).catch(() => {}), 1500); // còn tệp chưa gửi: gửi tiếp
   }
   function plansFor(clientId) {
     return sessionsOf(clientId).filter((s) => !s.fromTrainee && s.sendApp !== false).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 150)
