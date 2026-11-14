@@ -645,6 +645,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     { id: 'dyn-side-lunge', name: 'Xoạc chân ngang động (Side Lunge)', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
       steps: ['Đứng chân rộng gấp đôi vai, mũi chân hơi mở ra ngoài, hai tay đưa ra trước.','Dồn người sang một bên, gập gối bên đó, đẩy hông ra sau; chân kia duỗi thẳng để giãn đùi trong.','Đẩy về giữa rồi sang bên kia. Mỗi bên tính 1 lần.'],
       mistakes: ['Gối gập vượt quá mũi chân, đổ vào trong.','Nhấc gót chân duỗi.','Cong lưng khi xuống.'] },
+    { id: 'dyn-hip-opener', name: 'Xoay khớp háng (mở cổng hông)', group: 'dynamic', equip: 'Không cần dụng cụ (vịn tường nếu cần)', type: 'reps', inc: 0,
+      steps: ['Đứng thẳng, tay chống hông hoặc vịn tường.', 'Nâng gối lên trước ngang hông, rồi mở gối sang ngang (như mở cổng), hạ chân xuống.', 'Làm 5 lần mở ra rồi 5 lần theo chiều ngược lại (từ ngang vào trước), rồi đổi chân.'],
+      mistakes: ['Nghiêng người theo chân.', 'Gối thấp, vòng quá nhỏ.', 'Xoay nhanh, mất thăng bằng.'] },
+    { id: 'dyn-skip-c', name: 'Skip C (nhảy sáo đá gót chạm mông)', group: 'dynamic', equip: 'Khoảng trống 10–15 m', type: 'reps', inc: 0,
+      steps: ['Nhảy chân sáo về trước, mỗi bước chạm sàn hai lần bằng mũi chân.', 'Ở mỗi nhịp, đá gót chân lên chạm mông, đùi vẫn hướng xuống sàn.', 'Tay đánh theo nhịp chân. Đi 10–15 m rồi đi bộ về; ghi số lượt.'],
+      mistakes: ['Đưa đùi ra trước thay vì chỉ gập gối.', 'Tiếp đất bằng gót.', 'Gập người ra trước.'] },
     { id: 'dyn-arm-circles', name: 'Xoay cánh tay vòng tròn', group: 'dynamic', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
       steps: ['Đứng thẳng, hai tay duỗi.','Xoay tay thành vòng tròn lớn ra trước 10 lần, rồi ra sau 10 lần.','Đi từ vòng nhỏ đến vòng lớn, nhịp đều.'],
       mistakes: ['Nhún vai lên tai.','Xoay quá nhanh, giật vai.'] },
@@ -814,6 +820,8 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'dyn-knee-circles': { b: 'cardio', c: ['Bàn chân dính sàn', 'Vòng nhỏ, nhẹ nhàng', 'Tay đỡ nhẹ, không đè'] },
     'dyn-ankle-circles': { b: 'cardio', c: ['Mũi chân vẽ vòng tròn', 'Chân trụ hơi chùng gối', 'Vịn tường nếu chưa vững'] },
     'dyn-side-lunge': { b: 'lift', c: ['Gối gập theo hướng mũi chân', 'Đẩy hông ra sau như ngồi ghế', 'Gót chân duỗi dính sàn'] },
+    'dyn-hip-opener': { b: 'cardio', c: ['Gối lên ngang hông rồi mở ra', 'Thân đứng thẳng, bụng siết', 'Vịn tường nếu chưa vững'] },
+    'dyn-skip-c': { b: 'cardio', c: ['Gót chạm mông, đùi hướng xuống', 'Nhịp nhẹ trên mũi chân', 'Tay đánh theo chân'] },
     'dyn-arm-circles': { b: 'cardio', c: ['Vai thả xa tai', 'Vòng nhỏ đến vòng lớn', 'Nhịp đều, không giật'] },
     'dyn-torso-twist': { b: 'cardio', c: ['Hông hướng ra trước', 'Xoay từ eo và ngực', 'Tay vung nhẹ theo người'] },
     'dyn-leg-swing': { b: 'cardio', c: ['Thân thẳng, bụng siết', 'Biên độ tăng dần', 'Chân trụ hơi chùng gối'] },
@@ -931,6 +939,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'dyn-neck-circles': ['neckf neckb', 'traps'], 'dyn-shoulder-rolls': ['delts reardelts', 'traps chest'], 'dyn-elbow-circles': ['forearms', 'biceps triceps delts'],
     'dyn-wrist-circles': ['forearms', ''], 'dyn-hip-circles': ['glutes obliques', 'lowerback abs'], 'dyn-knee-circles': ['quads hamstrings', 'calves'],
     'dyn-ankle-circles': ['calves', 'quads'], 'dyn-side-lunge': ['quads glutes', 'hamstrings'],
+    'dyn-hip-opener': ['glutes', 'quads abs'], 'dyn-skip-c': ['hamstrings calves', 'quads glutes'],
     'dyn-arm-circles': ['delts', 'chest reardelts'], 'dyn-torso-twist': ['obliques', 'abs lowerback'], 'dyn-leg-swing': ['hamstrings glutes', 'quads'],
     'dyn-leg-swing-side': ['glutes', 'quads hamstrings'], 'dyn-cat-cow': ['lowerback abs', 'neckb'], 'dyn-high-knees': ['quads abs', 'calves'],
     'dyn-butt-kicks': ['quads hamstrings', 'calves'], 'dyn-squat-reach': ['quads glutes', 'delts lats'],
@@ -1258,6 +1267,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'dyn-side-lunge': { v: 'front', dur: 2400, f: [
       { h: [146, 112], t: -6, hd: -2, l: { a: [162, 156], k: [1, 0] }, lL: { a: [78, 156], k: [-1, 0] }, a: { w: [140, 76], e: [1, 0.4] }, aL: { w: [132, 76], e: [-1, 0.4] } },
       { h: [94, 112], t: 6, hd: 2, a: { w: [108, 76], e: [1, 0.4] }, aL: { w: [100, 76], e: [-1, 0.4] } }] },
+    'dyn-hip-opener': { v: 'front', dur: 2600, f: [
+      { h: [120, 84], t: 0, l: { th: 178, sh: 178 }, lL: { a: [111, 156], k: [-1, 0] }, a: { wh: [14, -4], e: [1, 0] } },
+      { l: { th: 150, sh: 215 } }, { l: { th: 112, sh: 178 } }] },
+    'dyn-skip-c': { dur: 1100, f: [
+      { h: [118, 76], t: 4, ln: { th: 176, sh: 14 }, lf: { a: [120, 150], toe: 110 }, an: { ua: 200, fa: 140 }, af: { ua: 160, fa: 70 } },
+      { h: [118, 82], ln: { a: [122, 156], toe: 90 }, lf: { th: 176, sh: 14 }, an: { ua: 160, fa: 70 }, af: { ua: 200, fa: 140 } }] },
     'dyn-arm-circles': { jump: 1, dur: 2400, f: [
       { h: [118, 84], t: 0, ln: { a: [121, 156], toe: 90 }, lf: { a: [116, 156], toe: 90 }, an: { ua: 0, fa: 0 } }, { an: { ua: 90, fa: 90 } }, { an: { ua: 180, fa: 180 } }, { an: { ua: 270, fa: 270 } }, { an: { ua: 360, fa: 360 } }] },
     'dyn-torso-twist': { v: 'front', dur: 1800, f: [
@@ -1593,7 +1608,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.16 (14/11/2026)';
+  const APP_VERSION = '1.17 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2706,12 +2721,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= KHỞI ĐỘNG & GIÃN CƠ (bài tập nhanh trên trang chính) =================
   const ROUTINES = {
-    warmup: { name: 'Khởi động · Giãn cơ động', sub: 'Trước khi tập, khoảng 7 phút, từ cổ xuống chân', items: [
+    warmup: { name: 'Khởi động · Giãn cơ động', sub: 'Trước khi tập, khoảng 8–9 phút, từ cổ xuống chân', items: [
       ['dyn-neck-circles', 1, 10, 'Mỗi chiều 5 lần, thật chậm'], ['dyn-shoulder-rolls', 1, 10, '5 vòng ra trước, 5 vòng ra sau'],
       ['dyn-arm-circles', 1, 20, '10 vòng ra trước, 10 vòng ra sau'], ['dyn-elbow-circles', 1, 20, '10 vòng vào trong, 10 vòng ra ngoài'],
-      ['dyn-wrist-circles', 1, 20, '10 vòng mỗi chiều'], ['dyn-hip-circles', 1, 10, '5 vòng mỗi chiều'], ['dyn-knee-circles', 1, 10, '5 vòng mỗi chiều'],
+      ['dyn-wrist-circles', 1, 20, '10 vòng mỗi chiều'], ['dyn-hip-circles', 1, 10, '5 vòng mỗi chiều'], ['dyn-hip-opener', 2, 10, 'Mỗi chân 1 hiệp: 5 lần mở ra, 5 lần khép vào'], ['dyn-knee-circles', 1, 10, '5 vòng mỗi chiều'],
       ['dyn-ankle-circles', 2, 10, 'Mỗi chân 1 hiệp, 5 vòng mỗi chiều'], ['dyn-side-lunge', 1, 10, 'Mỗi bên 5 lần'],
-      ['dyn-leg-swing', 2, 10, 'Mỗi chân 1 hiệp'], ['dyn-leg-swing-side', 2, 10, 'Mỗi chân 1 hiệp']] },
+      ['dyn-leg-swing', 2, 10, 'Mỗi chân 1 hiệp'], ['dyn-leg-swing-side', 2, 10, 'Mỗi chân 1 hiệp'], ['dyn-skip-c', 2, 1, 'Mỗi lượt 10–15 m, đi bộ về rồi làm lượt 2']] },
     cooldown: { name: 'Giãn cơ tĩnh sau tập', sub: 'Sau buổi tập, khoảng 8 phút', items: [
       ['st-hamstring', 1, 30], ['st-quad', 2, 30, 'Mỗi chân 1 hiệp'], ['st-hip-flexor', 2, 30, 'Mỗi bên 1 hiệp'], ['st-calf-wall', 2, 30, 'Mỗi chân 1 hiệp'],
       ['st-child-pose', 1, 45], ['st-chest-doorway', 2, 30, 'Mỗi bên 1 hiệp'], ['st-shoulder-cross', 2, 30, 'Mỗi tay 1 hiệp'], ['st-triceps-overhead', 2, 30, 'Mỗi tay 1 hiệp'],
@@ -2722,7 +2737,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     startWorkout(r.name, r.items.map(([ex, sets, reps, cue]) => ({ ex, sets, reps, cue: cue || '', rest: 15 })), { type: 'routine', id });
   }
   const routineSection = () => `<section><h2>Khởi động & giãn cơ</h2><div class="grid2">
-      ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 7 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
+      ${Object.entries(ROUTINES).map(([k, r]) => `<button class="card routine ${k}" data-act="routine" data-id="${k}"><span class="card-title">${k === 'warmup' ? '🔥 Khởi động 9 phút' : '🧘 Giãn cơ 8 phút'}</span><span class="sub">${esc(r.sub)}</span><span class="sub">${r.items.length} động tác</span></button>`).join('')}
     </div></section>`;
 
 
