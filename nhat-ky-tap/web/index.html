@@ -1618,7 +1618,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.21 (14/11/2026)';
+  const APP_VERSION = '1.22 (14/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2492,15 +2492,28 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   const blobB64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
   const CHUNK = 500 * 1024; // ký tự base64 mỗi lần gửi
   const MAX_VIDEO = 18 * 1024 * 1024;
-  // ---------- nén video nặng ngay trên điện thoại (vẽ lại khung hình nhỏ hơn + ghi lại với bitrate thấp) ----------
+  // ---------- nén video nặng ngay trên điện thoại (vẽ lại khung hình nhỏ hơn + ghi lại với bitrate thấp, giữ tiếng) ----------
   const VIDEO_TARGET = 15 * 1024 * 1024; // nén về khoảng 15 MB (giới hạn gửi là 18 MB)
   const VIDEO_MAX_SEC = 90;
+  const AUDIO_BPS = 96000;
   const canShrinkVideo = () => typeof MediaRecorder !== 'undefined' && typeof HTMLCanvasElement !== 'undefined' && 'captureStream' in HTMLCanvasElement.prototype;
   async function shrinkVideo(file, onProgress) {
     if (!canShrinkVideo()) return null;
     const url = URL.createObjectURL(file);
     const v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    // Tiếng: dẫn tiếng của video vào bản ghi qua Web Audio (không phát ra loa)
+    const AC = window.AudioContext || window.webkitAudioContext;
+    let actx = null, audioTracks = [];
+    try {
+      if (AC) {
+        actx = new AC();
+        const dest = actx.createMediaStreamDestination();
+        actx.createMediaElementSource(v).connect(dest);
+        audioTracks = dest.stream.getAudioTracks();
+        v.muted = false;
+      }
+    } catch { audioTracks = []; v.muted = true; }
     try {
       await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('read')); setTimeout(() => rej(new Error('timeout')), 15000); });
       const full = Number.isFinite(v.duration) ? v.duration : VIDEO_MAX_SEC;
@@ -2510,19 +2523,26 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       c.width = Math.max(2, Math.round(((v.videoWidth || 640) * scale) / 2) * 2);
       c.height = Math.max(2, Math.round(((v.videoHeight || 360) * scale) / 2) * 2);
       const g = c.getContext('2d');
-      const types = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+      const stream = c.captureStream(24);
+      audioTracks.forEach((t) => stream.addTrack(t));
+      const withAudio = audioTracks.length > 0;
+      const types = withAudio
+        ? ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+        : ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
       const mime = types.find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
-      const bps = Math.max(250000, Math.min(1500000, Math.floor((VIDEO_TARGET * 8) / Math.max(1, dur))));
-      const rec = new MediaRecorder(c.captureStream(24), mime ? { mimeType: mime, videoBitsPerSecond: bps } : { videoBitsPerSecond: bps });
+      const bps = Math.max(250000, Math.min(1500000, Math.floor((VIDEO_TARGET * 8) / Math.max(1, dur)) - (withAudio ? AUDIO_BPS : 0)));
+      const opts = { videoBitsPerSecond: bps, ...(withAudio ? { audioBitsPerSecond: AUDIO_BPS } : {}), ...(mime ? { mimeType: mime } : {}) };
+      const rec = new MediaRecorder(stream, opts);
       const chunks = [];
       rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
       const finished = new Promise((res) => { rec.onstop = res; });
       let stopped = false, timer = null;
       const stop = () => { if (stopped) return; stopped = true; clearInterval(timer); try { v.pause(); } catch { /* ignore */ } if (rec.state !== 'inactive') rec.stop(); };
+      try { if (actx && actx.state === 'suspended') await actx.resume(); } catch { /* ignore */ }
       g.drawImage(v, 0, 0, c.width, c.height);
       rec.start(1000);
       v.onended = stop;
-      await v.play();
+      try { await v.play(); } catch { v.muted = true; await v.play(); } // trình duyệt chặn phát có tiếng → ghi không tiếng
       timer = setInterval(() => {
         g.drawImage(v, 0, 0, c.width, c.height);
         if (onProgress) onProgress(Math.min(99, Math.round((v.currentTime / dur) * 100)));
@@ -2531,8 +2551,11 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       await finished;
       const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
       const blob = new Blob(chunks, { type });
-      return blob.size ? { blob, type, cut: full > VIDEO_MAX_SEC + 1 } : null;
-    } catch { return null; } finally { URL.revokeObjectURL(url); }
+      return blob.size ? { blob, type, cut: full > VIDEO_MAX_SEC + 1, audio: withAudio && !v.muted } : null;
+    } catch { return null; } finally {
+      URL.revokeObjectURL(url);
+      try { actx && actx.close(); } catch { /* ignore */ }
+    }
   }
   // Lưu ảnh/video vào máy và đưa vào hàng chờ gửi HLV. ref = { type: 'workout'|'meal', id }
   async function addMedia(file, ref) {
@@ -2543,9 +2566,10 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       catch { toast('Ảnh này không đọc được (có thể là HEIC). Hãy chọn ảnh JPG.'); return null; }
     } else {
       if (mime === 'video/quicktime') mime = 'video/mp4';
-      if (file.size > MAX_VIDEO) {
+      if (file.size > MAX_VIDEO && !D.link && file.size > 300 * 1024 * 1024) { toast('Video lớn hơn 300 MB. Hãy quay đoạn ngắn hơn.'); return null; }
+      if (file.size > MAX_VIDEO && D.link) {
         if (!canShrinkVideo()) { toast('Video lớn hơn 18 MB và máy này chưa nén tự động được. Hãy quay đoạn ngắn hơn (15–30 giây).'); return null; }
-        toast('Video nặng, đang tự nén cho nhẹ… Giữ màn hình mở.');
+        toast('Video nặng, đang nén để gửi HLV… Giữ màn hình mở.');
         const r = await shrinkVideo(file, (p) => toast(`Đang nén video… ${p}%`));
         if (!r || r.blob.size > MAX_VIDEO) { toast('Chưa nén được video này. Hãy quay đoạn ngắn hơn (15–30 giây).'); return null; }
         blob = r.blob; mime = r.type;
