@@ -1599,7 +1599,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.23 (14/11/2026)';
+  const APP_VERSION = '1.24 (15/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1843,6 +1843,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         <div class="big">${esc(day.name)}</div>
         <ol>${day.items.map(([id, s, r]) => { const e = exById(id); return `<li>${esc(e.name)} <span class="meta">${targetText(e.type, s, r)}</span></li>`; }).join('')}</ol>
         <button class="btn primary" data-act="start-program">Bắt đầu ${esc(day.name)}</button>
+        <button class="btn ghost" data-act="program-quick">✓ Đã tập buổi này (không mở app)</button>
         <div class="row"><button class="btn sm ghost" data-act="program-info">Xem giáo án</button><button class="btn sm ghost" data-act="help">Hướng dẫn sử dụng</button></div>
       </div>
       ${coachSection()}
@@ -2098,7 +2099,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           const sets = w.items.reduce((n, i) => n + i.sets.length, 0);
           const vol = w.items.reduce((n, i) => n + i.sets.reduce((m, s) => m + (s.kg || 0) * (s.reps || 0), 0), 0);
           return `<button class="card" data-act="w-open" data-id="${esc(w.id)}">
-            <div class="row between"><span class="card-title">${esc(w.title)}</span>${w.feeling ? `<span class="chip ${w.feeling >= 4 ? 'good' : w.feeling <= 2 ? 'warn' : 'info'}">${FEEL[w.feeling]}</span>` : ''}</div>
+            <div class="row between"><span class="card-title">${esc(w.title)}${w.quick ? ' <span class="chip">Ghi sau</span>' : ''}</span>${w.feeling ? `<span class="chip ${w.feeling >= 4 ? 'good' : w.feeling <= 2 ? 'warn' : 'info'}">${FEEL[w.feeling]}</span>` : ''}</div>
             <div class="sub num">${w.minutes} phút · ${w.items.length} bài · ${sets} hiệp${vol ? ` · ${fmt(vol / 1000, 2)} tấn` : ''}</div>
             ${w.note ? `<div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">${richNote(w.note)}</div>` : ''}
           </button>`;
@@ -2996,7 +2997,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           <div class="sub">${esc(planSummary(p.exercises || []))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi</b></div>${coachTiles(p.media)}` : ''}
-          <button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button>
+          <div class="row"><button class="btn sm primary" data-act="plan-start" data-id="${esc(p.id)}">Tập buổi này</button><button class="btn sm" data-act="plan-quick" data-id="${esc(p.id)}">✓ Đã tập (không mở app)</button></div>
         </div>`).join('')}</div>`
         : '<p class="muted small" style="margin:0">Chưa có bài mới từ HLV. Khi HLV lên lịch, bài sẽ hiện ở đây.</p>'}
       ${older.length ? `<details class="tips older" data-tip="__older" ${S.openTips.has('__older') ? 'open' : ''}><summary>Buổi HLV đã gửi trước đây (${older.length}) · xem lại ảnh/video, tập lại</summary><div class="in"><div class="list">${older.map((p) => `
@@ -3005,22 +3006,73 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           <div class="sub">${esc(planSummary(p.exercises || [], 6))}</div>
           ${p.note ? `<div class="sub">HLV dặn: ${richNote(p.note)}</div>` : ''}
           ${(p.media || []).length ? `<div class="sub"><b>📷 Ảnh/video HLV gửi (${p.media.length})</b></div>${coachTiles(p.media)}` : ''}
-          <button class="btn sm" data-act="plan-start" data-id="${esc(p.id)}">Tập lại buổi này</button>
+          <div class="row"><button class="btn sm" data-act="plan-start" data-id="${esc(p.id)}">Tập lại buổi này</button>${planDone(p.id) ? `<button class="btn sm" data-act="plan-w" data-id="${esc(p.id)}">📷 Thêm ảnh/video</button>` : `<button class="btn sm" data-act="plan-quick" data-id="${esc(p.id)}">✓ Đánh dấu đã tập</button>`}</div>
         </div>`).join('')}</div></div></details>` : ''}
       ${(() => { const gen = ((D.coachTips || {}).personal || []).filter((p) => p && !p.exId && p.text); return gen.length ? `<div class="tip-day"><span class="tip-label">HLV dặn riêng bạn</span>${gen.map((p) => `<p>${richNote(p.text)}</p>`).join('')}</div>` : ''; })()}
     </section>`;
   }
-  function startCoachPlan(p) {
-    const specs = (p.exercises || []).filter((e) => e.name).map((e) => {
+  function coachSpecs(p) {
+    return (p.exercises || []).filter((e) => e.name).map((e) => {
       const id = e.libId && LIB.some((x) => x.id === e.libId) ? e.libId : resolveEx(e.name, e.type);
       const type = exById(id).type;
       return { ex: id, sets: e.sets || (type === 'min' ? 1 : 3), reps: e.reps || (type === 'min' ? 10 : type === 'time' ? 30 : 10), kg: e.kg || null, fixed: true,
         range: e.repsTo && e.reps ? `${e.reps}–${e.repsTo}` : null, rest: e.rest || null, restText: e.restText || '',
         cue: [/\s(hoặc|or)\s|\//i.test(e.name) ? e.name : '', e.note || ''].filter(Boolean).join(' · ') };
     });
+  }
+  function startCoachPlan(p) {
+    const specs = coachSpecs(p);
     if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
     startWorkout(p.no || p.title ? planTitle(p) : `Bài HLV ${fmtShort(p.date)}`, specs, { type: 'coach', planId: p.id });
     if (A && A.source && A.source.planId === p.id) { A.coachNote = p.note || ''; A.coachMedia = p.media || []; A.coach = (D.link && D.link.coachName) || ''; saveActive(true); render(); }
+  }
+  function quickDoneSheet(title, specs, source, extra = {}) {
+    if (!specs.length) { toast('Buổi này chưa có bài tập nào.'); return; }
+    const FEEL = ['Rất mệt', 'Mệt', 'Ổn', 'Tốt', 'Rất tốt'];
+    const t = today(), d0 = extra.date && extra.date <= t ? extra.date : t;
+    let feeling = null, files = [];
+    openSheet(`${sheetHead('Đánh dấu đã tập')}
+      <div class="sub" style="margin-top:-6px"><b>${esc(title)}</b> · ghi lại buổi bạn đã tập mà không mở app.</div>
+      <div class="f2"><label class="f">Ngày tập<input id="qDate" type="date" max="${t}" value="${d0}"></label>
+        <label class="f">Thời gian (phút)<input id="qMin" inputmode="numeric" value="${Math.max(15, specs.length * 6)}"></label></div>
+      <section><h3>Bài đã tập</h3><div class="list" id="qList">${specs.map((sp, i) => { const e = exById(sp.ex); return `
+        <button class="pick" type="button" data-q="${i}" aria-pressed="true"><span class="box">✓</span><span class="grow"><b>${esc(e.name)}</b><br><span class="sub">${targetText(e.type, sp.sets, sp.reps)}${sp.kg ? ` · ${fmt(sp.kg)} kg` : ''}</span></span></button>`; }).join('')}</div>
+        <div class="sub">Bỏ chọn bài nào bạn chưa tập. Số hiệp/lần ghi theo mục tiêu.</div></section>
+      <section><h3>Hôm nay thấy thế nào?</h3>
+        <div class="scale" id="qFeel">${FEEL.map((l, i) => `<button type="button" data-v="${i + 1}" aria-pressed="false"><b>${i + 1}</b>${l}</button>`).join('')}</div></section>
+      <label class="f">Nhật ký (cảm giác, kỹ thuật, điều chỉnh lần sau)<textarea id="qNote"></textarea></label>
+      <section><h3>Ảnh/video buổi tập${D.link ? ' (gửi HLV)' : ''}</h3>
+        <label class="btn block" style="position:relative;overflow:hidden">📷 Chọn ảnh / video<input id="qFiles" type="file" accept="image/*,video/*" multiple style="position:absolute;inset:0;opacity:0"></label>
+        <div class="sub" id="qFilesInfo">Chọn từ thư viện ảnh hoặc chụp/quay mới. Có thể bỏ qua.</div></section>
+      <button class="btn primary block" id="qSave">Lưu buổi đã tập</button>`, (root) => {
+      const picked = new Set(specs.map((_, i) => i));
+      root.addEventListener('click', (e) => {
+        const q = e.target.closest('[data-q]');
+        if (q) { const i = Number(q.dataset.q); picked.has(i) ? picked.delete(i) : picked.add(i); q.setAttribute('aria-pressed', String(picked.has(i))); q.querySelector('.box').textContent = picked.has(i) ? '✓' : ''; return; }
+        const fb = e.target.closest('#qFeel [data-v]');
+        if (fb) { feeling = Number(fb.dataset.v); $$('#qFeel button', root).forEach((x) => x.setAttribute('aria-pressed', String(x === fb))); }
+      });
+      $('#qFiles', root).onchange = (e) => { files = [...e.target.files]; $('#qFilesInfo', root).textContent = files.length ? `Đã chọn ${files.length} tệp: ${files.filter((x) => x.type.startsWith('video/')).length} video, ${files.filter((x) => !x.type.startsWith('video/')).length} ảnh.` : 'Chưa chọn tệp nào.'; };
+      $('#qSave', root).onclick = async () => {
+        if (!picked.size) { toast('Chọn ít nhất 1 bài đã tập.'); return; }
+        const btn = $('#qSave', root); btn.disabled = true; btn.textContent = 'Đang lưu…';
+        const date = $('#qDate', root).value && $('#qDate', root).value <= t ? $('#qDate', root).value : t;
+        const items = specs.filter((_, i) => picked.has(i)).map((sp) => { const it = buildItem(sp);
+          return { ex: it.ex, cue: it.cue, target: it.target, note: '', sets: it.sets.map((x) => ({ kg: x.kg, reps: sp.reps || x.reps, done: true })) }; });
+        const w = { id: uid('w'), title, source, coachMedia: extra.coachMedia || [], date, startedAt: `${date}T12:00:00`, quick: true,
+          minutes: Math.max(1, Number($('#qMin', root).value) || specs.length * 6), feeling, note: $('#qNote', root).value.trim(), items };
+        D.workouts.push(w);
+        if (source && source.type === 'program' && source.programId === D.program.id) {
+          const p = PROGRAMS.find((x) => x.id === D.program.id);
+          D.program.next = (source.day + 1) % p.days.length;
+        }
+        save(); closeSheet();
+        let n = 0;
+        for (const file of files) { if (await addMedia(file, { type: 'workout', id: w.id })) n++; }
+        toast(`Đã lưu buổi tập${n ? ` kèm ${n} ảnh/video` : ''}${D.link ? ', sẽ gửi HLV' : ''}`);
+        render(); syncNow(false);
+      };
+    });
   }
   function linkSheet() {
     const L = D.link;
@@ -3168,6 +3220,10 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       case 'nutri-target': nutriTargetSheet(); break;
       case 'media-del': e.stopPropagation(); removeMedia(id).then(() => { if (S.view === 'workout') render(); else { const w = D.workouts.find((x) => x.id === el.dataset.w); closeSheet(); if (w) workoutSheet(w); } }); break;
       case 'sync': syncNow(true); break;
+      case 'plan-quick': { const p = (D.coachPlans || []).find((x) => x.id === id); if (p) quickDoneSheet(p.no || p.title ? planTitle(p) : `Bài HLV ${fmtShort(p.date)}`, coachSpecs(p), { type: 'coach', planId: p.id }, { date: p.date, coachMedia: p.media || [] }); break; }
+      case 'plan-w': { const w = D.workouts.filter((x) => x.source && x.source.type === 'coach' && x.source.planId === id).slice(-1)[0]; if (w) workoutSheet(w); break; }
+      case 'program-quick': { const p = PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]; const i = D.program.next % p.days.length, d = p.days[i];
+        quickDoneSheet(`${d.name} · ${p.place}`, d.items.map(([ex, sets, reps]) => ({ ex, sets, reps })), { type: 'program', programId: p.id, day: i }); break; }
       case 'plan-start': { const p = (D.coachPlans || []).find((x) => x.id === id); if (p) startCoachPlan(p); break; }
       case 'start-program': startProgramDay(D.program.next % (PROGRAMS.find((x) => x.id === D.program.id) || PROGRAMS[0]).days.length); break;
       case 'start-free': startWorkout(`Buổi tự chọn ${fmtShort(today())}`, [], { type: 'free' }); setTimeout(() => A && !A.items.length && $('[data-act=add-ex]') && $('[data-act=add-ex]').click(), 50); break;
