@@ -1618,7 +1618,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.26 (15/11/2026)';
+  const APP_VERSION = '1.27 (15/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2478,12 +2478,25 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     if (mediaUrls.has(id)) return mediaUrls.get(id);
     mediaUrls.set(id, '');
     MDB.get(id).then((b) => {
-      if (!b) return;
+      if (!b) { mediaMissing(id); return; }
       const u = URL.createObjectURL(b); mediaUrls.set(id, u);
-      $$(`[data-mid="${id}"]`).forEach((el) => { el.src = u; });
+      $$(`[data-mid="${id}"]`).forEach((el) => { el.src = u; el.classList.remove('loading'); });
     }).catch(() => {});
     return '';
   }
+  // Tệp không có trên máy này (VD vừa đăng nhập máy mới, hoặc bộ nhớ trình duyệt bị xoá)
+  function mediaMissing(id) {
+    mediaUrls.delete(id);
+    $$(`[data-mid="${id}"]`).forEach((el) => { const t = el.closest('.mtile'); (t || el).remove(); });
+    if (id.startsWith('cm-')) {
+      const sid = id.slice(3);
+      if (D.coachMediaHave && D.coachMediaHave[sid] === true) { delete D.coachMediaHave[sid]; save(); }
+      clearTimeout(mediaMissing.t); mediaMissing.t = setTimeout(() => { if (D.link) syncNow(false); }, 1500); // tải lại nếu máy chủ còn
+    }
+  }
+  // Không để src rỗng (iPhone vẽ dấu ?): chưa tải xong thì để ảnh trong suốt
+  const BLANK_IMG = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+  const imgSrc = (id) => mediaSrc(id) || BLANK_IMG;
   async function shrinkImage(file, max, q) {
     const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
@@ -2590,7 +2603,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   }
   const mediaOf = (type, refId) => D.media.filter((m) => m.ref && m.ref.type === type && m.ref.id === refId);
   const mediaTiles = (list, canRemove) => list.length ? `<div class="mgrid">${list.map((m) => `<div class="mtile">
-      ${m.kind === 'video' ? `<video data-mid="${esc(m.id)}" src="${mediaSrc(m.id)}" controls playsinline preload="metadata"></video>` : `<img data-mid="${esc(m.id)}" src="${mediaSrc(m.id)}" alt="">`}
+      ${m.kind === 'video' ? `<video data-mid="${esc(m.id)}" src="${mediaSrc(m.id)}" controls playsinline preload="metadata"></video>` : `<img data-mid="${esc(m.id)}" src="${imgSrc(m.id)}" alt="">`}
       ${D.link ? `<span class="mstate">${m.uploaded ? '✓ Đã gửi HLV' : 'Chờ gửi'}</span>` : ''}
       ${canRemove ? `<button class="mx" type="button" data-act="media-del" data-id="${esc(m.id)}" aria-label="Xoá tệp">×</button>` : ''}
     </div>`).join('')}</div>` : '';
@@ -2671,7 +2684,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       <section><h2>Các bữa</h2>
         ${meals.length ? `<div class="list">${meals.map((m) => { const n = mealNums(m); const fb = fbAll[m.id]; return `
           <button class="meal" data-act="meal-edit" data-id="${esc(m.id)}">
-            ${m.photo ? `<img data-mid="${esc(m.photo)}" src="${mediaSrc(m.photo)}" alt="">` : '<span class="ph">🍽</span>'}
+            ${m.photo ? `<img data-mid="${esc(m.photo)}" src="${imgSrc(m.photo)}" alt="">` : '<span class="ph">🍽</span>'}
             <span class="grow"><span class="row between"><b>${esc(SLOTS[m.slot] || 'Bữa ăn')}${m.time ? ' · ' + esc(m.time) : ''}</b><span class="num small">${fmt(n.kcal, 0)} kcal</span></span>
               <span class="sub">${esc(m.src === 'ai' && m.ai ? m.ai.items.map((i) => i.name).join(', ') : portionText(m.portions) || 'Chưa chọn khẩu phần')} · đạm ${fmt(n.protein, 0)} g</span>
               ${m.note ? `<span class="sub">${richNote(m.note)}</span>` : ''}
@@ -2918,7 +2931,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     const waiting = all.filter((m) => !(D.coachMediaHave || {})[m.id]).length;
     return (ok.length ? `<div class="mgrid">${ok.map((m) => `<div class="mtile">${m.kind === 'video'
       ? `<video data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" controls playsinline preload="metadata"></video>`
-      : `<img data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" alt="Ảnh HLV gửi" data-act="cm-view" data-id="cm-${esc(m.id)}">${m.fromVideo ? '<span class="mstate">Ảnh từ video</span>' : ''}`}</div>`).join('')}</div>` : '')
+      : `<img data-mid="cm-${esc(m.id)}" src="${imgSrc('cm-' + m.id)}" alt="Ảnh HLV gửi" data-act="cm-view" data-id="cm-${esc(m.id)}">${m.fromVideo ? '<span class="mstate">Ảnh từ video</span>' : ''}`}</div>`).join('')}</div>` : '')
       + (waiting ? `<div class="sub">Đang tải ${waiting} ảnh/video HLV gửi… (cần mạng, bấm Đồng bộ)</div>` : '');
   }
 
@@ -3119,6 +3132,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   function restoreFrom(json) {
     const d = Object.assign(blank(), JSON.parse(json));
     d.settings = Object.assign(blank().settings, d.settings); d.profile = Object.assign(blank().profile, d.profile);
+    d.coachMediaHave = {}; // ảnh/video không theo hồ sơ: tải lại ảnh HLV gửi từ máy chủ
     D = d; save();
   }
   async function acctLogin(phone, pin) {
@@ -3362,7 +3376,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       case 'pt-edit': ptSheet(D.pt.find((p) => p.id === id)); break;
       case 'pt-start': { const p = D.pt.find((x) => x.id === id); if (p) startPt(p); break; }
       case 'ext': break;
-      case 'cm-view': openSheet(`${sheetHead('Ảnh HLV gửi')}<img src="${mediaSrc(id)}" alt="" style="width:100%;border-radius:14px">`); break; // link web: để trình duyệt mở
+      case 'cm-view': openSheet(`${sheetHead('Ảnh HLV gửi')}<img data-mid="${esc(id)}" src="${imgSrc(id)}" alt="" style="width:100%;border-radius:14px">`); break; // link web: để trình duyệt mở
       case 'ex-info': e.stopPropagation(); exInfoSheet(id); break;
       case 'lib-group': S.libGroup = el.dataset.g; render(); break;
       case 'custom-new': customSheet(); break;
