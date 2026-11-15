@@ -41,6 +41,19 @@ const isHex = (k, min = 32) => typeof k === 'string' && k.length >= min && k.len
 const str = (v, max) => (typeof v === 'string' ? v.slice(0, max) : '');
 const arr = (v, max) => (Array.isArray(v) ? v.slice(0, max) : []);
 const parse = (s) => { try { return s ? JSON.parse(s) : null; } catch { return null; } };
+// Số ĐT Việt Nam: chỉ giữ số, +84/84 → 0, 10–11 số
+const normPhone = (p) => { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('84') && d.length >= 11) d = '0' + d.slice(2); return /^0\d{8,10}$/.test(d) ? d : null; };
+const roleOf = (r) => (r === 'c' || r === 't' ? r : null); // c = HLV, t = học viên
+// Kiểm tra phiên đăng nhập bằng số ĐT (khoá phiên do acct-login cấp)
+async function asAccount(b) {
+  const role = roleOf(b.role), phone = normPhone(b.phone);
+  if (!role || !phone) throw new HttpError(400, 'bad_request', 'Số điện thoại không hợp lệ');
+  if (!isHex(b.key)) throw new HttpError(401, 'unauthorized', 'Hãy đăng nhập lại bằng số ĐT và PIN');
+  const [raw] = await store(['GET', `acct:${role}:${phone}`]);
+  const a = parse(raw);
+  if (!a || !(a.keyHashes || []).includes(sha(b.key))) throw new HttpError(401, 'unauthorized', 'Phiên đăng nhập đã hết. Hãy đăng nhập lại bằng số ĐT và PIN');
+  return { role, phone, a };
+}
 const isId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{3,64}$/.test(v);
 const small = (v, maxChars) => (v && typeof v === 'object' && JSON.stringify(v).length <= maxChars ? v : null);
 
@@ -120,6 +133,77 @@ async function asTrainee(b) {
 
 const actions = {
   async ping() { return { ok: true, store: Boolean(STORE_URL && STORE_TOKEN), ai: Boolean(AI_KEY) }; },
+
+  // ---------- tài khoản bằng số ĐT + PIN 4 số (lấy lại hồ sơ khi đổi máy) ----------
+  async 'acct-login'(b) {
+    const role = roleOf(b.role), phone = normPhone(b.phone);
+    if (!role || !phone) throw new HttpError(400, 'bad_request', 'Số điện thoại không hợp lệ (VD 0912345678)');
+    if (typeof b.pin !== 'string' || !/^\d{4}$/.test(b.pin)) throw new HttpError(400, 'bad_request', 'PIN gồm 4 chữ số');
+    const failKey = `acctfail:${role}:${phone}`;
+    const [raw, fails, saved] = await store(['GET', `acct:${role}:${phone}`], ['GET', failKey], ['GET', `acctdata:${role}:${phone}`]);
+    if (Number(fails) >= 8) throw new HttpError(429, 'locked', 'Nhập sai PIN quá nhiều lần. Thử lại sau 15 phút.');
+    const key = randHex(24);
+    let a = parse(raw), created = false;
+    if (!a) {
+      const salt = randHex(8);
+      a = { salt, pinHash: sha(salt + b.pin), keyHashes: [], createdAt: new Date().toISOString() };
+      created = true;
+    } else if (sha(a.salt + b.pin) !== a.pinHash) {
+      await store(['INCR', failKey], ['EXPIRE', failKey, 900]);
+      throw new HttpError(401, 'bad_pin', 'Sai PIN. Quên PIN thì nhờ HLV đặt lại.');
+    }
+    a.keyHashes = [sha(key), ...(a.keyHashes || [])].slice(0, 6); // tối đa 6 máy cùng đăng nhập
+    await store(['SET', `acct:${role}:${phone}`, JSON.stringify(a)], ['DEL', failKey]);
+    const d = parse(saved);
+    return { key, phone, created, hasData: Boolean(d), savedAt: d ? d.savedAt : null };
+  },
+  async 'acct-save'(b) {
+    const { role, phone } = await asAccount(b);
+    if (typeof b.data !== 'string' || b.data.length > 850 * 1024) throw new HttpError(413, 'too_large', 'Hồ sơ quá lớn để lưu lên máy chủ');
+    const savedAt = new Date().toISOString();
+    await store(['SET', `acctdata:${role}:${phone}`, JSON.stringify({ savedAt, data: b.data })]);
+    return { savedAt };
+  },
+  async 'acct-load'(b) {
+    const { role, phone } = await asAccount(b);
+    const [raw] = await store(['GET', `acctdata:${role}:${phone}`]);
+    const d = parse(raw);
+    return d ? { data: d.data, savedAt: d.savedAt } : { data: null, savedAt: null };
+  },
+  // HLV đặt lại PIN cho học viên đã nối (học viên đăng nhập lại sẽ tạo PIN mới, hồ sơ giữ nguyên)
+  async 'acct-pin-reset'(b) {
+    await asCoach(b);
+    const phone = normPhone(b.traineePhone);
+    if (!phone) throw new HttpError(400, 'bad_request', 'Số điện thoại học viên không hợp lệ');
+    await store(['DEL', `acct:t:${phone}`], ['DEL', `acctfail:t:${phone}`]);
+    return { ok: true };
+  },
+
+  // ---------- nối HLV – học viên bằng số ĐT ----------
+  // HLV (đã đăng nhập) công bố: học viên có số ĐT này thuộc kết nối pairId
+  async 'phone-link'(b) {
+    await asCoach(b);
+    const acct = await asAccount({ role: 'c', phone: b.coachPhone, key: b.acctKey });
+    const clientPhone = normPhone(b.clientPhone);
+    if (!clientPhone) throw new HttpError(400, 'bad_request', 'Số ĐT học viên không hợp lệ');
+    await store(['SET', `phonepair:${acct.phone}:${clientPhone}`, b.pairId]);
+    return { ok: true };
+  },
+  // Học viên (đã đăng nhập) nhập số ĐT HLV → so với số ĐT HLV ghi trong hồ sơ học viên
+  async 'phone-claim'(b) {
+    const acct = await asAccount({ role: 't', phone: b.phone, key: b.key });
+    const coachPhone = normPhone(b.coachPhone);
+    if (!coachPhone) throw new HttpError(400, 'bad_request', 'Số ĐT HLV không hợp lệ');
+    if (!isHex(b.traineeKey)) throw new HttpError(400, 'bad_request', 'Thiếu khoá học viên');
+    const [pairId] = await store(['GET', `phonepair:${coachPhone}:${acct.phone}`]);
+    if (!pairId) throw new HttpError(404, 'no_match', 'Chưa khớp số ĐT. Kiểm tra số ĐT HLV, và nhờ HLV ghi đúng số ĐT của bạn trong hồ sơ học viên rồi mở Sổ HLV để đồng bộ.');
+    const meta = await loadPair(pairId);
+    meta.traineeKeyHash = sha(b.traineeKey);
+    meta.claimedAt = new Date().toISOString();
+    meta.traineePhone = acct.phone;
+    await store(['SET', `pair:${pairId}`, JSON.stringify(meta)]);
+    return { pairId, clientName: meta.clientName, coachName: meta.coachName };
+  },
 
   // HLV: tạo kết nối mới cho một học viên → mã để học viên nhập
   async 'pair-create'(b) {

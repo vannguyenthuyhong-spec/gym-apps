@@ -1074,7 +1074,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   function drawClients(v) {
     header(`${activeClients().length} học viên`, 'Học viên', canWrite() ? `<button class="btn primary small" data-act="new-client">+ Học viên</button>` : '', false);
     const all = [...S.clients].sort((a, b) => (a.archived === b.archived ? a.name.localeCompare(b.name, 'vi') : a.archived ? 1 : -1));
-    const backup = S.mode !== 'local' ? '' : `
+    const backup = coachAcctCard() + (S.mode !== 'local' ? '' : `
       <section><h2>Sao lưu</h2>
         <div class="card">
           <div class="card-sub">Dữ liệu đang lưu trên điện thoại này. Hãy sao lưu mỗi tuần và giữ tệp ở Drive/Zalo, để không mất dữ liệu khi đổi máy hoặc xoá dữ liệu trình duyệt. Tệp sao lưu không gồm ảnh/video.</div>
@@ -1083,7 +1083,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
             <label class="btn small file-btn">Khôi phục từ tệp<input id="importFile" type="file" accept="application/json,.json"></label>
           </div>
         </div>
-      </section>`;
+      </section>`);
     if (!all.length) {
       v.innerHTML = notices() + `<div class="empty"><h3>Chưa có học viên</h3><p>Mỗi học viên có lịch tập, chỉ số cơ thể và thư viện ảnh/video riêng.</p>${canWrite() ? '<button class="btn primary" data-act="new-client">+ Thêm học viên</button>' : ''}</div>` + backup;
       return;
@@ -1791,7 +1791,78 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   const SYNC_URL = /(^|\.)camgym\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '/api/sync' : 'https://camgym.vercel.app/api/sync';
   const DEFAULT_COACH = 'HongCam CamFit';
   function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
-  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } if (/^so-hlv\.(coachName|tips|coachKey)$/.test(k)) { try { coachCloudSoon(); } catch { /* chưa sẵn sàng */ } } }
+  // ---------- TÀI KHOẢN HLV: số ĐT + PIN; sổ tự lưu lên máy chủ, đổi máy đăng nhập là lấy lại ----------
+  var CACCT = (() => { try { return JSON.parse(localStorage.getItem('so-hlv.acct') || 'null'); } catch { return null; } })();
+  function setCAcct(a) { CACCT = a; try { a ? localStorage.setItem('so-hlv.acct', JSON.stringify(a)) : localStorage.removeItem('so-hlv.acct'); } catch { /* ignore */ } }
+  function cNorm(p) { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('84') && d.length >= 11) d = '0' + d.slice(2); return /^0\d{8,10}$/.test(d) ? d : null; }
+  var cSaveT = null, cBusy = false, cRestoring = false, cPending = null;
+  function coachCloudSoon() { if (!CACCT || CACCT.error || cRestoring || !S.db || !ready()) return; clearTimeout(cSaveT); cSaveT = setTimeout(() => coachCloudSave(false), 8000); }
+  const coachData = () => JSON.stringify({ app: 'so-hlv', clients: S.clients, sessions: S.sessions, metrics: S.metrics,
+    coachKey: coachKey(), coachName: lsGet('so-hlv.coachName'), tips: lsGet('so-hlv.tips') });
+  async function coachCloudSave(manual) {
+    if (!CACCT || cBusy) return;
+    cBusy = true;
+    try {
+      const r = await api('acct-save', { role: 'c', phone: CACCT.phone, key: CACCT.key, data: coachData() });
+      setCAcct({ ...CACCT, savedAt: r.savedAt, error: null });
+      if (manual) { toast('Đã lưu sổ lên máy chủ'); render(); }
+    } catch (e) {
+      if (e.status === 401) setCAcct({ ...CACCT, error: 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.' });
+      if (manual || e.status === 413) toast(e.message || 'Chưa lưu được (mất mạng?)');
+    } finally { cBusy = false; }
+  }
+  async function coachRestore() {
+    const r = await api('acct-load', { role: 'c', phone: CACCT.phone, key: CACCT.key });
+    if (!r.data) return 0;
+    const d = JSON.parse(r.data);
+    cRestoring = true;
+    try {
+      if (d.coachKey) localStorage.setItem('so-hlv.coachKey', d.coachKey);
+      if (d.coachName) localStorage.setItem('so-hlv.coachName', d.coachName);
+      if (d.tips) localStorage.setItem('so-hlv.tips', d.tips);
+    } catch { /* ignore */ }
+    let n = 0;
+    for (const col of ['clients', 'sessions', 'metrics']) for (const row of d[col] || []) { if (row && row.id && await write(col, row.id, clean(row))) n++; }
+    cRestoring = false;
+    return n;
+  }
+  async function ensurePhoneLink(c) {
+    const ph = cNorm(c.phone); if (!ph || !CACCT || CACCT.error) return;
+    let cur = clientById(c.id) || c;
+    if (!cur.link) {
+      const j = await api('pair-create', { coachKey: coachKey(), clientName: cur.name, coachName: coachName() });
+      const link = { pairId: j.pairId, code: j.code, codeAt: new Date().toISOString(), claimed: false, claimedAt: null };
+      await write('clients', cur.id, { ...clean(cur), link });
+      cur = { ...cur, link };
+    }
+    const mark = ph + '|' + CACCT.phone;
+    if (cur.link.phoneLinked === mark) return;
+    await api('phone-link', { pairId: cur.link.pairId, coachKey: coachKey(), coachPhone: CACCT.phone, acctKey: CACCT.key, clientPhone: ph });
+    const now = clientById(c.id) || cur;
+    await write('clients', now.id, { ...clean(now), link: { ...(now.link || cur.link), phoneLinked: mark } });
+  }
+  function coachAcctCard() {
+    if (S.mode !== 'local') return '';
+    if (CACCT && !CACCT.error) return `<section><h2>Tài khoản HLV</h2><div class="card">
+      <div class="card-title">Đã đăng nhập: ${esc(CACCT.phone)}</div>
+      <div class="card-sub">Sổ (học viên, lịch tập, chỉ số, mẹo) tự lưu lên máy chủ${CACCT.savedAt ? ' · lần gần nhất ' + esc(new Date(CACCT.savedAt).toLocaleString('vi-VN')) : ''}. Đổi máy: đăng nhập đúng số ĐT + PIN là lấy lại. Ảnh/video vẫn chỉ nằm trên máy này. Học viên nhập số ĐT này để kết nối với bạn.</div>
+      <div class="row"><button class="btn small primary" data-act="c-save">Lưu ngay</button><button class="btn small" data-act="c-logout">Đăng xuất</button></div></div></section>`;
+    return `<section><h2>Tài khoản HLV</h2><div class="card">
+      <div class="card-sub">${CACCT && CACCT.error ? esc(CACCT.error) + ' ' : ''}Đăng nhập bằng số ĐT + PIN 4 số: sổ tự lưu lên máy chủ, đổi máy đăng nhập là lấy lại (không cần tệp sao lưu). Học viên nhập số ĐT của bạn để kết nối, không cần mã.</div>
+      <div class="f2"><label class="f">Số ĐT của bạn<input id="caPhone" inputmode="tel" maxlength="15" placeholder="VD: 0912345678" value="${esc((CACCT && CACCT.phone) || '')}"></label>
+        <label class="f">PIN 4 số<input id="caPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"></label></div>
+      <div class="card-sub">Lần đầu: PIN bạn nhập sẽ là PIN của bạn, nhớ để đăng nhập máy khác.</div>
+      <button class="btn primary" data-act="c-login">Đăng nhập</button><div id="caChoice"></div></div></section>`;
+  }
+  function phoneHint(c) {
+    const ph = cNorm(c.phone), L = c.link;
+    if (!CACCT || CACCT.error) return '<div class="card-sub">📱 Muốn học viên nối bằng số ĐT (không cần mã)? Đăng nhập <b>Tài khoản HLV</b> ở cuối tab Học viên.</div>';
+    if (!ph) return `<div class="card-sub">📱 Ghi <b>số ĐT học viên</b> (Sửa hồ sơ) để học viên tự kết nối bằng số ĐT của bạn.</div>${canWrite() ? `<div class="row"><button class="btn small" data-act="edit-client" data-id="${esc(c.id)}">Ghi số ĐT học viên</button></div>` : ''}`;
+    return `<div class="card-sub">📱 Học viên (số ${esc(ph)}) mở app → <b>Kết nối với HLV</b> → nhập số ĐT HLV <b>${esc(CACCT.phone)}</b>.${L && L.phoneLinked ? '' : ' Bấm nút bên dưới để kích hoạt.'}</div>
+      ${L && L.phoneLinked ? '' : '<div class="row"><button class="btn small primary" data-act="link-sync">Kích hoạt kết nối bằng số ĐT</button></div>'}
+      ${L && L.claimed ? `<div class="row"><button class="btn small" data-act="pin-reset" data-id="${esc(c.id)}">Đặt lại PIN cho học viên</button></div>` : ''}`;
+  }
   const randKey = () => [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, '0')).join('');
   function coachKey() { let k = lsGet('so-hlv.coachKey'); if (!k) { k = randKey(); lsSet('so-hlv.coachKey', k); } return k; }
   const coachName = () => lsGet('so-hlv.coachName') || DEFAULT_COACH;
@@ -1916,6 +1987,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     if (syncingAll || !S.db) return;
     syncingAll = true;
     let ok = 0, fail = null;
+    if (CACCT && !CACCT.error) for (const c of S.clients.filter((x) => !x.archived && cNorm(x.phone))) { try { await ensurePhoneLink(c); } catch (e) { fail = e; } }
     for (const c of S.clients.filter((x) => x.link)) {
       try { await pushPlans(c.id); await pullClient(c); ok++; }
       catch (e) { fail = e; S.syncInfo[c.id] = { at: S.syncInfo[c.id] ? S.syncInfo[c.id].at : null, error: e.message }; }
@@ -1944,7 +2016,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     if (!L) {
       return `<section><h2>App học viên</h2><div class="card">
         <div class="card-sub">Nối với app <b>Nhật Ký Tập</b> trên điện thoại học viên: bài bạn lên lịch tự hiện bên học viên; buổi học viên tập, cân nặng và hồ sơ tự gửi về đây.</div>
-        ${nameInput}
+        ${phoneHint(c)}${nameInput}
         ${canWrite() ? `<button class="btn primary" data-act="link-create" data-id="${esc(c.id)}">Tạo mã kết nối</button>` : ''}
       </div></section>`;
     }
@@ -1956,7 +2028,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
           <button class="btn small" data-act="link-copy" data-code="${esc(L.code)}">Chép mã</button></div>`}
       ${info && info.error ? `<div class="card-sub" style="color:var(--danger)">${esc(info.error)}</div>` : ''}
       ${A2 ? `<div class="card-sub">Học viên ghi: ${esc([A2.height ? `cao ${fmtNum(A2.height)} cm` : '', A2.weight ? `nặng ${fmtNum(A2.weight)} kg` : '', A2.bmi ? `BMI ${fmtNum(A2.bmi)}` : '', A2.goal ? `mục tiêu ${A2.goal}` : '', A2.target ? `cân nặng mục tiêu ${fmtNum(A2.target)} kg` : ''].filter(Boolean).join(' · '))}</div>` : ''}
-      ${nameInput}
+      ${phoneHint(c)}${nameInput}
       <div class="row">
         <button class="btn small primary" data-act="link-sync">${L.claimed ? 'Đồng bộ ngay' : 'Kiểm tra học viên đã nhập mã chưa'}</button>
         ${canWrite() ? `<button class="btn small" data-act="link-create" data-renew="1" data-id="${esc(c.id)}">Tạo mã mới${L.claimed ? ' (học viên đổi máy)' : ''}</button>` : ''}
@@ -1984,6 +2056,37 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     if (act === 'ctab') { S.clientTab = el.dataset.tab; render(); return; }
     if (act === 'open-session') { const s = S.sessions.find((x) => x.id === el.dataset.id); if (s) sessionSheet(s); return; }
     if (act === 'export') { exportBackup(); return; }
+    if (act === 'c-save') { el.disabled = true; await coachCloudSave(true); el.disabled = false; return; }
+    if (act === 'c-logout') { setCAcct(null); toast('Đã đăng xuất. Sổ trên máy vẫn giữ nguyên.'); render(); return; }
+    if (act === 'c-login') {
+      const phone = cNorm(($('#caPhone') || {}).value), pin = (($('#caPin') || {}).value || '').trim();
+      if (!phone) { toast('Số điện thoại chưa đúng (VD 0912345678).'); return; }
+      if (!/^\d{4}$/.test(pin)) { toast('PIN gồm 4 chữ số.'); return; }
+      el.disabled = true; el.textContent = 'Đang đăng nhập…';
+      try {
+        const j = await api('acct-login', { role: 'c', phone, pin });
+        setCAcct({ phone: j.phone, key: j.key, savedAt: j.savedAt, error: null });
+        if (j.hasData && S.clients.length) {
+          cPending = j;
+          $('#caChoice').innerHTML = `<div class="banner" style="margin-top:8px">Máy này đã có sổ, và máy chủ cũng có sổ của số ${esc(j.phone)}${j.savedAt ? ' (lưu lúc ' + esc(new Date(j.savedAt).toLocaleString('vi-VN')) + ')' : ''}.
+            <div class="row" style="margin-top:8px"><button class="btn small primary" data-act="c-use-cloud">Lấy sổ trên máy chủ</button><button class="btn small" data-act="c-use-local">Giữ sổ máy này (lưu đè lên máy chủ)</button></div></div>`;
+          el.hidden = true; return;
+        }
+        if (j.hasData) { const n = await coachRestore(); toast(`Đã đăng nhập và lấy lại sổ (${n} mục)`); setTimeout(() => syncAll(false), 800); }
+        else { await coachCloudSave(false); toast(j.created ? 'Đã tạo tài khoản HLV. Sổ sẽ tự lưu lên máy chủ.' : 'Đã đăng nhập'); setTimeout(() => syncAll(false), 800); }
+        render();
+      } catch (err) { toast(err.message); el.disabled = false; el.textContent = 'Đăng nhập'; }
+      return;
+    }
+    if (act === 'c-use-cloud') { const n = await coachRestore(); cPending = null; toast(`Đã lấy lại sổ (${n} mục)`); render(); setTimeout(() => syncAll(false), 800); return; }
+    if (act === 'c-use-local') { cPending = null; await coachCloudSave(true); render(); setTimeout(() => syncAll(false), 800); return; }
+    if (act === 'pin-reset') {
+      const c = clientById(el.dataset.id); if (!c || !c.link) return;
+      el.disabled = true;
+      try { await api('acct-pin-reset', { pairId: c.link.pairId, coachKey: coachKey(), traineePhone: c.phone }); toast(`Đã đặt lại PIN. ${c.name} đăng nhập lại bằng số ĐT và đặt PIN mới (hồ sơ giữ nguyên).`); }
+      catch (err) { toast(err.message); }
+      el.disabled = false; return;
+    }
     if (act === 'tip-edit') { tipSheet(el.dataset.id); return; }
     if (act === 'ptip-add') {
       const c = clientById(el.dataset.client); const text = ($('#ptText') || {}).value; if (!c || !text || !text.trim()) { toast('Nhập nội dung mẹo.'); return; }
@@ -2066,6 +2169,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     for (const col of ['clients', 'sessions', 'metrics']) {
       db.collection(col).onSnapshot((snap) => {
         S[col] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        if (S.got[col]) coachCloudSoon();
         S.got[col] = true;
         if (ready() && !snap.metadata.fromCache) { clearTimeout(slowTimer); S.slow = false; }
         if (ready() && !S.syncedOnce) { S.syncedOnce = true; setTimeout(() => syncAll(false), 400); }

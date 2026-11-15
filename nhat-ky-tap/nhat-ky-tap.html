@@ -1599,7 +1599,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.25 (15/11/2026)';
+  const APP_VERSION = '1.26 (15/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1618,6 +1618,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(D)); storageOk = true; }
     catch { storageOk = false; toast('Không lưu được: bộ nhớ trình duyệt đầy hoặc bị chặn. Hãy tải tệp sao lưu.'); }
+    if (typeof cloudSaveSoon === 'function') cloudSaveSoon();
   }
   let saveATimer;
   function saveActive(now) {
@@ -2334,6 +2335,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       <section><h3>Mục tiêu <span class="sub" style="font-weight:400">(chọn tối đa 2)</span></h3><div class="goal-grid" id="uGoal">${Object.entries(GOALS).map(([k, g]) => `<button type="button" data-g="${k}" aria-pressed="${goals.includes(k)}">${esc(g.l)}</button>`).join('')}</div></section>
       <label class="f">Cân nặng mục tiêu (kg, không bắt buộc)<input id="uTarget" inputmode="decimal" value="${P.target ?? ''}" placeholder="VD: 52"></label>
       <div id="uInfo"></div>
+      ${ACCT && !ACCT.error ? `<div class="sub">Số ĐT đăng nhập: <b>${esc(ACCT.phone)}</b> · hồ sơ tự lưu lên máy chủ</div>` : `<button class="btn block" type="button" data-act="acct">📱 ${first ? 'Đã có tài khoản? ' : ''}Đăng nhập bằng số ĐT (lấy lại hồ sơ khi đổi máy)</button>`}
       <button class="btn primary block" id="uSave">${first ? 'Bắt đầu' : 'Lưu hồ sơ'}</button>
       ${first ? '<button class="btn block" id="uSkip">Để sau</button>' : ''}
       <button class="btn ghost block" data-act="help">Hướng dẫn sử dụng app</button>`, (root) => {
@@ -3074,6 +3076,88 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       };
     });
   }
+
+  // ================= TÀI KHOẢN SỐ ĐT + PIN (tự lưu hồ sơ lên máy chủ, đổi máy đăng nhập là lấy lại) =================
+  var ACCT_KEY = 'nkt.acct';
+  var ACCT = (() => { try { return JSON.parse(localStorage.getItem(ACCT_KEY) || 'null'); } catch { return null; } })();
+  const setAcct = (a) => { ACCT = a; try { a ? localStorage.setItem(ACCT_KEY, JSON.stringify(a)) : localStorage.removeItem(ACCT_KEY); } catch { /* ignore */ } };
+  const normPhone = (p) => { let d = String(p || '').replace(/\D/g, ''); if (d.startsWith('84') && d.length >= 11) d = '0' + d.slice(2); return /^0\d{8,10}$/.test(d) ? d : null; };
+  var cloudT = null, cloudBusy = false;
+  function cloudSaveSoon() { if (!ACCT || ACCT.error) return; clearTimeout(cloudT); cloudT = setTimeout(cloudSave, 4000); }
+  async function cloudSave(manual) {
+    if (!ACCT || cloudBusy) return;
+    cloudBusy = true;
+    try {
+      const r = await api('acct-save', { role: 't', phone: ACCT.phone, key: ACCT.key, data: JSON.stringify(D) });
+      setAcct({ ...ACCT, savedAt: r.savedAt, error: null });
+      if (manual) toast('Đã lưu hồ sơ lên máy chủ');
+    } catch (e) {
+      if (e.status === 401) setAcct({ ...ACCT, error: 'Phiên đăng nhập đã hết. Hãy đăng nhập lại bằng số ĐT và PIN.' });
+      if (manual) toast(e.message || 'Chưa lưu được (mất mạng?)');
+    } finally { cloudBusy = false; }
+  }
+  const hasLocalData = () => D.workouts.length + D.journal.length + (D.meals || []).length + (D.pt || []).length > 0;
+  function restoreFrom(json) {
+    const d = Object.assign(blank(), JSON.parse(json));
+    d.settings = Object.assign(blank().settings, d.settings); d.profile = Object.assign(blank().profile, d.profile);
+    D = d; save();
+  }
+  async function acctLogin(phone, pin) {
+    const j = await api('acct-login', { role: 't', phone, pin });
+    setAcct({ phone: j.phone, key: j.key, savedAt: j.savedAt, error: null });
+    return j;
+  }
+  async function restoreCloud() {
+    const r = await api('acct-load', { role: 't', phone: ACCT.phone, key: ACCT.key });
+    if (r.data) { restoreFrom(r.data); D.profile.phone = ACCT.phone; save(); }
+  }
+  // Ô nhập số ĐT + PIN (dùng trong màn đăng nhập và màn kết nối HLV)
+  const acctFields = (prefix) => `<div class="f2"><label class="f">Số ĐT của bạn<input id="${prefix}Phone" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0912345678" value="${esc(D.profile.phone || '')}"></label>
+      <label class="f">PIN 4 số<input id="${prefix}Pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></label></div>
+      <div class="sub">Lần đầu: PIN bạn nhập sẽ là PIN của bạn, nhớ lại để đăng nhập máy khác. Quên PIN thì nhờ HLV đặt lại.</div>`;
+  async function loginFrom(root, prefix) {
+    const phone = normPhone($('#' + prefix + 'Phone', root).value), pin = $('#' + prefix + 'Pin', root).value.trim();
+    if (!phone) { toast('Số điện thoại chưa đúng (VD 0912345678).'); return null; }
+    if (!/^\d{4}$/.test(pin)) { toast('PIN gồm 4 chữ số.'); return null; }
+    return acctLogin(phone, pin);
+  }
+  function acctSheet() {
+    if (ACCT && !ACCT.error) {
+      openSheet(`${sheetHead('Tài khoản')}
+        <div class="card"><div class="card-title">Đã đăng nhập: ${esc(ACCT.phone)}</div>
+          <div class="sub">Hồ sơ, nhật ký, cân nặng, bữa ăn tự lưu lên máy chủ${ACCT.savedAt ? ' · lần gần nhất ' + esc(new Date(ACCT.savedAt).toLocaleString('vi-VN')) : ''}. Đổi máy: đăng nhập đúng số ĐT + PIN là lấy lại. Ảnh/video vẫn chỉ nằm trên máy này.</div>
+          <div class="row"><button class="btn sm primary" id="aSave">Lưu ngay</button><button class="btn sm" id="aOut">Đăng xuất</button></div></div>`, (root) => {
+        $('#aSave', root).onclick = () => cloudSave(true);
+        $('#aOut', root).onclick = () => { setAcct(null); closeSheet(); toast('Đã đăng xuất. Dữ liệu trên máy vẫn giữ nguyên.'); render(); };
+      });
+      return;
+    }
+    openSheet(`${sheetHead('Đăng nhập bằng số ĐT')}
+      <p class="sub" style="margin:0">Đăng nhập để hồ sơ tự lưu lên máy chủ. Đổi máy chỉ cần đăng nhập lại đúng số ĐT + PIN là lấy lại hồ sơ, không cần tệp sao lưu.</p>
+      ${acctFields('a')}
+      <button class="btn primary block" id="aGo">Đăng nhập</button><div id="aChoice"></div>`, (root) => {
+      $('#aGo', root).onclick = async (e) => {
+        const btn = e.target; btn.disabled = true; btn.textContent = 'Đang đăng nhập…';
+        try {
+          const j = await loginFrom(root, 'a');
+          if (!j) { btn.disabled = false; btn.textContent = 'Đăng nhập'; return; }
+          D.profile.phone = j.phone;
+          if (j.hasData && hasLocalData()) {
+            btn.hidden = true;
+            $('#aChoice', root).innerHTML = `<div class="confirm" style="background:var(--info-bg);color:var(--ink)">Máy này đã có dữ liệu, và máy chủ cũng có hồ sơ của số ${esc(j.phone)}${j.savedAt ? ' (lưu lúc ' + esc(new Date(j.savedAt).toLocaleString('vi-VN')) + ')' : ''}. Bạn muốn dùng bản nào?
+              <button class="btn primary block" id="aUseCloud">Lấy hồ sơ trên máy chủ (thay dữ liệu máy này)</button>
+              <button class="btn block" id="aUseLocal">Giữ dữ liệu máy này (lưu đè lên máy chủ)</button></div>`;
+            $('#aUseCloud', root).onclick = async () => { await restoreCloud(); closeSheet(); toast('Đã lấy lại hồ sơ'); render(); };
+            $('#aUseLocal', root).onclick = async () => { save(); await cloudSave(true); closeSheet(); render(); };
+            return;
+          }
+          if (j.hasData) { await restoreCloud(); toast('Đã đăng nhập và lấy lại hồ sơ'); }
+          else { save(); await cloudSave(); toast(j.created ? 'Đã tạo tài khoản. Hồ sơ sẽ tự lưu lên máy chủ.' : 'Đã đăng nhập'); }
+          closeSheet(); render();
+        } catch (err) { toast(err.message); btn.disabled = false; btn.textContent = 'Đăng nhập'; }
+      };
+    });
+  }
   function linkSheet() {
     const L = D.link;
     openSheet(`${sheetHead(L ? 'Kết nối với HLV' : 'Nhập mã HLV')}
@@ -3082,9 +3166,14 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           ${L.error ? `<div class="sub" style="color:var(--danger)">${esc(L.error)}</div>` : ''}
           <div class="row"><button class="btn sm primary" id="lSync">Đồng bộ ngay</button></div></div>
         <p class="sub" style="margin:0">HLV đổi mã hoặc bạn đổi điện thoại? Nhập mã mới bên dưới.</p>` : `
-        <ol class="steps"><li>Nhờ HLV mở <b>Sổ HLV</b> → học viên (bạn) → tab <b>Hồ sơ</b> → <b>Tạo mã kết nối</b>.</li><li>Nhập mã 8 ký tự HLV gửi (VD: K7QP-3XMA).</li></ol>`}
+        <ol class="steps"><li>HLV ghi <b>số ĐT của bạn</b> trong hồ sơ học viên ở Sổ HLV.</li><li>Bạn nhập <b>số ĐT của HLV</b> bên dưới. App so khớp 2 số ĐT và tự kết nối.</li></ol>`}
+      <section><h3>Kết nối bằng số ĐT HLV</h3>
+        ${ACCT && !ACCT.error ? `<div class="sub">Số ĐT của bạn: <b>${esc(ACCT.phone)}</b></div>` : acctFields('l')}
+        <label class="f">Số ĐT của HLV<input id="lCoachPhone" inputmode="tel" maxlength="15" placeholder="VD: 0987654321" value="${esc((L && L.coachPhone) || '')}"></label>
+        <button class="btn primary block" id="lPhoneGo">Kết nối</button></section>
+      <details class="tips"><summary>Hoặc nhập mã kết nối HLV gửi</summary><div class="in">
       <label class="f">Mã kết nối<input id="lCode" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VD: K7QP-3XMA" style="text-transform:uppercase;letter-spacing:.12em;font-weight:700"></label>
-      <button class="btn ${L ? '' : 'primary'} block" id="lGo">${L ? 'Kết nối bằng mã mới' : 'Kết nối'}</button>
+      <button class="btn block" id="lGo">${L ? 'Kết nối bằng mã mới' : 'Kết nối bằng mã'}</button></div></details>
       <div class="sub">Khi kết nối, hồ sơ, cân nặng và các buổi tập của bạn được gửi lên máy chủ đồng bộ để HLV xem. HLV gửi bài tập về app của bạn.</div>
       ${L ? '<button class="btn danger block" id="lOff">Ngắt kết nối với HLV</button><div id="lConfirm"></div>' : ''}`, (root) => {
       $('#lGo', root).onclick = async (e) => {
@@ -3098,6 +3187,25 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           save(); closeSheet(); toast(`Đã kết nối với HLV ${j.coachName || ''}`);
           await syncNow(false); render();
         } catch (err) { toast(err.message); e.target.disabled = false; e.target.textContent = L ? 'Kết nối bằng mã mới' : 'Kết nối'; }
+      };
+      $('#lPhoneGo', root).onclick = async (e) => {
+        const coachPhone = normPhone($('#lCoachPhone', root).value);
+        if (!coachPhone) { toast('Số ĐT HLV chưa đúng (VD 0987654321).'); return; }
+        const btn = e.target; btn.disabled = true; btn.textContent = 'Đang kết nối…';
+        try {
+          if (!ACCT || ACCT.error) {
+            const j = await loginFrom(root, 'l');
+            if (!j) { btn.disabled = false; btn.textContent = 'Kết nối'; return; }
+            D.profile.phone = j.phone;
+            if (j.hasData && !hasLocalData()) await restoreCloud();
+          }
+          if (ACCT && coachPhone === ACCT.phone) { toast('Đây là số ĐT của bạn. Hãy nhập số ĐT của HLV.'); btn.disabled = false; btn.textContent = 'Kết nối'; return; }
+          const traineeKey = randKey();
+          const r = await api('phone-claim', { phone: ACCT.phone, key: ACCT.key, coachPhone, traineeKey });
+          D.link = { pairId: r.pairId, traineeKey, coachName: r.coachName, clientName: r.clientName, coachPhone, linkedAt: new Date().toISOString(), lastSync: null, error: null };
+          save(); closeSheet(); toast(`Đã kết nối với HLV ${r.coachName || ''}`);
+          await syncNow(false); render();
+        } catch (err) { toast(err.message); btn.disabled = false; btn.textContent = 'Kết nối'; }
       };
       const sy = $('#lSync', root); if (sy) sy.onclick = async () => { await syncNow(true); closeSheet(); };
       const off = $('#lOff', root);
@@ -3129,6 +3237,9 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         <div class="list">${PROGRAMS.map((p) => `<button class="pick" type="button" data-prog="${p.id}" aria-pressed="${D.program.id === p.id}"><span class="box">${D.program.id === p.id ? '✓' : ''}</span><span class="grow"><b>${esc(p.name)}</b><br><span class="sub">${esc(p.desc)}</span></span></button>`).join('')}</div></section>
       <section><h3>Thời gian nghỉ giữa hiệp</h3>
         <div class="seg" id="restSeg">${[60, 90, 120, 180].map((s) => `<button type="button" data-s="${s}" aria-pressed="${D.settings.rest === s}">${s}s</button>`).join('')}</div></section>
+      <section><h3>Tài khoản</h3>
+        <p class="sub" style="margin:0">${ACCT && !ACCT.error ? `Đã đăng nhập số <b>${esc(ACCT.phone)}</b>. Hồ sơ tự lưu lên máy chủ.` : ACCT && ACCT.error ? esc(ACCT.error) : 'Đăng nhập bằng số ĐT + PIN để hồ sơ tự lưu lên máy chủ; đổi máy đăng nhập lại là có hồ sơ.'}</p>
+        <button class="btn sm" data-act="acct">${ACCT && !ACCT.error ? 'Tài khoản' : '📱 Đăng nhập bằng số ĐT'}</button></section>
       <section><h3>Sao lưu</h3>
         <p class="sub" style="margin:0">Dữ liệu nằm trong trình duyệt của điện thoại này. Tải tệp sao lưu mỗi tuần và cất lên Drive/Zalo để không mất khi đổi máy.
           ${D.settings.lastBackup ? `Lần sao lưu gần nhất: ${esc(new Date(D.settings.lastBackup).toLocaleDateString('vi-VN'))}.` : 'Bạn chưa sao lưu lần nào.'}
@@ -3213,6 +3324,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       case 'help': closeSheet(); helpSheet(el.dataset.sec); break;
       case 'backup-now': doExport(); break;
       case 'link': closeSheet(); linkSheet(); break;
+      case 'acct': closeSheet(); acctSheet(); break;
       case 'routine': startRoutine(id); break;
       case 'food-day': { const base = S.foodDate || today(); const nd = addDays(base, Number(el.dataset.d)); if (nd <= today()) { S.foodDate = nd; render(); } break; }
       case 'meal-new': mealSheet(null, null); break;
