@@ -291,6 +291,10 @@ details.wgroup summary span:first-child { flex: 1; }
 .mtile img, .mtile video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mtile .mstate { position: absolute; left: 4px; bottom: 4px; font-size: 10.5px; font-weight: 600; background: rgba(0,0,0,.6); color: #fff; padding: 1px 6px; border-radius: 6px; pointer-events: none; }
 .mtile .mx { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 16px; line-height: 1; }
+.media-sec { display: flex; flex-direction: column; gap: 8px; }
+label.add-media { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 50px; width: 100%; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 16px; cursor: pointer; }
+label.add-media:active { transform: scale(.98); }
+label.add-media input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; font-size: 0; }
 .media-box { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 /* Chuyển cảnh mượt */
 @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -1599,7 +1603,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.27 (15/11/2026)';
+  const APP_VERSION = '1.28 (15/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -1930,10 +1934,11 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       }))}
       ${A.items.length ? '' : '<div class="empty"><p>Chưa có bài nào. Bấm "+ Bài" để chọn từ thư viện.</p></div>'}
       <button class="btn block" data-act="add-ex">+ Thêm bài tập</button>
-      <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
-        <div class="sub">${D.link ? 'Nhờ bạn tập quay 10–20 giây một hiệp, HLV sẽ xem và sửa tư thế cho bạn.' : 'Lưu ảnh/video để tự xem lại tư thế. Kết nối HLV để gửi cho HLV xem.'}</div>
+      <section class="media-sec"><h2>Ảnh & video</h2>
+        <div class="sub">${D.link ? 'Quay 10–20 giây một hiệp, HLV sẽ xem và sửa tư thế cho bạn.' : 'Lưu ảnh/video để tự xem lại tư thế. Kết nối HLV để gửi cho HLV xem.'}</div>
         ${mediaTiles(mediaOf('workout', A.id), true)}
-        <label class="btn" style="position:relative;overflow:hidden">📷 Chụp ảnh / quay video<input type="file" accept="image/*,video/*" data-media-ref="workout:${esc(A.id)}" style="position:absolute;inset:0;opacity:0"></label></div>`;
+        <label class="add-media">+ Thêm ảnh/video<input type="file" accept="image/*,video/*" multiple data-media-ref="workout:${esc(A.id)}"></label>
+        <div class="sub">Chọn nhiều ảnh/video từ thư viện, hoặc chụp/quay mới.${D.link ? ' Tệp tự gửi HLV khi có mạng.' : ''}</div></section>`;
   }
   document.addEventListener('input', (e) => {
     const el = e.target;
@@ -2125,10 +2130,11 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       }).join('')}</div>
       ${(w.coachMedia || []).length ? `<div class="media-box"><b>Ảnh/video HLV gửi</b>${coachTiles(w.coachMedia)}</div>` : ''}
       <label class="f">Nhật ký buổi này<textarea id="wNote">${esc(w.note)}</textarea></label>
-      <div class="media-box"><b>Ảnh/video tư thế${D.link ? ' gửi HLV' : ''}</b>
+      <section class="media-sec"><h2>Ảnh & video</h2>
         ${mediaTiles(mediaOf('workout', w.id), true).replace(/data-act="media-del"/g, `data-act="media-del" data-w="${esc(w.id)}"`)}
         ${(D.feedback || {})[w.id] ? `<div class="fb">HLV: ${richNote(D.feedback[w.id])}</div>` : ''}
-        <label class="btn sm" style="position:relative;overflow:hidden">📷 Thêm ảnh / video<input type="file" accept="image/*,video/*" data-media-ref="workout:${esc(w.id)}" style="position:absolute;inset:0;opacity:0"></label></div>
+        <label class="add-media">+ Thêm ảnh/video<input type="file" accept="image/*,video/*" multiple data-media-ref="workout:${esc(w.id)}"></label>
+        <div class="sub">Chọn nhiều ảnh/video từ thư viện, hoặc chụp/quay mới.${D.link ? ' Tệp tự gửi HLV khi có mạng.' : ''}</div></section>
       <button class="btn primary block" id="wSave">Lưu nhật ký</button>
       <button class="btn block" id="wAgain">Tập lại buổi này</button>
       <button class="btn danger block" id="wDel">Xoá buổi tập</button><div id="wConfirm"></div>`, (root) => {
@@ -2413,7 +2419,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       'Bấm biểu tượng mục tiêu ở góc trên để nhập kcal và đạm HLV tính riêng cho bạn.',
     ] },
     { id: 'media', t: 'Gửi ảnh/video tư thế cho HLV', s: [
-      'Trong lúc tập, kéo xuống cuối trang → "Chụp ảnh / quay video". Hoặc mở buổi đã tập trong Nhật ký → "Thêm ảnh / video".',
+      'Trong lúc tập, kéo xuống cuối trang → mục "Ảnh & video" → "+ Thêm ảnh/video" (chọn được nhiều tệp). Hoặc mở buổi đã tập trong Nhật ký → "+ Thêm ảnh/video".',
       'Video nên ngắn 10–20 giây (tối đa 18 MB), quay ngang người để HLV thấy rõ tư thế.',
       'Tệp tự gửi HLV khi có mạng. Ảnh/video nằm trong điện thoại, không có trong tệp sao lưu.',
     ] },
@@ -3057,7 +3063,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         <div class="scale" id="qFeel">${FEEL.map((l, i) => `<button type="button" data-v="${i + 1}" aria-pressed="false"><b>${i + 1}</b>${l}</button>`).join('')}</div></section>
       <label class="f">Nhật ký (cảm giác, kỹ thuật, điều chỉnh lần sau)<textarea id="qNote"></textarea></label>
       <section><h3>Ảnh/video buổi tập${D.link ? ' (gửi HLV)' : ''}</h3>
-        <label class="btn block" style="position:relative;overflow:hidden">📷 Chọn ảnh / video<input id="qFiles" type="file" accept="image/*,video/*" multiple style="position:absolute;inset:0;opacity:0"></label>
+        <label class="add-media">+ Thêm ảnh/video<input id="qFiles" type="file" accept="image/*,video/*" multiple></label>
         <div class="sub" id="qFilesInfo">Chọn từ thư viện ảnh hoặc chụp/quay mới. Có thể bỏ qua.</div></section>
       <button class="btn primary block" id="qSave">Lưu buổi đã tập</button>`, (root) => {
       const picked = new Set(specs.map((_, i) => i));
