@@ -813,7 +813,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     }
   }
   // Ảnh bìa nhỏ (khung ở giây 0,5) để lưới không phải mở cả video nặng
-  async function makePoster(file) {
+  async function makePoster(file, maxSide = 360) {
     const url = URL.createObjectURL(file);
     const v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
@@ -826,7 +826,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         setTimeout(() => fin(v.readyState >= 2), 4000);
       });
       if (!got || v.readyState < 2) return null;
-      const sc = Math.min(1, 360 / Math.max(v.videoWidth || 360, v.videoHeight || 360));
+      const sc = Math.min(1, maxSide / Math.max(v.videoWidth || maxSide, v.videoHeight || maxSide));
       const c = document.createElement('canvas');
       c.width = Math.max(2, Math.round((v.videoWidth || 360) * sc)); c.height = Math.max(2, Math.round((v.videoHeight || 360) * sc));
       c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
@@ -1355,12 +1355,12 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         <section><div class="row between"><h2>Ảnh & video</h2><span class="muted small" id="upState"></span></div>
           <div class="grid" id="mediaGrid"></div>
           ${S.assets ? `<label class="btn block file-btn">+ Thêm ảnh/video<input id="sFiles" type="file" accept="image/*,video/*" multiple></label>
-            <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video giữ nguyên chất lượng; chỉ khi gửi cho học viên mà video trên 18 MB thì app nén một bản sao để gửi (giữ màn hình mở lúc đồng bộ).</p>`
+            <p class="muted small" style="margin:0">Ảnh được nén còn khoảng 1600px. Video giữ nguyên chất lượng trong sổ. Khi gửi học viên: ảnh được nén nhẹ, video chỉ gửi ảnh khung đầu để tiết kiệm dung lượng.</p>`
             : '<p class="muted small" style="margin:0">Chỉ chủ sổ hoặc người có quyền sửa mới tải được ảnh/video.</p>'}
         </section>
         ${f.fromTrainee ? '' : (() => { const c2 = clientById(f.clientId); return `<section><h2>Gửi sang app học viên</h2>
           <label class="tick"><input type="checkbox" id="sSend" ${f.sendApp !== false ? 'checked' : ''}> Gửi giáo án buổi này cho học viên</label>
-          <label class="tick"><input type="checkbox" id="sShare" ${f.shareMedia ? 'checked' : ''}> Cho học viên xem ảnh/video của buổi này</label>
+          <label class="tick"><input type="checkbox" id="sShare" ${f.shareMedia ? 'checked' : ''}> Cho học viên xem ảnh của buổi này (video gửi ảnh khung đầu)</label>
           <p class="muted small" style="margin:0">${c2 && c2.link ? 'Khi đồng bộ, buổi đã tích sẽ hiện trong buổi tập của học viên (kèm ảnh/video nếu tích ô thứ hai).' : 'Học viên chưa nối app: vào học viên → Hồ sơ → Tạo mã kết nối.'}</p></section>`; })()}
         <button class="btn primary block" type="submit" id="sSave">Lưu buổi tập</button>
         ${!isNew ? '<button class="btn danger block" type="button" id="sDelete">Xoá buổi tập</button><div id="sConfirm"></div>' : ''}
@@ -1807,32 +1807,44 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   function sharedMediaOf(s) {
     if (!s.shareMedia) return [];
     const shared = { ...(s.shared || {}), ...(sharedCache[s.id] || {}) };
-    return (s.media || []).filter((m) => !m.fromTrainee && shared[m.id]).map((m) => ({ id: shared[m.id].sid, kind: m.kind, mime: shared[m.id].mime, chunks: shared[m.id].chunks }));
+    return (s.media || []).filter((m) => !m.fromTrainee && shared[m.id]).map((m) => ({ id: shared[m.id].sid, kind: shared[m.id].kind || m.kind, fromVideo: Boolean(shared[m.id].fromVideo), mime: shared[m.id].mime, chunks: shared[m.id].chunks }));
   }
   async function blobOf(id) {
     if (S.mode === 'cloud') { const r = await fetch('/_blob/' + encodeURIComponent(id)); if (!r.ok) throw new Error('blob'); return r.blob(); }
     const rec = await S.assets.get(id); if (!rec) throw new Error('blob'); return rec.blob;
   }
   const toB64 = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
+  // Ảnh gửi học viên: thu nhỏ còn 1280px, JPEG 0,75 cho nhẹ dung lượng máy chủ
+  async function lightImage(blob) {
+    try {
+      const bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      const sc = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * sc); c.height = Math.round(bmp.height * sc);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const out = await new Promise((res) => c.toBlob(res, 'image/jpeg', 0.75));
+      return out && out.size < blob.size ? out : blob;
+    } catch { return blob; }
+  }
   async function shareSessionMedia(c) {
     const started = Date.now();
     let tooBig = 0, more = false;
     for (const s of sessionsOf(c.id).filter((x) => x.shareMedia && x.sendApp !== false && !x.fromTrainee)) {
       const shared = { ...(s.shared || {}), ...(sharedCache[s.id] || {}) };
       let changed = false;
-      for (const m of (s.media || []).filter((x) => !x.fromTrainee && !shared[x.id])) {
+      for (const m of (s.media || []).filter((x) => !x.fromTrainee && (!shared[x.id] || /^video\//.test(shared[x.id].mime || '')))) {
         if (Date.now() - started > 90000) { more = true; break; }
         let blob;
         try { blob = await blobOf(m.id); } catch { continue; }
-        if (blob.size > 18 * 1024 * 1024) {
-          // chỉ nén bản sao để gửi; video gốc trong sổ giữ nguyên
-          const r = m.kind === 'video' && canShrinkVideo() ? await shrinkVideo(blob, (p) => toast(`Đang nén video gửi ${c.name}… ${p}%`)) : null;
-          if (!r || r.blob.size > 18 * 1024 * 1024) { tooBig++; continue; }
-          blob = r.blob;
-        }
+        const old = shared[m.id];
+        if (m.kind === 'video') {
+          // không gửi video: chỉ gửi ảnh khung đầu (to hơn ảnh bìa) cho học viên xem
+          blob = await makePoster(blob, 960);
+          if (!blob) { tooBig++; continue; }
+        } else blob = await lightImage(blob);
         const data = await toB64(blob), CH = 500 * 1024, total = Math.max(1, Math.ceil(data.length / CH)), sid = uid('h');
         for (let i = 0; i < total; i++) await api('coach-media-put', { pairId: c.link.pairId, coachKey: coachKey(), id: sid, idx: i, total, data: data.slice(i * CH, (i + 1) * CH) });
-        shared[m.id] = { sid, chunks: total, mime: blob.type || (m.kind === 'video' ? 'video/mp4' : 'image/jpeg') };
+        shared[m.id] = { sid, chunks: total, mime: blob.type || 'image/jpeg', kind: 'image', fromVideo: m.kind === 'video' };
+        if (old && old.sid) api('coach-media-del', { pairId: c.link.pairId, coachKey: coachKey(), id: old.sid, chunks: old.chunks }).catch(() => {});
         changed = true;
       }
       if (changed) {
@@ -1841,7 +1853,7 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
         await write('sessions', s.id, { ...clean(cur), shared });
       }
     }
-    if (tooBig) toast(`${tooBig} video quá nặng, chưa nén được để gửi ${c.name}. Hãy cắt ngắn hơn (15–30 giây).`);
+    if (tooBig) toast(`${tooBig} video chưa lấy được ảnh khung để gửi ${c.name}. Thử mở buổi đó trên máy này rồi đồng bộ lại.`);
     if (more) setTimeout(() => pushPlans(c.id).catch(() => {}), 1500); // còn tệp chưa gửi: gửi tiếp
   }
   function plansFor(clientId) {

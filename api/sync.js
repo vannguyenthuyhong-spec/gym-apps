@@ -202,6 +202,14 @@ const actions = {
     await store(['SET', `cmedia:${b.pairId}:${b.id}:${b.idx}`, b.data, 'EX', COACH_MEDIA_TTL]);
     return { ok: true };
   },
+  // HLV xoá tệp đã gửi (VD video cũ được thay bằng ảnh khung đầu cho nhẹ)
+  async 'coach-media-del'(b) {
+    await asCoach(b);
+    if (!isId(b.id)) throw new HttpError(400, 'bad_request', 'Tệp không hợp lệ');
+    const n = Math.min(MAX_CHUNKS, Number(b.chunks) || 0);
+    if (n) await store(...Array.from({ length: n }, (_, i) => ['DEL', `cmedia:${b.pairId}:${b.id}:${i}`]));
+    return { ok: true };
+  },
   // Học viên tải một khúc ảnh/video HLV gửi
   async 'coach-media-get'(b) {
     await asTrainee(b);

@@ -1618,7 +1618,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.24 (15/11/2026)';
+  const APP_VERSION = '1.25 (15/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
@@ -2916,7 +2916,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     const waiting = all.filter((m) => !(D.coachMediaHave || {})[m.id]).length;
     return (ok.length ? `<div class="mgrid">${ok.map((m) => `<div class="mtile">${m.kind === 'video'
       ? `<video data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" controls playsinline preload="metadata"></video>`
-      : `<img data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" alt="Ảnh HLV gửi" data-act="cm-view" data-id="cm-${esc(m.id)}">`}</div>`).join('')}</div>` : '')
+      : `<img data-mid="cm-${esc(m.id)}" src="${mediaSrc('cm-' + m.id)}" alt="Ảnh HLV gửi" data-act="cm-view" data-id="cm-${esc(m.id)}">${m.fromVideo ? '<span class="mstate">Ảnh từ video</span>' : ''}`}</div>`).join('')}</div>` : '')
       + (waiting ? `<div class="sub">Đang tải ${waiting} ảnh/video HLV gửi… (cần mạng, bấm Đồng bộ)</div>` : '');
   }
 
