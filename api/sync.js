@@ -286,6 +286,25 @@ const actions = {
     await store(['SET', `cmedia:${b.pairId}:${b.id}:${b.idx}`, b.data, 'EX', COACH_MEDIA_TTL]);
     return { ok: true };
   },
+  // HLV dọn toàn bộ ảnh/video tạm của một kết nối trên máy chủ (giải phóng dung lượng; không đụng tài khoản, lịch tập)
+  async 'coach-media-purge'(b) {
+    await asCoach(b);
+    let deleted = 0;
+    for (const pat of [`media:${b.pairId}:*`, `cmedia:${b.pairId}:*`]) {
+      let cursor = '0', rounds = 0;
+      do {
+        const [res] = await store(['SCAN', cursor, 'MATCH', pat, 'COUNT', 1000]);
+        cursor = String((res && res[0]) || '0');
+        const keys = (res && res[1]) || [];
+        for (let i = 0; i < keys.length; i += 200) {
+          const part = keys.slice(i, i + 200);
+          if (part.length) { await store(['DEL', ...part]); deleted += part.length; }
+        }
+      } while (cursor !== '0' && ++rounds < 200);
+    }
+    try { await store(['SET', `pair:${b.pairId}:media`, JSON.stringify({ items: [], at: new Date().toISOString() })]); } catch { /* máy chủ đầy: xoá xong là đủ */ }
+    return { deleted };
+  },
   // HLV xoá tệp đã gửi (VD video cũ được thay bằng ảnh khung đầu cho nhẹ)
   async 'coach-media-del'(b) {
     await asCoach(b);

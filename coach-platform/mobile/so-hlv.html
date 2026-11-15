@@ -1055,7 +1055,11 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
   function drawClients(v) {
     header(`${activeClients().length} học viên`, 'Học viên', canWrite() ? `<button class="btn primary small" data-act="new-client">+ Học viên</button>` : '', false);
     const all = [...S.clients].sort((a, b) => (a.archived === b.archived ? a.name.localeCompare(b.name, 'vi') : a.archived ? 1 : -1));
-    const backup = coachAcctCard() + (S.mode !== 'local' ? '' : `
+    const purgeCard = !S.clients.some((c) => c.link) ? '' : `
+      <section><h2>Dung lượng máy chủ</h2><div class="card">
+        <div class="card-sub">Máy chủ đồng bộ (Upstash) giữ tạm ảnh/video giữa HLV và học viên. Nếu báo đầy, bấm dọn: xoá toàn bộ ảnh/video tạm trên máy chủ của tất cả học viên. <b>Không xoá</b> tài khoản, hồ sơ, lịch tập, kết nối, và ảnh/video đã lưu trong sổ trên máy này.</div>
+        <div class="row"><button class="btn small danger" data-act="media-purge">🧹 Dọn ảnh/video trên máy chủ</button></div><div id="purgeBox"></div></div></section>`;
+    const backup = coachAcctCard() + purgeCard + (S.mode !== 'local' ? '' : `
       <section><h2>Sao lưu</h2>
         <div class="card">
           <div class="card-sub">Dữ liệu đang lưu trên điện thoại này. Hãy sao lưu mỗi tuần và giữ tệp ở Drive/Zalo, để không mất dữ liệu khi đổi máy hoặc xoá dữ liệu trình duyệt. Tệp sao lưu không gồm ảnh/video.</div>
@@ -2037,6 +2041,24 @@ label.tick input { width: 22px; height: 22px; accent-color: var(--accent); flex:
     if (act === 'ctab') { S.clientTab = el.dataset.tab; render(); return; }
     if (act === 'open-session') { const s = S.sessions.find((x) => x.id === el.dataset.id); if (s) sessionSheet(s); return; }
     if (act === 'export') { exportBackup(); return; }
+    if (act === 'media-purge') {
+      $('#purgeBox').innerHTML = `<div class="confirm" style="margin-top:8px">Xoá toàn bộ ảnh/video tạm trên máy chủ của ${S.clients.filter((c) => c.link).length} học viên? Ảnh/video học viên gửi mà bạn chưa mở sổ để tải về sẽ mất. Ảnh HLV gửi học viên sẽ được gửi lại dạng ảnh nhẹ ở lần đồng bộ sau.
+        <div class="row"><button class="btn small danger solid" data-act="media-purge-yes">Dọn ngay</button><button class="btn small" data-act="media-purge-no">Huỷ</button></div></div>`;
+      return;
+    }
+    if (act === 'media-purge-no') { $('#purgeBox').innerHTML = ''; return; }
+    if (act === 'media-purge-yes') {
+      el.disabled = true; el.textContent = 'Đang dọn…';
+      let total = 0, fail = 0;
+      for (const c of S.clients.filter((x) => x.link)) {
+        try { total += (await api('coach-media-purge', { pairId: c.link.pairId, coachKey: coachKey() })).deleted || 0; } catch { fail++; }
+        // buổi có tích "cho học viên xem": gửi lại dạng ảnh nhẹ lần sau
+        for (const ss of sessionsOf(c.id).filter((x) => x.shared && Object.keys(x.shared).length)) { delete sharedCache[ss.id]; await write('sessions', ss.id, { ...clean(ss), shared: {} }); }
+      }
+      $('#purgeBox').innerHTML = '';
+      toast(fail ? `Đã dọn ${total} phần, ${fail} học viên chưa dọn được (mất mạng?)` : `Đã dọn xong máy chủ (${total} phần ảnh/video)`);
+      render(); return;
+    }
     if (act === 'c-save') { el.disabled = true; await coachCloudSave(true); el.disabled = false; return; }
     if (act === 'c-logout') { setCAcct(null); toast('Đã đăng xuất. Sổ trên máy vẫn giữ nguyên.'); render(); return; }
     if (act === 'c-login') {
