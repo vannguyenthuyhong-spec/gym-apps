@@ -700,6 +700,15 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     { id: 'st-cobra', name: 'Rắn hổ mang (Cobra)', group: 'static', equip: 'Thảm', type: 'time', inc: 0,
       steps: ['Nằm sấp, hai tay đặt dưới vai.','Đẩy tay nâng ngực lên, hông vẫn chạm thảm, vai thả xa tai.','Giữ 15–30 giây, thở đều. Lưng dưới khó chịu thì hạ thấp hơn.'],
       mistakes: ['Ngửa cổ ra sau quá mức.','Nhấc hông khỏi thảm.'] },
+    { id: 'sumo-squat-jump', name: 'Sumo squat bật nhảy', group: 'glutes', equip: 'Không cần dụng cụ', type: 'reps', inc: 0,
+      steps: ['Đứng chân rộng hơn vai nhiều, mũi chân mở ra ngoài khoảng 45°, hai tay nắm trước ngực.', 'Ngồi sâu xuống, gối đi theo hướng mũi chân, lưng thẳng.', 'Bật nhảy thẳng lên, tiếp đất nhẹ bằng mũi chân rồi ngồi xuống ngay cho lần tiếp theo.'],
+      mistakes: ['Gối đổ vào trong khi ngồi hoặc khi tiếp đất.', 'Tiếp đất nặng bằng gót, khoá gối.', 'Gù lưng khi ngồi sâu.'] },
+    { id: 'walking-lunge', name: 'Lunge đi bộ cầm tạ (Walking Lunge)', group: 'legs', equip: 'Tạ đơn', type: 'weight', inc: 1,
+      steps: ['Hai tay cầm tạ đơn buông hai bên, đứng thẳng.', 'Bước dài một chân ra trước, hạ người đến khi gối sau gần chạm sàn, hai gối khoảng 90°.', 'Đạp gót chân trước đứng lên và bước luôn chân sau lên trước. Đi liên tục, mỗi bước tính 1 lần (ghi số lần mỗi chân).'],
+      mistakes: ['Gối trước đổ vào trong hoặc vượt xa mũi chân.', 'Ngả người ra trước, gù lưng.', 'Bước quá ngắn làm gót trước nhấc lên.'] },
+    { id: 'hip-adduction', name: 'Khép đùi trong máy (Hip Adduction)', group: 'legs', equip: 'Máy', type: 'weight', inc: 2.5,
+      steps: ['Ngồi lên máy, lưng tựa sát ghế, đặt mặt trong gối vào hai tấm đệm.', 'Khép hai chân vào giữa đến khi hai đệm gần chạm nhau, siết đùi trong 1 giây.', 'Mở chân ra chậm đến khi căng nhẹ đùi trong.'],
+      mistakes: ['Thả tạ rơi khi mở chân ra.', 'Nhấc lưng khỏi ghế để đẩy.', 'Mở chân quá rộng gây đau háng.'] },
     { id: 'band-overhead-rot', name: 'Xoay vai qua đầu với dây (Overhead Shoulder Rotations)', group: 'shoulders', equip: 'Dây kháng lực dài', type: 'reps', inc: 0,
       steps: ['Cầm dây thật rộng (rộng hơn vai nhiều), hai tay duỗi thẳng trước đùi.', 'Giữ tay thẳng, đưa dây lên qua đầu rồi ra sau lưng đến ngang mông.', 'Đưa ngược về trước là 1 lần. Đi chậm; thấy kẹt vai thì cầm rộng tay hơn.'],
       mistakes: ['Gập khuỷu tay để đưa qua được.', 'Ưỡn lưng, sườn bật ra trước.', 'Cầm dây quá hẹp gây đau vai.'] },
@@ -835,6 +844,9 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'st-triceps-overhead': { b: 'hold', c: ['Đầu thẳng, không cúi', 'Ấn nhẹ khuỷu tay', 'Bụng siết, không ưỡn'] },
     'st-side-bend': { b: 'hold', c: ['Nghiêng ngang, không gập trước', 'Vươn dài qua đầu', 'Thở vào bên sườn căng'] },
     'st-cobra': { b: 'hold', c: ['Hông chạm thảm', 'Vai thả xa tai', 'Nâng vừa đủ, không đau lưng'] },
+    'sumo-squat-jump': { b: 'cardio', c: ['Chân rộng, mũi chân mở 45°', 'Ngồi sâu, gối theo hướng mũi chân', 'Tiếp đất nhẹ bằng mũi chân rồi ngồi xuống ngay'] },
+    'walking-lunge': { b: 'lift', c: ['Bước dài vừa, gối trước theo mũi chân', 'Thân thẳng, tạ buông hai bên', 'Đạp gót chân trước để bước tiếp'] },
+    'hip-adduction': { b: 'lift', c: ['Lưng tựa sát ghế', 'Khép chậm, siết đùi trong 1 giây', 'Mở ra chậm, không thả tạ rơi'] },
     'band-overhead-rot': { b: 'hold', c: ['Tay thẳng, cầm dây thật rộng', 'Siết bụng, sườn không bật ra', 'Đi chậm, kẹt vai thì nới tay rộng hơn'] },
     'band-alt-rot': { b: 'hold', c: ['Tay thẳng, dây luôn căng', 'Bụng siết, thân không nghiêng', 'Đổi bên chậm và đều'] },
   };
@@ -904,7 +916,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
   const MUSCLE_NAMES = {
     chest: 'Ngực', delts: 'Vai trước/giữa', reardelts: 'Vai sau', biceps: 'Tay trước', triceps: 'Tay sau', forearms: 'Cẳng tay',
     abs: 'Cơ bụng', obliques: 'Cơ liên sườn', quads: 'Đùi trước', hamstrings: 'Đùi sau', glutes: 'Mông', calves: 'Bắp chân',
-    lats: 'Cơ xô', traps: 'Cơ thang', lowerback: 'Lưng dưới', neckf: 'Cơ cổ trước (gập cổ)', neckb: 'Cơ cổ sau (duỗi cổ)',
+    lats: 'Cơ xô', traps: 'Cơ thang', lowerback: 'Lưng dưới', adductors: 'Đùi trong', neckf: 'Cơ cổ trước (gập cổ)', neckb: 'Cơ cổ sau (duỗi cổ)',
   };
   const MUSCLES = {
     'goblet-squat': ['quads glutes', 'hamstrings abs'], 'back-squat': ['quads glutes', 'hamstrings lowerback abs'],
@@ -941,6 +953,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'st-hamstring': ['hamstrings', 'calves lowerback'], 'st-quad': ['quads', ''], 'st-hip-flexor': ['quads abs', 'glutes'], 'st-calf-wall': ['calves', 'hamstrings'],
     'st-child-pose': ['lowerback lats', 'glutes'], 'st-chest-doorway': ['chest', 'delts'], 'st-shoulder-cross': ['reardelts', 'traps'],
     'st-triceps-overhead': ['triceps', 'lats'], 'st-side-bend': ['lats obliques', ''], 'st-cobra': ['abs', 'lowerback chest'],
+    'sumo-squat-jump': ['glutes quads', 'adductors calves'], 'walking-lunge': ['quads glutes', 'hamstrings adductors calves'], 'hip-adduction': ['adductors', 'glutes'],
     'band-overhead-rot': ['delts reardelts', 'traps chest'], 'band-alt-rot': ['delts reardelts', 'lats traps'],
   };
   const GROUP_MUSCLES = { legs: 'quads', glutes: 'glutes', chest: 'chest', back: 'lats', shoulders: 'delts', arms: 'biceps triceps', core: 'abs', cardio: 'quads calves', neck: 'neckf neckb', dynamic: 'quads hamstrings', static: 'hamstrings' };
@@ -981,7 +994,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
       ['abs', 'M53 74C56 73 64 73 67 74L66 118C63 122 57 122 54 118Z', 1],
       ['obliques', 'M39 72C44 76 49 78 52 80L53 116C47 115 42 110 40 104C38 94 38 82 39 72Z'],
       ['quads', 'M37 132C42 128 50 130 55 140C58 152 57 172 55 190C53 198 50 204 46 204C41 202 39 194 38 182C36 166 35 148 37 132Z'],
-      ['', 'M56 146C58 150 59 156 59 162L57 176C56 164 55 154 56 146Z'],
+      ['adductors', 'M56 146C58 150 59 156 59 162L57 176C56 164 55 154 56 146Z'],
       ['calves', 'M41 210C43 207 47 209 48 214C48 224 46 234 44 240C42 236 40 226 40 218Z'],
     ],
   };
@@ -989,7 +1002,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     back: '<path d="M60 34V124M52 70C55 64 57 58 60 52M68 70C65 64 63 58 60 52M45 183V200M75 183V200" class="an-l"/>',
     front: '<path d="M54 84H66M54 94H66M54 104H66M60 74V120M55 33L59 41M65 33L61 41M46 150C47 165 47 180 46 196M74 150C73 165 73 180 74 196" class="an-l"/>',
   };
-  const AN_FRONT_SET = ['chest', 'delts', 'biceps', 'abs', 'obliques', 'quads', 'neckf'];
+  const AN_FRONT_SET = ['chest', 'delts', 'biceps', 'abs', 'obliques', 'quads', 'neckf', 'adductors'];
   const AN_BACK_SET = ['reardelts', 'triceps', 'lats', 'traps', 'lowerback', 'glutes', 'hamstrings', 'neckb'];
   function ensureAnatDefs() {
     if (document.getElementById('anOff')) return;
@@ -1321,6 +1334,16 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
     'st-cobra': { dur: 4000, props: [MAT], f: [
       { h: [96, 150], t: 68, hd: 55, ln: { th: -90, sh: -90 }, lf: { th: -91, sh: -91 }, an: { w: [146, 157], e: [-1, 0] } },
       { t: 72, hd: 58 }] },
+    'sumo-squat-jump': { v: 'front', dur: 1800, f: [
+      { h: [120, 112], t: 0, l: { a: [150, 156], k: [1, 0] }, a: { wr: [6, 12], e: [1, 0.4] } },
+      { h: [120, 74], l: { a: [146, 142], k: [1, 0] } }] },
+    'walking-lunge': { dur: 3000, props: [DB('wn'), DB('wf', { far: 1 })], f: [
+      { h: [98, 121], t: 3, ln: { a: [130, 156], toe: 90, k: [1, 0] }, lf: { a: [58, 150], toe: 125, k: [0, 1] }, an: { ua: 180, fa: 180 } },
+      { h: [110, 84], t: 0, ln: { a: [114, 156], toe: 90, k: [1, 0] }, lf: { a: [106, 156], toe: 90, k: [1, 0] } },
+      { h: [98, 121], t: 3, ln: { a: [58, 150], toe: 125, k: [0, 1] }, lf: { a: [130, 156], toe: 90, k: [1, 0] } }] },
+    'hip-adduction': { v: 'front', props: [{ k: 'rect', x: 90, y: 118, w: 60, h: 8, r: 3 }, { k: 'line', p: [120, 126, 120, 158], w: 6 }, { k: 'pad', at: 'kR', dx: -7, dy: 0 }, { k: 'pad', at: 'kL', dx: 7, dy: 0 }], f: [
+      { h: [120, 114], t: 0, l: { a: [154, 152], k: [1, 0] }, a: { w: [152, 122], e: [1, 0] } },
+      { l: { a: [127, 156], k: [1, 0] } }] },
     'band-alt-rot': { v: 'back', cycle: 1, dur: 3400, props: [{ k: 'band', pts: [{ j: 'wR' }, { j: 'wL' }] }], f: [
       { h: [120, 84], t: 0, l: { a: [129, 156], k: [1, 0] }, a: { ua: 28, fa: 28 }, aL: { ua: -28, fa: -28 } },
       { a: { ua: 100, fa: 100 } },
@@ -1448,7 +1471,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
           + shape('glutes', [[0.04, 0.08], [0.82, 0.04], [0.74, -0.34], [0.06, -0.32]])
         : shape('chest', [[0.06, 0.88], [0.82, 0.86], [0.8, 0.62], [0.1, 0.6]]) + shape('abs', [[-0.26, 0.56], [0.26, 0.56], [0.22, 0.14], [-0.22, 0.14]], false)
           + shape('obliques', [[0.34, 0.52], [0.58, 0.54], [0.66, 0.2], [0.4, 0.18]]) + shape('traps', [[0.12, 1.02], [0.55, 0.97], [0.2, 0.92]]));
-      const legF = (hp, k, a) => seg(hp, k, 14, 'bd') + seg(k, a, 10, 'bd')
+      const legF = (hp, k, a) => seg(hp, k, 14, 'bd') + seg(k, a, 10, 'bd') + mus('adductors', hp, k, 0.04, 0.55, hp[0] >= J.H[0] ? 1 : -1, 3.6, 2.4)
         + (back ? mus('hamstrings', hp, k, 0.12, 0.88, 0, 0, 4.4) + mus('calves', k, a, 0.08, 0.5, 0, 0, 3.6)
           : mus('quads', hp, k, 0.1, 0.9, 0, 0, 4.6) + mus('calves', k, a, 0.12, 0.48, 0, 0, 2.2))
         + `<ellipse cx="${nf(a[0])}" cy="${nf(a[1] + 2)}" rx="5" ry="3" class="bdfill"/>`;
@@ -1603,7 +1626,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.28 (15/11/2026)';
+  const APP_VERSION = '1.29 (18/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
