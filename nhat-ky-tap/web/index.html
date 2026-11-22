@@ -744,12 +744,12 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
         { name: 'Buổi B', items: [['leg-press', 3, 12], ['db-press', 3, 10], ['cable-row', 3, 10], ['glute-bridge', 3, 12], ['dead-bug', 3, 10]] },
         { name: 'Buổi C', items: [['db-lunge', 3, 8], ['chest-press', 3, 10], ['db-row', 3, 10], ['leg-curl', 3, 12], ['side-plank', 3, 20], ['incline-walk', 1, 10]] },
       ] },
-    { id: 'gain3', name: 'Tăng cân khoẻ · 3 buổi/tuần', place: 'Phòng gym', weeks: 12,
-      desc: 'Tăng cơ mông, đùi, lưng, vai để người đầy đặn và săn hơn. Tập 3 buổi/tuần, luân phiên A → B → C, nghỉ ít nhất 1 ngày giữa các buổi. Nghỉ 60–90 giây giữa hiệp, bài nặng 2 phút. Chọn tạ để hết hiệp còn làm thêm được 2–3 lần; đủ 12 lần ở mọi hiệp thì tăng 1–2,5 kg. Bấm Khởi động trước khi tập và Giãn cơ sau khi tập. Cardio: đi bộ 20 phút, tối đa 2 buổi/tuần. Đang có vết bầm không rõ nguyên nhân hoặc đau thì đi khám trước khi tập nặng.',
+    { id: 'gain3', name: 'Tăng cân khoẻ · T2–T4–T6', place: 'Phòng gym', weeks: 12,
+      desc: 'Tăng cơ mông, đùi, lưng, vai để người đầy đặn và săn hơn. Tập T2–T4–T6, hợp với người chơi pickleball T7–CN: T2 thân trên cho chân nghỉ, T4 mông đùi nặng nhất, T6 toàn thân nhẹ chân. Nghỉ 60–90 giây giữa hiệp, bài nặng 2 phút. Chọn tạ để hết hiệp còn làm thêm được 2–3 lần; đủ 12 lần ở mọi hiệp thì tăng 1–2,5 kg. Bấm Khởi động trước khi tập và Giãn cơ sau khi tập. Pickleball đã là cardio, không cần đi bộ thêm. Có vết bầm không rõ nguyên nhân hoặc đau thì đi khám trước khi tập nặng.',
       days: [
-        { name: 'Buổi A · Mông, đùi', items: [['hip-thrust', 3, 10], ['leg-press', 3, 10], ['rdl-db', 3, 10], ['hip-abduction', 2, 15], ['hip-adduction', 2, 15], ['dead-bug', 2, 10]] },
-        { name: 'Buổi B · Lưng, vai, ngực', items: [['lat-pulldown', 3, 10], ['chest-press', 3, 10], ['cable-row', 3, 10], ['db-press', 3, 10], ['face-pull', 2, 15], ['db-curl', 2, 12]] },
-        { name: 'Buổi C · Toàn thân', items: [['goblet-squat', 3, 10], ['db-row', 3, 10], ['bulgarian-split-squat', 2, 8], ['glute-bridge', 3, 12], ['lateral-raise', 2, 12], ['plank', 3, 30]] },
+        { name: 'T2 · Lưng, vai, ngực', items: [['lat-pulldown', 3, 10], ['chest-press', 3, 10], ['cable-row', 3, 10], ['db-press', 3, 10], ['face-pull', 2, 15], ['db-curl', 2, 12], ['dead-bug', 2, 10]] },
+        { name: 'T4 · Mông, đùi', items: [['hip-thrust', 3, 10], ['leg-press', 3, 10], ['rdl-db', 3, 10], ['bulgarian-split-squat', 2, 8], ['hip-abduction', 2, 15], ['hip-adduction', 2, 15]] },
+        { name: 'T6 · Toàn thân, nhẹ chân', items: [['glute-bridge', 3, 12], ['goblet-squat', 2, 10], ['db-row', 3, 10], ['lateral-raise', 2, 12], ['band-ext-rot', 2, 12], ['plank', 3, 30]] },
       ] },
     { id: 'home2', name: 'Người mới · Tại nhà không dụng cụ', place: 'Tại nhà', weeks: 6,
       desc: 'Tập 3–4 buổi/tuần, luân phiên A → B. Mỗi buổi khoảng 30 phút, nghỉ 60 giây giữa hiệp.',
@@ -1652,7 +1652,7 @@ svg.anat-thumb { width: 84px; height: auto; flex: none; border-radius: 12px; dis
 
   // ================= storage =================
   const KEY = 'nkt.v1', AKEY = 'nkt.active';
-  const APP_VERSION = '1.30 (22/11/2026)';
+  const APP_VERSION = '1.31 (22/11/2026)';
   const DEFAULT_PT = 'HongCam CamFit';
   const blank = () => ({ workouts: [], pt: [], journal: [], custom: [], program: { id: 'gym3', next: 0 },
     settings: { rest: 90, ptName: DEFAULT_PT, onboarded: false, lastBackup: null },
